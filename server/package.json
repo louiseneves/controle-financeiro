@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Servidor para o projeto Calculadora de Dízimo", 
+  "main": "server.js", 
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": { 
+   "express": "^4.21.2",
+  "body-parser": "^1.20.3",
+    "cors": "^2.8.5"
+},
+  "author": "Louise",
+  "license": "MIT"
+}

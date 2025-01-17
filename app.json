@@ -1,15 +1,18 @@
 {
   "expo": {
-    "name": "calculardizimo",
+    "name": "Controle Financeiro",
     "slug": "calculardizimo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icone_novo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icone_novo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
       "**/*"
@@ -18,13 +21,20 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.louiseneves.calculardizimo",
+      "versionCode": 19,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icone_novo.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0ace624d-53cf-43f4-a330-c64ff592ec9f"
+      }
     }
   }
 }

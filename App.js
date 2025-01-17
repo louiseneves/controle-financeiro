@@ -1,20 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import Navigation from './componente/Navigation';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <StripeProvider publishableKey="pk_test_51OD7zLHn21NxuraN8ywJbesaVTMhrD9yx04jL3oJohcZMOh9DAXBKwjD0xtZ7X0BYn5eSyPcjMwG3YOt3lKL572r00UJnJUVCM">
+      <Navigation />
+    </StripeProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
