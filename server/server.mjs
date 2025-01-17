@@ -2,7 +2,7 @@ import express from 'express';
 import stripe from 'stripe';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { db, doc, updateDoc, collection, query, where, getDocs } from '../componente/Firebase.js'; // Certifique-se de que o caminho está correto
+import { db, doc, updateDoc, collection, query, where, getDocs } from './Firebase.js' // Certifique-se de que o caminho está correto
 
 // Inicialização do Stripe e Express
 const app = express();
