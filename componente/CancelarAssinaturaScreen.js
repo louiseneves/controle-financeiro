@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { auth } from './Firebase'; // Certifique-se de importar corretamente o `auth`
 export default function CancelarAssinaturaScreen({ navigation }) {
   const [loading, setLoading] = useState(false);

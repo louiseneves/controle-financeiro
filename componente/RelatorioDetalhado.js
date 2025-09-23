@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Platform } from 'react-native';
 import { db, collection, getDocs, deleteDoc, doc } from './Firebase';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';

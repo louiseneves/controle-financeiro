@@ -87,14 +87,27 @@ app.post('/cancelar-assinatura', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Usuário não encontrado.' });
     }
 
-    const userDocRef = querySnapshot.docs[0].ref;
+    // Pega o documento do usuário
+    const userDoc = querySnapshot.docs[0];
+    const userDocRef = userDoc.ref;
+    const userData = userDoc.data();
+
+    if (!userData.subscriptionId) {
+      return res.status(400).json({ success: false, message: 'Usuário não possui assinatura ativa no Stripe.' });
+    }
+
+    // Cancela a assinatura no Stripe
+    console.log(`Cancelando assinatura no Stripe: ${userData.subscriptionId}`);
+    await stripe.subscriptions.cancel(userData.subscriptionId);
+
+    // Atualiza Firestore
     console.log(`Removendo status premium do usuário: ${userDocRef.id}`);
-    await updateDoc(userDocRef, { isPremium: false });
+    await updateDoc(userDocRef, { isPremium: false, subscriptionId: null });
 
     console.log('Assinatura cancelada com sucesso.');
     res.json({ success: true, message: 'Assinatura cancelada com sucesso.' });
   } catch (error) {
-    console.error('Erro ao cancelar assinatura no Firestore:', error.message);
+    console.error('Erro ao cancelar assinatura:', error.message);
     res.status(500).json({
       success: false,
       message: 'Erro ao cancelar assinatura.',
@@ -102,6 +115,7 @@ app.post('/cancelar-assinatura', async (req, res) => {
     });
   }
 });
+
 app.post('/cancelar-renovacao', async (req, res) => {
   const { subscriptionId } = req.body;
 

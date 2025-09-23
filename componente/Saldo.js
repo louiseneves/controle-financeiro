@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { db } from './Firebase';
 import { collection, getDocs } from 'firebase/firestore';
 

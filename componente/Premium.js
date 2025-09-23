@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Animated, Platform } from 'react-native';
 
 export default function PremiumScreen({ navigation }) {
   const scaleValue = new Animated.Value(1);

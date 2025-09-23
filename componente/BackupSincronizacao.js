@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView, Platform } from 'react-native';
 import { db, auth } from './Firebase';
 import { doc, setDoc, getDoc, getDocs, collection } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';

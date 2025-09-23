@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, Modal} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, Modal, Platform} from 'react-native';
 import { db, collection, addDoc, getDocs, updateDoc, doc } from './Firebase';
 
 export default function PlanejamentoFinanceiro() {

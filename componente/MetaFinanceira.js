@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, Modal, ActivityIndicator, Platform } from 'react-native';
 import { db, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from './Firebase';
 
 export default function MetaFinanceiraScreen() {

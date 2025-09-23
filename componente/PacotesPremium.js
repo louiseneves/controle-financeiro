@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, Animated } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, Animated, Platform } from 'react-native';
 
 export default function PacotesPremiumScreen({ navigation }) {
   const pacotes = [
