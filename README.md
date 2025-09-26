@@ -1,71 +1,84 @@
-# Controle Financeiro 💰
+## 💰 Controle Financeiro
 
-Aplicativo desenvolvido em **React Native** e **Expo** para auxiliar no gerenciamento de finanças pessoais. Permite cadastrar receitas e despesas, visualizar gráficos financeiros e acompanhar seu saldo de forma prática e intuitiva.
+Aplicativo desenvolvido em **React Native** e **Expo** para auxiliar no gerenciamento de finanças pessoais. Cadastre receitas e despesas, visualize gráficos e acompanhe seu saldo de forma prática e intuitiva.
 
 ## 📥 Baixe o App
 
-Você pode baixar o app diretamente na Google Play Store:
+Você pode baixar a versão mais recente diretamente na Google Play Store:
 
-[![Baixar na Google Play](https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.louiseneves.calculardizimo)
+[](https://play.google.com/store/apps/details?id=com.louiseneves.calculardizimo)
 
----
+-----
 
 ## 📝 Funcionalidades
 
-- Cadastro de receitas e despesas
-- Visualização de saldo por mês
-- Gráficos financeiros (ex: balanço mensal)
-- Armazenamento local de dados com AsyncStorage
-- Navegação entre telas com React Navigation
+  * **Cadastro Simplificado:** Receitas e despesas rápidas.
+  * **Visualização de Saldo:** Acompanhamento do saldo disponível por mês.
+  * **Gráficos Financeiros:** Balanços mensais e distribuição de gastos.
+  * **Armazenamento Local:** Dados persistidos diretamente no seu dispositivo com **AsyncStorage**.
+  * **Navegação Fluida:** Transições entre telas gerenciadas pelo **React Navigation**.
 
----
+-----
 
 ## 💻 Tecnologias Utilizadas
 
-- React Native
-- Expo SDK 51
-- React Navigation
-- AsyncStorage
-- Chart.js (ou biblioteca de gráficos utilizada)
+Este projeto foi construído com as seguintes ferramentas e versões:
 
----
+  * **React Native**
+  * **Expo SDK 52** (Versão atualizada do projeto)
+  * **React Navigation**
+  * **AsyncStorage**
+  * **Biblioteca de Gráficos:** (Substitua este texto pela biblioteca que você usou, ex: `react-native-chart-kit`)
+
+-----
 
 ## 📸 Capturas de Tela
 
-![Tela Inicial](./screenshots/tela-inicial.png)  
-![Cadastro de Despesas](./screenshots/cadastro-despesa.png)  
-![Gráficos Financeiros](./screenshots/graficos.png)
+*Adicione as imagens na pasta `screenshots` dentro do projeto.*
 
-> *Dica: Adicione as imagens na pasta `screenshots` dentro do projeto.*
+-----
 
----
+## 🚀 Como Rodar o Projeto (Desenvolvimento)
 
-## 🚀 Como Rodar o Projeto
+Siga os passos abaixo para clonar e rodar o projeto localmente. Certifique-se de ter o Node.js e o npm/yarn instalados.
 
-1. Clone o repositório:
-```bash
-git clone https://github.com/louiseneves/controle-financeiro.git
-cd controle-financeiro
+1.  **Clone o repositório:**
 
-2. Instale as dependências:
-```bash
-npm install
+    ```bash
+    git clone https://github.com/louiseneves/controle-financeiro.git
+    cd controle-financeiro
+    ```
 
-3. Inicie o projeto com o Expo:
-```bash
-npx expo start
-⚠️ Observação: Este projeto foi desenvolvido com Expo SDK 51. Versões mais recentes podem apresentar incompatibilidades.
+2.  **Instale as dependências:**
 
-🔗 Links
+    ```bash
+    npm install
+    # ou yarn install
+    ```
 
-GitHub: https://github.com/louiseneves/controle-financeiro
+3.  **Inicie o projeto com o Expo:**
 
-Google Play Store: Baixe o app aqui
+    ```bash
+    npx expo start
+    ```
 
-🙏 Agradecimentos
+    *Isso abrirá uma interface no seu navegador. Use o aplicativo **Expo Go** no seu celular para escanear o QR Code e visualizar o app, ou use um simulador/emulador.*
+
+-----
+
+## 🔗 Links
+
+  * **GitHub:** [https://github.com/louiseneves/controle-financeiro](https://github.com/louiseneves/controle-financeiro)
+  * **Google Play Store:** [Baixe o app aqui](https://play.google.com/store/apps/details?id=com.louiseneves.calculardizimo)
+
+-----
+
+## 🙏 Agradecimentos
 
 Agradeço a todos que contribuíram e me ajudaram durante o desenvolvimento deste projeto.
 
-🏷️ Tags
+-----
 
-#ReactNative #Expo #FinançasPessoais #GooglePlay
+## 🏷️ Tags
+
+`#ReactNative` `#Expo` `#SDK52` `#FinançasPessoais` `#GooglePlay`
