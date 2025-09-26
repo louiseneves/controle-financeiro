@@ -6,7 +6,7 @@ Aplicativo desenvolvido em **React Native** e **Expo** para auxiliar no gerencia
 
 Você pode baixar a versão mais recente diretamente na Google Play Store:
 
-[](https://play.google.com/store/apps/details?id=com.louiseneves.calculardizimo)
+[![Baixar na Google Play](https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.louiseneves.calculardizimo)
 
 -----
 
@@ -35,7 +35,9 @@ Este projeto foi construído com as seguintes ferramentas e versões:
 ## 📸 Capturas de Tela
 
 *Adicione as imagens na pasta `screenshots` dentro do projeto.*
-
+![Tela Inicial](./screenshots/tela-inicial.png)  
+![Cadastro de Despesas](./screenshots/cadastro-despesa.png)  
+![Gráficos Financeiros](./screenshots/graficos.png)  
 -----
 
 ## 🚀 Como Rodar o Projeto (Desenvolvimento)
@@ -82,3 +84,4 @@ Agradeço a todos que contribuíram e me ajudaram durante o desenvolvimento dest
 ## 🏷️ Tags
 
 `#ReactNative` `#Expo` `#SDK52` `#FinançasPessoais` `#GooglePlay`
+
