@@ -1,11 +1,13 @@
 # Controle Financeiro 💰
 
 Aplicativo desenvolvido em **React Native** e **Expo** para auxiliar no gerenciamento de finanças pessoais. Permite cadastrar receitas e despesas, visualizar gráficos financeiros e acompanhar seu saldo de forma prática e intuitiva.
+
 ## 📥 Baixe o App
 
 Você pode baixar o app diretamente na Google Play Store:
 
 [![Baixar na Google Play](https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png)](https://play.google.com/store/apps/details?id=com.louiseneves.calculardizimo)
+
 ---
 
 ## 📝 Funcionalidades
@@ -45,15 +47,25 @@ Você pode baixar o app diretamente na Google Play Store:
 git clone https://github.com/louiseneves/controle-financeiro.git
 cd controle-financeiro
 
-Como Rodar o Projeto:
-
-git clone https://github.com/louiseneves/controle-financeiro.git
-cd controle-financeiro
+2. Instale as dependências:
+```bash
 npm install
-expo start
 
+3. Inicie o projeto com o Expo:
+```bash
+npx expo start
+⚠️ Observação: Este projeto foi desenvolvido com Expo SDK 51. Versões mais recentes podem apresentar incompatibilidades.
 
-⚠️ Observação: Este projeto foi desenvolvido com o Expo SDK 51. Versões mais recentes podem apresentar incompatibilidades.
+🔗 Links
 
-Capturas de Tela: Inclua imagens do aplicativo em funcionamento para demonstrar a interface e funcionalidades.
+GitHub: https://github.com/louiseneves/controle-financeiro
 
+Google Play Store: Baixe o app aqui
+
+🙏 Agradecimentos
+
+Agradeço a todos que contribuíram e me ajudaram durante o desenvolvimento deste projeto.
+
+🏷️ Tags
+
+#ReactNative #Expo #FinançasPessoais #GooglePlay
