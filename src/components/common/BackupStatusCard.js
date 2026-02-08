@@ -1,5 +1,5 @@
 // src/components/common/BackupStatusCard.js
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
   View,
   Text,
@@ -10,65 +10,74 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useBackupStore } from '../../store/backupStore';
+import { useTheme } from '../../context/ThemeContext';
 
 const BackupStatusCard = () => {
+  const { colors } = useTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
   const navigation = useNavigation();
 
-  const {
-    lastBackupDate,
-    loading,
-    error,
-  } = useBackupStore(state => ({
-    lastBackupDate: state.lastBackupDate,
-    loading: state.loading,
-    error: state.error,
-  }));
+const {
+  lastBackup,
+  loading,
+  error,
+} = useBackupStore(state => ({
+  lastBackup: state.lastBackup,
+  loading: state.loading,
+  error: state.error,
+}));
+
 
   const getTimeSinceBackup = () => {
-    if (!lastBackupDate) return null;
+  if (!lastBackup) return null;
 
-    const now = new Date();
-    const backupDate = new Date(lastBackupDate);
-    const diffMs = now - backupDate;
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
+  const backupDate = new Date(lastBackup);
+  if (isNaN(backupDate.getTime())) return 'Data inválida';
 
-    if (diffDays > 0) {
-      return `${diffDays} dia${diffDays > 1 ? 's' : ''} atrás`;
-    } else if (diffHours > 0) {
-      return `${diffHours} hora${diffHours > 1 ? 's' : ''} atrás`;
-    } else {
-      return 'Agora mesmo';
-    }
-  };
+  const now = new Date();
+  const diffMs = now - backupDate;
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    return `${diffDays} dia${diffDays > 1 ? 's' : ''} atrás`;
+  }
+
+  if (diffHours > 0) {
+    return `${diffHours} hora${diffHours > 1 ? 's' : ''} atrás`;
+  }
+
+  return 'Agora mesmo';
+};
+
 
   const getBackupStatus = () => {
     if (error) {
       return {
         icon: 'alert-circle',
-        color: '#F44336',
+        color: colors.error,
         text: 'Erro no backup',
         subtitle: error,
       };
     }
 
-    if (!lastBackupDate) {
-      return {
-        icon: 'cloud-alert',
-        color: '#FF9800',
-        text: 'Nenhum backup',
-        subtitle: 'Toque para criar o primeiro backup',
-      };
-    }
+    if (!lastBackup) {
+  return {
+    icon: 'cloud-alert',
+    color: colors.warning,
+    text: 'Nenhum backup',
+    subtitle: 'Toque para criar o primeiro backup',
+  };
+}
 
-    const now = new Date();
-    const backupDate = new Date(lastBackupDate);
-    const diffHours = (now - backupDate) / (1000 * 60 * 60);
+const backupDate = new Date(lastBackup);
+const diffHours = (new Date() - backupDate) / (1000 * 60 * 60);
+
 
     if (diffHours > 168) {
       return {
         icon: 'alert',
-        color: '#F44336',
+        color: colors.error,
         text: 'Backup desatualizado',
         subtitle: getTimeSinceBackup(),
       };
@@ -77,7 +86,7 @@ const BackupStatusCard = () => {
     if (diffHours > 48) {
       return {
         icon: 'clock-alert',
-        color: '#FF9800',
+        color: colors.warning,
         text: 'Backup antigo',
         subtitle: getTimeSinceBackup(),
       };
@@ -85,7 +94,7 @@ const BackupStatusCard = () => {
 
     return {
       icon: 'shield-check',
-      color: '#4CAF50',
+      color: colors.success,
       text: 'Backup atualizado',
       subtitle: getTimeSinceBackup(),
     };
@@ -121,17 +130,18 @@ const BackupStatusCard = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     marginHorizontal: 20,
     marginVertical: 10,
     padding: 15,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -140,7 +150,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -151,11 +161,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 2,
   },
 });

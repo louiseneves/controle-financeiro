@@ -2,7 +2,8 @@
  * Tela de Adicionar Meta
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -14,18 +15,24 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {COLORS} from '../../utils';
+import {parseISODateOnly} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useGoalsStore from '../../store/goalsStore';
+import { isoToBR } from '../../utils/helpers/formatters';
+import { t } from '../../i18n';
 
 const AddGoalScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {addGoal} = useGoalsStore();
 
   const [title, setTitle] = useState('');
   const [targetAmount, setTargetAmount] = useState('');
   const [currentAmount, setCurrentAmount] = useState('');
-  const [deadline, setDeadline] = useState('');
+  const [deadlineBR, setDeadlineBR] = useState('');
+const [deadlineISO, setDeadlineISO] = useState('');
+
   const [selectedIcon, setSelectedIcon] = useState('🎯');
 
   const [titleError, setTitleError] = useState('');
@@ -47,28 +54,29 @@ const AddGoalScreen = ({navigation}) => {
     setDeadlineError('');
 
     if (!title.trim()) {
-      setTitleError('Título é obrigatório');
+      setTitleError(t('addGoal.errors.titleRequired'));
       isValid = false;
     }
 
     if (!targetAmount || parseFloat(targetAmount) <= 0) {
-      setTargetAmountError('Valor alvo deve ser maior que zero');
+      setTargetAmountError(t('addGoal.errors.targetAmountInvalid'));
       isValid = false;
     }
 
-    if (!deadline) {
-      setDeadlineError('Data limite é obrigatória');
-      isValid = false;
-    } else {
-      const deadlineDate = new Date(deadline);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (deadlineDate < today) {
-        setDeadlineError('Data limite deve ser futura');
-        isValid = false;
-      }
-    }
+    if (!deadlineISO) {
+  setDeadlineError(t('addGoal.errors.deadlineInvalid'));
+  isValid = false;
+} else {
+  const deadlineDate = new Date(deadlineISO);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (deadlineDate < today) {
+    setDeadlineError(t('addGoal.errors.deadlineFuture'));
+    isValid = false;
+  }
+}
+
 
     return isValid;
   };
@@ -84,7 +92,7 @@ const AddGoalScreen = ({navigation}) => {
         title: title.trim(),
         targetAmount: parseFloat(targetAmount),
         currentAmount: currentAmount ? parseFloat(currentAmount) : 0,
-        deadline: new Date(deadline).toISOString(),
+        deadline: deadlineISO,
         icon: selectedIcon,
         userId: user.uid,
       };
@@ -92,18 +100,18 @@ const AddGoalScreen = ({navigation}) => {
       const result = await addGoal(goalData);
 
       if (result.success) {
-        Alert.alert('Sucesso! ✅', 'Meta criada com sucesso!', [
+        Alert.alert(t('addGoal.successTitle'), t('addGoal.success'), [
           {
             text: 'OK',
             onPress: () => navigation.goBack(),
           },
         ]);
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao criar meta');
+        Alert.alert(t('addGoal.errorTitle'), result.error || t('addGoal.errorGeneric'));
       }
     } catch (error) {
       console.error('Erro ao salvar meta:', error);
-      Alert.alert('Erro', 'Não foi possível criar a meta');
+      Alert.alert(t('addGoal.errorTitle'), t('addGoal.errorGeneric'));
     } finally {
       setLoading(false);
     }
@@ -119,25 +127,25 @@ const AddGoalScreen = ({navigation}) => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerIcon}>{selectedIcon}</Text>
-          <Text style={styles.headerTitle}>Nova Meta Financeira</Text>
+          <Text style={styles.headerTitle}>{t('addGoal.title')}</Text>
           <Text style={styles.headerSubtitle}>
-            Defina seus objetivos e acompanhe seu progresso
+            {t('addGoal.subtitle')}
           </Text>
         </View>
 
         {/* Formulário */}
         <View style={styles.form}>
           <Input
-            label="Título da Meta"
+            label={t('addGoal.fields.title')}
             value={title}
             onChangeText={setTitle}
-            placeholder="Ex: Viagem para Europa, Carro Novo..."
+            placeholder={t('addGoal.placeholders.title')}
             error={titleError}
             leftIcon={<Text style={styles.iconText}>📝</Text>}
           />
 
           <Input
-            label="Valor Alvo (R$)"
+            label={t('addGoal.fields.targetAmount')}
             value={targetAmount}
             onChangeText={setTargetAmount}
             placeholder="0,00"
@@ -147,7 +155,7 @@ const AddGoalScreen = ({navigation}) => {
           />
 
           <Input
-            label="Valor Inicial (Opcional)"
+            label={t('addGoal.fields.initialAmount')}
             value={currentAmount}
             onChangeText={setCurrentAmount}
             placeholder="0,00"
@@ -156,17 +164,25 @@ const AddGoalScreen = ({navigation}) => {
           />
 
           <Input
-            label="Data Limite"
-            value={deadline}
-            onChangeText={setDeadline}
-            placeholder="YYYY-MM-DD"
-            error={deadlineError}
-            leftIcon={<Text style={styles.iconText}>📅</Text>}
-          />
+  label={t('addGoal.fields.deadline')}
+  value={deadlineBR}
+  onChangeText={value => {
+    setDeadlineBR(value);
+
+    const iso = parseISODateOnly(value);
+    if (iso) {
+      setDeadlineISO(iso.toISOString());
+    }
+  }}
+  placeholder={t('addGoal.placeholders.date')}
+  error={deadlineError}
+  leftIcon={<Text style={styles.iconText}>📅</Text>}
+/>
+
 
           {/* Seletor de Ícone */}
           <View style={styles.iconSection}>
-            <Text style={styles.label}>Ícone da Meta</Text>
+            <Text style={styles.label}>{t('addGoal.fields.icon')}</Text>
             <View style={styles.iconGrid}>
               {icons.map(icon => (
                 <TouchableOpacity
@@ -186,12 +202,12 @@ const AddGoalScreen = ({navigation}) => {
           {/* Preview */}
           {targetAmount && parseFloat(targetAmount) > 0 && (
             <View style={styles.previewCard}>
-              <Text style={styles.previewLabel}>Preview da Meta</Text>
+              <Text style={styles.previewLabel}>{t('addGoal.preview')}</Text>
               <View style={styles.preview}>
                 <Text style={styles.previewIcon}>{selectedIcon}</Text>
                 <View style={styles.previewInfo}>
                   <Text style={styles.previewTitle}>
-                    {title || 'Sua meta'}
+                    {title || t('addGoal.previewDefault')}
                   </Text>
                   <Text style={styles.previewAmount}>
                     R$ {parseFloat(targetAmount).toFixed(2)}
@@ -205,14 +221,14 @@ const AddGoalScreen = ({navigation}) => {
         {/* Botões */}
         <View style={styles.actions}>
           <Button
-            title="Criar Meta"
+            title={t('addGoal.actions.create')}
             onPress={handleSave}
             loading={loading}
             style={styles.saveButton}
           />
 
           <Button
-            title="Cancelar"
+            title={t('cancel')}
             onPress={() => navigation.goBack()}
             variant="outline"
           />
@@ -222,10 +238,11 @@ const AddGoalScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -242,12 +259,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   form: {
@@ -259,7 +276,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   iconSection: {
@@ -273,30 +290,30 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 60,
     height: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   iconButtonSelected: {
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
     borderWidth: 3,
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
   },
   iconButtonText: {
     fontSize: 32,
   },
   previewCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginTop: 8,
   },
   previewLabel: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 12,
   },
   preview: {
@@ -313,13 +330,13 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   previewAmount: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   actions: {
     gap: 12,

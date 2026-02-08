@@ -2,7 +2,8 @@
  * Tela de Perfil
  */
 
-import React from 'react';
+import React, {useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -19,6 +20,8 @@ import {COLORS, getInitials} from '../../utils';
 import useAuthStore from '../../store/authStore';
 
 const ProfileScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user, logout} = useAuthStore();
 
   const handleEditProfile = () => {
@@ -193,10 +196,11 @@ const ProfileScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -214,20 +218,20 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.card,
   },
   editAvatarButton: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -245,12 +249,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   section: {
     marginBottom: 24,
@@ -258,11 +262,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   infoCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     shadowColor: COLORS.black,
@@ -276,28 +280,28 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   infoValue: {
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '500',
   },
   infoDivider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     padding: 16,
     borderTopWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   menuItemHighlight: {
-    backgroundColor: COLORS.warning + '10',
+    backgroundColor: colors.warning + '10',
   },
   menuItemLast: {
     borderBottomLeftRadius: 12,
@@ -310,16 +314,16 @@ const styles = StyleSheet.create({
   menuTitle: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '500',
   },
   menuTitleHighlight: {
-    color: COLORS.warning,
+    color: colors.warning,
     fontWeight: '600',
   },
   menuArrow: {
     fontSize: 24,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   logoutButton: {
     marginTop: 8,
@@ -328,7 +332,7 @@ const styles = StyleSheet.create({
   versionText: {
     textAlign: 'center',
     fontSize: 12,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
 });
 

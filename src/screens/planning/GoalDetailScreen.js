@@ -2,7 +2,8 @@
  * Tela de Detalhes da Meta
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -11,10 +12,15 @@ import {
   Alert,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {COLORS, formatCurrency, formatDate} from '../../utils';
+import {COLORS, formatDate} from '../../utils';
 import useGoalsStore from '../../store/goalsStore';
+import useSettingsStore from '../../store/settingsStore';
+import { t } from '../../i18n';
 
 const GoalDetailScreen = ({navigation, route}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {goal} = route.params;
   const {addToGoal, deleteGoal} = useGoalsStore();
   
@@ -39,7 +45,7 @@ const GoalDetailScreen = ({navigation, route}) => {
     const amount = parseFloat(addAmount);
 
     if (!amount || amount <= 0) {
-      Alert.alert('Erro', 'Digite um valor válido');
+      Alert.alert(t('goalDetail.alerts.invalidValue'));
       return;
     }
 
@@ -48,9 +54,9 @@ const GoalDetailScreen = ({navigation, route}) => {
       const result = await addToGoal(goal.id, amount);
 
       if (result.success) {
-        Alert.alert('Sucesso! ✅', `${formatCurrency(amount)} adicionado à meta!`, [
+        Alert.alert(t('goalDetail.alerts.successAdd', {amount: formatCurrency(amount)}), [
           {
-            text: 'OK',
+            text: t('ok'),
             onPress: () => {
               setAddAmount('');
               navigation.goBack();
@@ -58,11 +64,11 @@ const GoalDetailScreen = ({navigation, route}) => {
           },
         ]);
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao adicionar valor');
+        Alert.alert(t('goalDetail.alerts.error'), result.error || t('goalDetail.alerts.errorAdd'));
       }
     } catch (error) {
       console.error('Erro:', error);
-      Alert.alert('Erro', 'Não foi possível adicionar o valor');
+      Alert.alert(t('goalDetail.alerts.error'), t('goalDetail.alerts.addError'));
     } finally {
       setLoading(false);
     }
@@ -70,18 +76,18 @@ const GoalDetailScreen = ({navigation, route}) => {
 
   const handleDelete = () => {
     Alert.alert(
-      'Excluir Meta',
-      'Tem certeza que deseja excluir esta meta?',
+      t('goalDetail.deleteConfirmTitle'),
+      t('goalDetail.deleteConfirmMessage'),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('cancel'), style: 'cancel'},
         {
-          text: 'Excluir',
+          text: t('delete'),
           style: 'destructive',
           onPress: async () => {
             const result = await deleteGoal(goal.id);
             if (result.success) {
-              Alert.alert('Sucesso! ✅', 'Meta excluída com sucesso!', [
-                {text: 'OK', onPress: () => navigation.goBack()},
+              Alert.alert(t('goalDetail.alerts.successDelete'), t('goalDetail.alerts.deleteSuccess'), [
+                {text: t('ok'), onPress: () => navigation.goBack()},
               ]);
             }
           },
@@ -99,15 +105,15 @@ const GoalDetailScreen = ({navigation, route}) => {
         
         {progress >= 100 ? (
           <View style={styles.completedBadge}>
-            <Text style={styles.completedText}>✓ Meta Alcançada!</Text>
+            <Text style={styles.completedText}>{t('goalDetail.completed')}</Text>
           </View>
         ) : (
           <Text style={styles.headerDeadline}>
             {daysRemaining > 0
-              ? `${daysRemaining} dias restantes`
+              ? t('goalDetail.daysRemaining', {count: daysRemaining})
               : daysRemaining === 0
-              ? 'Hoje é o prazo!'
-              : `Atrasado ${Math.abs(daysRemaining)} dias`}
+              ? t('goalDetail.todayDeadline')
+              : t('goalDetail.late', {count: Math.abs(daysRemaining)})}
           </Text>
         )}
       </View>
@@ -115,7 +121,7 @@ const GoalDetailScreen = ({navigation, route}) => {
       {/* Progress */}
       <View style={styles.progressCard}>
         <View style={styles.progressHeader}>
-          <Text style={styles.progressLabel}>Progresso</Text>
+          <Text style={styles.progressLabel}>{t('goalDetail.progress')}</Text>
           <Text style={styles.progressPercentage}>{progress.toFixed(0)}%</Text>
         </View>
 
@@ -125,7 +131,7 @@ const GoalDetailScreen = ({navigation, route}) => {
               styles.progressFill,
               {
                 width: `${progress}%`,
-                backgroundColor: progress >= 100 ? COLORS.success : COLORS.primary,
+                backgroundColor: progress >= 100 ? colors.success : colors.primary,
               },
             ]}
           />
@@ -133,18 +139,18 @@ const GoalDetailScreen = ({navigation, route}) => {
 
         <View style={styles.progressAmounts}>
           <View>
-            <Text style={styles.amountLabel}>Atual</Text>
+            <Text style={styles.amountLabel}>{t('goalDetail.amounts.current')}</Text>
             <Text style={styles.amountValue}>{formatCurrency(currentAmount)}</Text>
           </View>
           <View style={styles.amountDivider} />
           <View>
-            <Text style={styles.amountLabel}>Meta</Text>
+            <Text style={styles.amountLabel}>{t('goalDetail.amounts.target')}</Text>
             <Text style={styles.amountValue}>{formatCurrency(goal.targetAmount)}</Text>
           </View>
           <View style={styles.amountDivider} />
           <View>
-            <Text style={styles.amountLabel}>Faltam</Text>
-            <Text style={[styles.amountValue, {color: COLORS.warning}]}>
+            <Text style={styles.amountLabel}>{t('goalDetail.amounts.remaining')}</Text>
+            <Text style={[styles.amountValue, {color: colors.warning}]}>
               {formatCurrency(remaining)}
             </Text>
           </View>
@@ -153,10 +159,10 @@ const GoalDetailScreen = ({navigation, route}) => {
 
       {/* Detalhes */}
       <View style={styles.detailsCard}>
-        <Text style={styles.detailsTitle}>Detalhes</Text>
+        <Text style={styles.detailsTitle}>{t('goalDetail.details')}</Text>
         
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Data de Criação:</Text>
+          <Text style={styles.detailLabel}>{t('goalDetail.createdAt')}</Text>
           <Text style={styles.detailValue}>
             {formatDate(goal.createdAt?.toDate?.() || goal.createdAt)}
           </Text>
@@ -165,14 +171,14 @@ const GoalDetailScreen = ({navigation, route}) => {
         <View style={styles.divider} />
 
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Data Limite:</Text>
+          <Text style={styles.detailLabel}>{t('goalDetail.deadline')}</Text>
           <Text style={styles.detailValue}>{formatDate(goal.deadline)}</Text>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Valor Alvo:</Text>
+          <Text style={styles.detailLabel}>{t('goalDetail.targetAmount')}</Text>
           <Text style={styles.detailValue}>
             {formatCurrency(goal.targetAmount)}
           </Text>
@@ -182,10 +188,10 @@ const GoalDetailScreen = ({navigation, route}) => {
       {/* Adicionar Valor */}
       {progress < 100 && (
         <View style={styles.addCard}>
-          <Text style={styles.addTitle}>Adicionar à Meta</Text>
+          <Text style={styles.addTitle}>{t('goalDetail.addTitle')}</Text>
           
           <Input
-            label="Valor (R$)"
+            label={t('goalDetail.addLabel')}
             value={addAmount}
             onChangeText={setAddAmount}
             placeholder="0,00"
@@ -194,7 +200,7 @@ const GoalDetailScreen = ({navigation, route}) => {
           />
 
           <Button
-            title="Adicionar Valor"
+            title={t('goalDetail.addTitle')}
             onPress={handleAddAmount}
             loading={loading}
             disabled={!addAmount || parseFloat(addAmount) <= 0}
@@ -204,7 +210,7 @@ const GoalDetailScreen = ({navigation, route}) => {
 
       {/* Botão Excluir */}
       <Button
-        title="Excluir Meta"
+        title={t('goalDetail.delete')}
         onPress={handleDelete}
         variant="error"
         style={styles.deleteButton}
@@ -213,10 +219,11 @@ const GoalDetailScreen = ({navigation, route}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -233,27 +240,27 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   headerDeadline: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   completedBadge: {
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 20,
   },
   completedText: {
-    color: COLORS.white,
+    color: colors.card,
     fontSize: 16,
     fontWeight: '600',
   },
   progressCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -272,12 +279,12 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   progressPercentage: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressBar: {
     height: 12,
@@ -297,23 +304,23 @@ const styles = StyleSheet.create({
   },
   amountLabel: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 4,
     textAlign: 'center',
   },
   amountValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
   },
   amountDivider: {
     width: 1,
     height: 40,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   detailsCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -326,7 +333,7 @@ const styles = StyleSheet.create({
   detailsTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   detailRow: {
@@ -337,19 +344,19 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 15,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   detailValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   addCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -362,7 +369,7 @@ const styles = StyleSheet.create({
   addTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   iconText: {

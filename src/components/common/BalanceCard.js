@@ -2,22 +2,37 @@
  * Card de Saldo
  */
 
-import React from 'react';
+import React,{useMemo} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {COLORS, formatCurrency} from '../../utils';
+import useSettingsStore from '../../store/settingsStore';
+import { useTheme } from '../../context/ThemeContext';
+import {t} from '../../i18n';
 
-const BalanceCard = ({balance, income, expense}) => {
+const BalanceCard = ({ balance, income, expense }) => {
+  const { colors, dark } = useTheme();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
+    const styles = useMemo(() => createStyles(colors, dark), [colors, dark]);
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Saldo Atual</Text>
+      <Text style={styles.label}>{t('balance.title')}</Text>
       <Text style={styles.amount}>{formatCurrency(balance)}</Text>
       
       <View style={styles.details}>
         <View style={styles.detailItem}>
-          <View style={[styles.indicator, {backgroundColor: COLORS.success}]} />
+          <View
+            style={[
+              styles.indicator,
+              { backgroundColor: colors.successDark }
+            ]}
+          />
           <View>
-            <Text style={styles.detailLabel}>Receitas</Text>
-            <Text style={[styles.detailValue, {color: COLORS.success}]}>
+            <Text style={styles.detailLabel}>{t('balance.income')}</Text>
+            <Text
+              style={[
+                styles.detailValue,
+                { color: colors.successDark }
+              ]}
+            >
               {formatCurrency(income)}
             </Text>
           </View>
@@ -26,77 +41,95 @@ const BalanceCard = ({balance, income, expense}) => {
         <View style={styles.divider} />
 
         <View style={styles.detailItem}>
-          <View style={[styles.indicator, {backgroundColor: COLORS.error}]} />
+          <View
+            style={[
+              styles.indicator,
+              { backgroundColor: colors.errorDark }
+            ]}
+          />
           <View>
-            <Text style={styles.detailLabel}>Despesas</Text>
-            <Text style={[styles.detailValue, {color: COLORS.error}]}>
+            <Text style={styles.detailLabel}>{t('balance.expense')}</Text>
+            <Text
+              style={[
+                styles.detailValue,
+                { color: colors.errorDark }
+              ]}
+            >
               {formatCurrency(expense)}
             </Text>
           </View>
         </View>
+
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 20,
-    shadowColor: COLORS.black,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  label: {
-    fontSize: 14,
-    color: COLORS.white,
-    opacity: 0.9,
-    marginBottom: 8,
-  },
-  amount: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginBottom: 20,
-  },
-  details: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  detailItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  indicator: {
-    width: 4,
-    height: 40,
-    borderRadius: 2,
-  },
-  detailLabel: {
-    fontSize: 12,
-    color: COLORS.white,
-    opacity: 0.8,
-    marginBottom: 4,
-  },
-  detailValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.white,
-  },
-  divider: {
-    width: 1,
-    height: 40,
-    backgroundColor: COLORS.white,
-    opacity: 0.3,
-    marginHorizontal: 16,
-  },
-});
+const createStyles = (colors,dark) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
+      padding: 24,
+      marginBottom: 20,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: dark ? 0.1 : 0.2,
+      shadowRadius: 8,
+      elevation: 5,
+    },
+
+    label: {
+      fontSize: 14,
+      color: colors.onPrimary,
+      marginBottom: 8,
+    },
+
+    amount: {
+      fontSize: 36,
+      fontWeight: 'bold',
+      color: colors.onPrimary,
+      marginBottom: 20,
+    },
+
+    details: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+    },
+
+    detailItem: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+
+    indicator: {
+      width: 4,
+      height: 40,
+      borderRadius: 2,
+    },
+
+    detailLabel: {
+      fontSize: 12,
+      color: colors.onPrimary,
+      marginBottom: 4,
+    },
+
+    detailValue: {
+      fontSize: 16,
+      fontWeight: '600',
+    },
+
+    divider: {
+      width: 1,
+      height: 40,
+      backgroundColor: dark ? colors.borderDark : colors.border,
+      opacity: 0.3,
+      marginHorizontal: 16,
+    },
+  });
+
 
 export default BalanceCard;

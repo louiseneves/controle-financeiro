@@ -2,21 +2,27 @@
  * Item de Transação
  */
 
-import React from 'react';
+import React,{useMemo} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {COLORS, formatCurrency, formatDate} from '../../utils';
+import { COLORS, formatDate } from '../../utils';
+import { useTheme } from '../../context/ThemeContext';
+import useSettingsStore from '../../store/settingsStore';
+import {t} from '../../i18n';
 
-const TransactionItem = ({transaction, onPress}) => {
+const TransactionItem = ({ transaction, onPress }) => {
+  const { colors } = useTheme();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
+    const styles = useMemo(() => createStyles(colors), [colors]);
   const getTypeColor = type => {
     switch (type) {
       case 'receita':
-        return COLORS.success;
+        return colors.success;
       case 'despesa':
-        return COLORS.error;
+        return colors.error;
       case 'investimento':
-        return COLORS.investment;
+        return colors.investment;
       case 'oferta':
-        return COLORS.offer;
+        return colors.offer;
       default:
         return COLORS.gray500;
     }
@@ -37,6 +43,22 @@ const TransactionItem = ({transaction, onPress}) => {
     }
   };
 
+  
+  const getTypeLabel = type => {
+    switch (type) {
+      case 'receita':
+        return t('transaction.income');
+      case 'despesa':
+        return t('transaction.expense');
+      case 'investimento':
+        return t('transaction.investment');
+      case 'oferta':
+        return t('transaction.offering');
+      default:
+        return '';
+    }
+  };
+
   const typeColor = getTypeColor(transaction.type);
   const isNegative = transaction.type !== 'receita';
 
@@ -53,7 +75,12 @@ const TransactionItem = ({transaction, onPress}) => {
         <Text style={styles.description} numberOfLines={1}>
           {transaction.description}
         </Text>
-        <Text style={styles.category}>{transaction.category}</Text>
+        <Text style={styles.category}>
+          {getTypeLabel(transaction.type)}
+          {transaction.category
+            ? ` • ${transaction.category}`
+            : ''}
+        </Text>
         <Text style={styles.date}>{formatDate(transaction.date)}</Text>
       </View>
 
@@ -67,11 +94,12 @@ const TransactionItem = ({transaction, onPress}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
@@ -98,12 +126,12 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   category: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 2,
   },
   date: {

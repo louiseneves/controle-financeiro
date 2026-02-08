@@ -1,29 +1,56 @@
 {
   "expo": {
     "name": "Controle Financeiro",
-    "slug": "ControleFinanceiro",
+    "slug": "controle-financeiro",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2563EB"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.seudominio.controlefinanceiro",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.seudominio.controlefinanceiro",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#2563EB"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "SCHEDULE_EXACT_ALARM",
+        "POST_NOTIFICATIONS",
+        "VIBRATE",
+        "WAKE_LOCK"
+      ]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#2563EB"
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "firebaseApiKey": "AIzaSyBLCSsiHQWnu-xKnzA_Aabk2e0hLLaPmaE",
+      "firebaseAuthDomain": "caldizimo.firebaseapp.com",
+      "firebaseProjectId": "caldizimo",
+      "firebaseStorageBucket": "caldizimo.appspot.com",
+      "firebaseMessagingSenderId": "823938921031",
+      "firebaseAppId": "1:823938921031:web:05eee5cebea890f44af762"
     }
   }
 }

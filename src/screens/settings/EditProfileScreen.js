@@ -2,7 +2,8 @@
  * Tela de Edição de Perfil
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -14,12 +15,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {COLORS, getInitials} from '../../utils';
+import { getInitials} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import {updateProfile} from 'firebase/auth';
 import {auth} from '../../services/firebase/config';
 
 const EditProfileScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   // ✅ selector correto
   const user = useAuthStore(state => state.user);
 
@@ -166,8 +169,9 @@ const EditProfileScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: COLORS.background},
+const createStyles = (colors) =>
+  StyleSheet.create({
+  container: {flex: 1, backgroundColor: colors.background},
   content: {padding: 20, paddingBottom: 40},
   avatarSection: {alignItems: 'center', marginBottom: 32},
   avatarContainer: {marginBottom: 16},
@@ -175,21 +179,21 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarText: {fontSize: 36, fontWeight: 'bold', color: COLORS.white},
+  avatarText: {fontSize: 36, fontWeight: 'bold', color: colors.card},
   changePhotoButton: {paddingVertical: 8},
-  changePhotoText: {color: COLORS.primary, fontWeight: '600'},
+  changePhotoText: {color: colors.primary, fontWeight: '600'},
   form: {marginBottom: 24},
   infoBox: {
-    backgroundColor: COLORS.info + '10',
+    backgroundColor: colors.info + '10',
     borderRadius: 8,
     padding: 12,
     marginTop: 8,
   },
-  infoText: {fontSize: 13, color: COLORS.textLight},
+  infoText: {fontSize: 13, color: colors.textSecondary},
   actions: {gap: 12},
 });
 

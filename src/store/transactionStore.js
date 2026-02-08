@@ -43,8 +43,8 @@ const useTransactionStore = create((set, get) => ({
   },
 
   // ==================== ADD ====================
-  addTransaction: async (transaction, userId) => {
-    if (!userId) {
+  addTransaction: async (transaction) => {
+    if (!transaction?.userId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
 
@@ -53,11 +53,13 @@ const useTransactionStore = create((set, get) => ({
 
       const newTransaction = {
         ...transaction,
-        userId,
         createdAt: new Date().toISOString(),
       };
 
-      const id = await addDocument(COLLECTIONS.TRANSACTIONS, newTransaction);
+      const id = await addDocument(
+        COLLECTIONS.TRANSACTIONS,
+        newTransaction
+      );
 
       set(state => ({
         transactions: [{ id, ...newTransaction }, ...state.transactions],
@@ -77,7 +79,7 @@ const useTransactionStore = create((set, get) => ({
     } catch (error) {
       console.error('Erro ao adicionar transação:', error);
       set({ error: error.message, loading: false });
-      return { success: false };
+      return { success: false, error: error.message };
     }
   },
 
@@ -168,3 +170,4 @@ const useTransactionStore = create((set, get) => ({
 }));
 
 export default useTransactionStore;
+

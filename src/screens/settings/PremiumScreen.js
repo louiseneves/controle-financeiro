@@ -2,7 +2,8 @@
  * Tela de Upgrade Premium
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -16,6 +17,8 @@ import {COLORS, formatCurrency} from '../../utils';
 import usePremiumStore from '../../store/premiumStore';
 
 const PremiumScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {isPremium, subscriptionType, expirationDate, activatePremium, cancelPremium, loadPremiumStatus} = usePremiumStore();
   const [selectedPlan, setSelectedPlan] = useState('yearly');
 
@@ -248,10 +251,11 @@ const PremiumScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -268,18 +272,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   premiumHeader: {
     alignItems: 'center',
-    backgroundColor: COLORS.warning,
+    backgroundColor: colors.warning,
     borderRadius: 16,
     padding: 32,
     marginBottom: 24,
@@ -291,16 +295,16 @@ const styles = StyleSheet.create({
   premiumTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.card,
     marginBottom: 8,
   },
   premiumSubtitle: {
     fontSize: 16,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.9,
   },
   statusCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 20,
     marginBottom: 24,
@@ -317,16 +321,16 @@ const styles = StyleSheet.create({
   },
   statusLabel: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   statusValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   plansSection: {
     marginBottom: 32,
@@ -334,16 +338,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   planCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     position: 'relative',
     shadowColor: COLORS.black,
     shadowOffset: {width: 0, height: 2},
@@ -352,15 +356,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   planCardSelected: {
-    borderColor: COLORS.warning,
+    borderColor: colors.warning,
     borderWidth: 3,
-    backgroundColor: COLORS.warning + '05',
+    backgroundColor: colors.warning + '05',
   },
   savingsBadge: {
     position: 'absolute',
     top: -10,
     right: 20,
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -368,7 +372,7 @@ const styles = StyleSheet.create({
   savingsText: {
     fontSize: 12,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.card,
   },
   planHeader: {
     alignItems: 'center',
@@ -376,7 +380,7 @@ const styles = StyleSheet.create({
   planName: {
     fontSize: 20,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   planPrice: {
@@ -387,19 +391,19 @@ const styles = StyleSheet.create({
   planPriceValue: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: COLORS.warning,
+    color: colors.warning,
   },
   planPricePeriod: {
     fontSize: 18,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   planPriceMonth: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   selectedIndicator: {
     marginTop: 12,
-    backgroundColor: COLORS.warning,
+    backgroundColor: colors.warning,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
@@ -407,7 +411,7 @@ const styles = StyleSheet.create({
   selectedText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.card,
   },
   featuresSection: {
     marginBottom: 24,
@@ -415,7 +419,7 @@ const styles = StyleSheet.create({
   featureItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -430,20 +434,20 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   featureDescription: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   featureCheck: {
     fontSize: 20,
-    color: COLORS.success,
+    color: colors.success,
   },
   guaranteeBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.success + '10',
+    backgroundColor: colors.success + '10',
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
@@ -458,12 +462,12 @@ const styles = StyleSheet.create({
   guaranteeTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   guaranteeText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   subscribeButton: {
     marginBottom: 16,
@@ -473,7 +477,7 @@ const styles = StyleSheet.create({
   },
   disclaimer: {
     fontSize: 12,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontStyle: 'italic',
   },

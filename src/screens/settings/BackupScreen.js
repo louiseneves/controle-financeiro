@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -14,6 +15,8 @@ import { backupStore } from '../../store/backupStore';
 import usePremiumStore from '../../store/premiumStore'; // ← CORRIGIDO
 
 const BackupScreen = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     backups,
     loading,
@@ -40,7 +43,7 @@ const BackupScreen = ({ navigation }) => {
   const handleCreateBackup = async () => {
     setCreating(true);
     try {
-      await createBackup(false);
+      await createBackup(false, isPremium);
       Alert.alert('Sucesso', 'Backup criado com sucesso!');
     } catch (error) {
       Alert.alert('Erro', 'Falha ao criar backup: ' + error.message);
@@ -126,15 +129,20 @@ const BackupScreen = ({ navigation }) => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  if (!dateString) return 'Data indisponível';
+
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'Data inválida';
+
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
 
   const getBackupSize = (backup) => {
     const count =
@@ -180,10 +188,10 @@ const BackupScreen = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Ações Rápidas</Text>
         
         <TouchableOpacity
-          style={[styles.actionButton, styles.primaryButton]}
           onPress={handleCreateBackup}
-          disabled={creating}
-        >
+  disabled={creating || loading}
+  style={[styles.actionButton, styles.primaryButton, (creating || loading) && { opacity: 0.6 }]}
+>
           {creating ? (
             <ActivityIndicator color="#fff" />
           ) : (
@@ -271,7 +279,7 @@ const BackupScreen = ({ navigation }) => {
       <View style={styles.infoSection}>
         <Text style={styles.infoTitle}>ℹ️ Sobre Backups</Text>
         <Text style={styles.infoText}>
-          • Backups são salvos na nuvem (Firebase){'\n'}
+          • Backups são salvos na nuvem {'\n'}
           • Incluem transações, metas e orçamentos{'\n'}
           • Usuários gratuitos: até 3 backups{'\n'}
           • Premium: backups ilimitados{'\n'}
@@ -282,13 +290,14 @@ const BackupScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 40,
   },
@@ -304,7 +313,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     padding: 20,
     marginTop: 15,
   },
@@ -317,17 +326,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 10,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   lastBackup: {
     fontSize: 12,
-    color: '#4CAF50',
+    color: colors.success,
     marginTop: 10,
     fontWeight: '500',
   },
@@ -339,10 +348,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   primaryButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.success,
   },
   secondaryButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
   },
   actionButtonIcon: {
     fontSize: 30,
@@ -385,21 +394,21 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   emptyStateSubtext: {
     fontSize: 14,
-    color: '#999',
+    color: colors.textTertiary,
     textAlign: 'center',
   },
   backupCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.background,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   backupHeader: {
     flexDirection: 'row',
@@ -413,15 +422,15 @@ const styles = StyleSheet.create({
   backupDate: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 4,
   },
   backupSize: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   autoTag: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.success,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
@@ -442,10 +451,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   restoreButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
   },
   deleteButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: colors.error,
   },
   backupButtonText: {
     fontSize: 14,

@@ -3,6 +3,7 @@
  */
 
 import React, {useEffect, useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -12,7 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons';
-import {COLORS, formatMonthYear} from '../../utils';
+import { formatMonthYear} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
 import BalanceCard from '../../components/common/BalanceCard';
@@ -20,8 +21,12 @@ import QuickActions from '../../components/common/QuickActions';
 import IncomeExpenseChart from '../../components/charts/IncomeExpenseChart';
 import TransactionItem from '../../components/common/TransactionItem';
 import TitheCard from '../../components/common/TitheCard';
+import {t} from '../../i18n';
 
 const HomeScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const {user} = useAuthStore();
   const {
     transactions,
@@ -110,7 +115,7 @@ const handleQuickAction = actionId => {
       }>
       {/* Saudação */}
       <View style={styles.header}>
-        <Text style={styles.greeting}>Olá!</Text>
+        <Text style={styles.greeting}>{t('home.greeting')}</Text>
         <Text style={styles.userName}>
           {user?.displayName || user?.email?.split('@')[0]}
         </Text>
@@ -144,9 +149,10 @@ const handleQuickAction = actionId => {
       {/* Últimas Transações */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Últimas Transações</Text>
+          <Text style={styles.sectionTitle}>
+            {t('home.lastTransactions')}</Text>
           {transactions.length > 5 && (
-            <Text style={styles.seeAll} onPress={() => navigation.navigate("ReportsTab")}>Ver todas</Text>
+            <Text style={styles.seeAll} onPress={() => navigation.navigate("ReportsTab")}>{t('home.seeAll')}</Text>
           )}
         </View>
 
@@ -161,9 +167,9 @@ const handleQuickAction = actionId => {
         ) : (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📝</Text>
-            <Text style={styles.emptyText}>Nenhuma transação ainda</Text>
+            <Text style={styles.emptyText}>{t('home.emptyTitle')}</Text>
             <Text style={styles.emptySubtext}>
-              Use as ações rápidas para adicionar
+              {t('home.emptySubtitle')}
             </Text>
           </View>
         )}
@@ -172,10 +178,11 @@ const handleQuickAction = actionId => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -187,20 +194,19 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 4,
     paddingTop: 4,
   },
   userName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   currentMonth: {
     fontSize: 14,
-    color: COLORS.textLight,
-    textTransform: 'capitalize',
+    color: colors.textSecondary,
   },
 
   section: {
@@ -215,17 +221,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   seeAll: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 32,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -234,11 +240,11 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 8,
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
     emptySubtext: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
 });
 

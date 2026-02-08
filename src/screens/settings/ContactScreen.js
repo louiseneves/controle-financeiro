@@ -1,5 +1,6 @@
 // src/screens/support/ContactScreen.js
-import React, { useState } from 'react';
+import React, { useState,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -16,6 +17,8 @@ import SupportService from '../../services/SupportService';
 import useAuthStore from '../../store/authStore';
 
 const ContactScreen = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const user = useAuthStore(state => state.user);
   
   const [formData, setFormData] = useState({
@@ -126,7 +129,7 @@ const ContactScreen = ({ navigation }) => {
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                 placeholder="Seu nome"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.placeholder}
               />
             </View>
           </View>
@@ -143,7 +146,7 @@ const ContactScreen = ({ navigation }) => {
                 placeholder="seu@email.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.placeholder}
               />
             </View>
           </View>
@@ -193,7 +196,7 @@ const ContactScreen = ({ navigation }) => {
                 value={formData.subject}
                 onChangeText={(text) => setFormData({ ...formData, subject: text })}
                 placeholder="Resumo da sua dúvida"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.placeholder}
               />
             </View>
           </View>
@@ -207,7 +210,7 @@ const ContactScreen = ({ navigation }) => {
                 value={formData.message}
                 onChangeText={(text) => setFormData({ ...formData, message: text })}
                 placeholder="Descreva sua dúvida ou sugestão com o máximo de detalhes possível..."
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.placeholder}
                 multiline
                 numberOfLines={6}
                 textAlignVertical="top"
@@ -255,36 +258,37 @@ const ContactScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
   },
   content: {
     flex: 1,
   },
   infoCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     margin: 20,
     padding: 25,
     borderRadius: 12,
     alignItems: 'center',
     elevation: 2,
-    shadowColor: '#000',
+    shadowcolor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -292,12 +296,12 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginTop: 10,
   },
   infoText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -310,17 +314,17 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     paddingHorizontal: 15,
     elevation: 2,
-    shadowColor: '#000',
+    shadowcolor: colors.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -330,7 +334,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingLeft: 10,
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
   },
   textAreaContainer: {
     alignItems: 'flex-start',
@@ -346,21 +350,21 @@ const styles = StyleSheet.create({
   categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   categoryChipActive: {
-    backgroundColor: '#2196F3',
-    borderColor: '#2196F3',
+    backgroundColor: colors.primary,
+    bordercolor: colors.primary,
   },
   categoryLabel: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
     marginLeft: 6,
     fontWeight: '500',
   },
@@ -371,7 +375,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 10,
     marginTop: 10,
@@ -396,7 +400,7 @@ const styles = StyleSheet.create({
   },
   infoRowText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginLeft: 10,
   },
 });

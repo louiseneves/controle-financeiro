@@ -2,7 +2,8 @@
  * Tela de Calculadora de Dízimo
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,17 +14,19 @@ import {
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
 import {
-  COLORS,
-  formatCurrency,
   calculateTithe,
   formatDate,
   formatMonthYear,
 } from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
+import useSettingsStore from '../../store/settingsStore';
 
 const TitheCalculatorScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {getCurrentMonthTransactions, addTransaction} = useTransactionStore();
 
   const [customAmount, setCustomAmount] = useState('');
@@ -199,7 +202,7 @@ const TitheCalculatorScreen = ({navigation}) => {
 
             <View style={styles.calculationRow}>
               <Text style={styles.calculationLabel}>Dízimo (10%):</Text>
-              <Text style={[styles.calculationValue, {color: COLORS.tithe}]}>
+              <Text style={[styles.calculationValue, {color: colors.tithe}]}>
                 {formatCurrency(monthTithe)}
               </Text>
             </View>
@@ -208,7 +211,7 @@ const TitheCalculatorScreen = ({navigation}) => {
 
             <View style={styles.calculationRow}>
               <Text style={styles.calculationLabel}>Devolvido:</Text>
-              <Text style={[styles.calculationValue, {color: COLORS.success}]}>
+              <Text style={[styles.calculationValue, {color: colors.success}]}>
                 {formatCurrency(paidTithe)}
               </Text>
             </View>
@@ -225,7 +228,7 @@ const TitheCalculatorScreen = ({navigation}) => {
                   {
                     fontWeight: 'bold',
                     fontSize: 20,
-                    color: remaining > 0 ? COLORS.warning : COLORS.success,
+                    color: remaining > 0 ? colors.warning : colors.success,
                   },
                 ]}>
                 {formatCurrency(remaining)}
@@ -269,7 +272,7 @@ const TitheCalculatorScreen = ({navigation}) => {
             </Text>
 
             <Input
-              label="Valor da Receita (R$)"
+              label="Valor da Receita"
               value={customAmount}
               onChangeText={setCustomAmount}
               placeholder="0,00"
@@ -320,10 +323,11 @@ const TitheCalculatorScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -340,18 +344,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontStyle: 'italic',
   },
   modeSelector: {
     flexDirection: 'row',
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.modeSelectorBg,
     borderRadius: 12,
     padding: 4,
     marginBottom: 24,
@@ -363,22 +367,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modeButtonActive: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
   },
   modeButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   modeButtonTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   calculationCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -387,12 +391,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   cardSubtitle: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 16,
   },
   calculationRow: {
@@ -403,19 +407,19 @@ const styles = StyleSheet.create({
   },
   calculationLabel: {
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
   },
   calculationValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   paidBadge: {
-    backgroundColor: COLORS.success + '20',
+    backgroundColor: colors.success + '20',
     borderRadius: 8,
     padding: 12,
     marginTop: 16,
@@ -424,14 +428,14 @@ const styles = StyleSheet.create({
   paidText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.success,
+    color: colors.success,
   },
   customCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -441,7 +445,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   resultCard: {
-    backgroundColor: COLORS.tithe + '10',
+    backgroundColor: colors.tithe + '10',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -452,12 +456,12 @@ const styles = StyleSheet.create({
   resultLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   resultValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.tithe,
+    color: colors.tithe,
   },
   registerButton: {
     marginTop: 8,
@@ -465,7 +469,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingVertical: 40,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -474,7 +478,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 20,
   },
@@ -484,18 +488,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   historyItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -504,17 +508,17 @@ const styles = StyleSheet.create({
   historyDescription: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   historyDate: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   historyAmount: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.tithe,
+    color: colors.tithe,
   },
 });
 

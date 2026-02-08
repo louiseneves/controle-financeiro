@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -10,6 +11,8 @@ import {
 import useSupportStore from '../../store/supportStore';
 
 const TicketListScreen = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { filter = 'all' } = route.params || {};
   const { tickets, loadTickets, loading } = useSupportStore();
   const [selectedFilter, setSelectedFilter] = useState(filter);
@@ -34,9 +37,9 @@ const TicketListScreen = ({ route, navigation }) => {
 
   const getStatusInfo = (status) => {
     const statusMap = {
-      open: { label: 'Aberto', color: '#4CAF50' },
-      in_progress: { label: 'Em Andamento', color: '#FF9800' },
-      resolved: { label: 'Resolvido', color: '#2196F3' },
+      open: { label: 'Aberto', color: colors.success },
+      in_progress: { label: 'Em Andamento', color: colors.warning },
+      resolved: { label: 'Resolvido', color: colors.primary },
       closed: { label: 'Fechado', color: '#9E9E9E' },
     };
     return statusMap[status] || statusMap.open;
@@ -175,13 +178,14 @@ const TicketListScreen = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 40,
   },
@@ -200,7 +204,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 15,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
     gap: 8,
@@ -208,21 +212,21 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     gap: 5,
   },
   filterChipActive: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
   },
   filterIcon: {
     fontSize: 14,
   },
   filterText: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   filterTextActive: {
@@ -233,12 +237,12 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   ticketCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     padding: 15,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   ticketHeader: {
     flexDirection: 'row',
@@ -264,15 +268,15 @@ const styles = StyleSheet.create({
   ticketSubject: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 4,
   },
   ticketCategory: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   unreadBadge: {
-    backgroundColor: '#f44336',
+    backgroundColor: colors.error,
     borderRadius: 12,
     minWidth: 24,
     height: 24,
@@ -287,7 +291,7 @@ const styles = StyleSheet.create({
   },
   lastMessage: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: 10,
   },
@@ -308,7 +312,7 @@ const styles = StyleSheet.create({
   },
   ticketDate: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textTertiary,
   },
   ratingBadge: {
     marginTop: 8,
@@ -327,7 +331,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 15,
   },
   emptyState: {
@@ -344,18 +348,18 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: colors.textTertiary,
     textAlign: 'center',
     marginBottom: 20,
   },
   createButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 20,

@@ -1,30 +1,36 @@
 /**
- * Configuração do Firebase Web SDK v12
- * Para React Native
+ * Configuração do Firebase - CORRIGIDA
+ * Credenciais movidas para app.json por segurança
  */
 
-import {initializeApp} from 'firebase/app';
-import {getAuth} from 'firebase/auth';
-import {getFirestore} from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import Constants from 'expo-constants';
 
-// COLE SUAS CREDENCIAIS AQUI (do Firebase Console)
+// Pegar credenciais do app.json (variáveis de ambiente)
 const firebaseConfig = {
-  apiKey: 'AIzaSyBLCSsiHQWnu-xKnzA_Aabk2e0hLLaPmaE',
-  authDomain: 'caldizimo.firebaseapp.com',
-  projectId: 'caldizimo',
-  storageBucket: 'caldizimo.appspot.com',
-  messagingSenderId: '823938921031',
-  appId: '1:823938921031:web:05eee5cebea890f44af762',
+  apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
+  authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain,
+  projectId: Constants.expoConfig?.extra?.firebaseProjectId,
+  storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket,
+  messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId,
+  appId: Constants.expoConfig?.extra?.firebaseAppId,
 };
+
+// Validar configuração
+if (!firebaseConfig.apiKey) {
+  console.error('❌ Firebase config não encontrada!');
+  console.error('Verifique se as credenciais estão no app.json em "extra"');
+  throw new Error('Firebase config não encontrada! Verifique app.json');
+}
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
-
-// Inicializar serviços
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-console.log('🔥 Firebase Web SDK inicializado');
+console.log('🔥 Firebase inicializado com sucesso');
 
 // Collections do Firestore
 export const COLLECTIONS = {
@@ -37,10 +43,11 @@ export const COLLECTIONS = {
   TITHES: 'tithes',
   PLANNING: 'planning',
   SUPPORT_TICKETS: 'support_tickets',
+  BACKUPS: 'backups',
 };
 
 // Exportar serviços
-export {auth, db};
+export { auth, db };
 
 // Export default
 export default {

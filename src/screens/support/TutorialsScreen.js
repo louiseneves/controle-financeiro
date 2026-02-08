@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -11,6 +12,8 @@ import {
 const { width } = Dimensions.get('window');
 
 const TutorialsScreen = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [expandedId, setExpandedId] = useState(null);
 
   const tutorials = [
@@ -18,7 +21,7 @@ const TutorialsScreen = () => {
       id: '1',
       category: 'Primeiros Passos',
       icon: '🚀',
-      color: '#2196F3',
+      color: colors.primary,
       items: [
         {
           title: 'Como criar sua primeira transação',
@@ -59,7 +62,7 @@ const TutorialsScreen = () => {
       id: '2',
       category: 'Funcionalidades Principais',
       icon: '⚙️',
-      color: '#FF9800',
+      color: colors.warning,
       items: [
         {
           title: 'Como usar a calculadora de dízimo',
@@ -112,7 +115,7 @@ const TutorialsScreen = () => {
       id: '3',
       category: 'Relatórios e Análises',
       icon: '📊',
-      color: '#4CAF50',
+      color: colors.success,
       items: [
         {
           title: 'Visualizando relatórios mensais',
@@ -359,13 +362,14 @@ const TutorialsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 40,
   },
@@ -387,7 +391,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   categoryHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -406,35 +410,35 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 2,
   },
   categoryCount: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   expandIcon: {
     fontSize: 16,
-    color: '#999',
+    color: colors.textTertiary,
     marginLeft: 10,
   },
   tutorialsContainer: {
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.backgroundSecondary,
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
   tutorialCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     padding: 15,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   tutorialTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 12,
   },
   stepsContainer: {
@@ -454,7 +458,7 @@ const styles = StyleSheet.create({
   stepText: {
     flex: 1,
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   footer: {
@@ -464,7 +468,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2196F3',
+    bordercolor: colors.primary,
   },
   footerTitle: {
     fontSize: 16,

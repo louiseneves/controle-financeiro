@@ -2,7 +2,8 @@
  * Tela de Recuperação de Senha
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -16,10 +17,13 @@ import {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {Button, Input} from '../../components/ui';
-import {COLORS} from '../../utils';
 import useAuthStore from '../../store/authStore';
+import {t} from '../../i18n';
 
 const ForgotPasswordScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [emailSent, setEmailSent] = useState(false);
@@ -39,12 +43,12 @@ const ForgotPasswordScreen = ({navigation}) => {
     setEmailError('');
 
     if (!email) {
-      setEmailError('Email é obrigatório');
+      setEmailError(t('forgotPassword.emailRequired'));
       return false;
     }
 
     if (!validateEmail(email)) {
-      setEmailError('Email inválido');
+      setEmailError(t('forgotPassword.emailInvalid'));
       return false;
     }
 
@@ -60,11 +64,11 @@ const ForgotPasswordScreen = ({navigation}) => {
     if (result.success) {
       setEmailSent(true);
       Alert.alert(
-        'Email Enviado! ✅',
-        'Verifique sua caixa de entrada para redefinir sua senha.',
+        t('forgotPassword.successTitle'),
+        t('forgotPassword.successMessage'),
       );
     } else {
-      Alert.alert('Erro', result.error || 'Erro ao enviar email');
+      Alert.alert(t('forgotPassword.errorTitle'), result.error || t('forgotPassword.sendError'));
     }
   };
 
@@ -77,30 +81,30 @@ const ForgotPasswordScreen = ({navigation}) => {
         keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>
-          <MaterialCommunityIcons name="lock" size={64} color="black" />
-          <Text style={styles.title}>Recuperar Senha</Text>
+          <MaterialCommunityIcons name="lock" size={64} color={colors.text} />
+          <Text style={styles.title}>{t('forgotPassword.title')}</Text>
           <Text style={styles.subtitle}>
             {emailSent
-              ? 'Email enviado com sucesso!'
-              : 'Digite seu email para receber as instruções'}
+              ? t('forgotPassword.subtitleSent')
+              : t('forgotPassword.subtitleDefault')}
           </Text>
         </View>
 
         {!emailSent ? (
           <View style={styles.form}>
             <Input
-              label="Email"
+              label={t('forgotPassword.emailLabel')}
               value={email}
               onChangeText={setEmail}
-              placeholder="seu@email.com"
+              placeholder={t('forgotPassword.emailPlaceholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               error={emailError}
-              leftIcon={<MaterialIcons name="email" size={24} color="black" />}
+              leftIcon={<MaterialIcons name="email" size={24} color={colors.textSecondary} />}
             />
 
             <Button
-              title="Enviar Email de Recuperação"
+              title={t('forgotPassword.sendButton')}
               onPress={handleResetPassword}
               loading={loading}
               style={styles.submitButton}
@@ -110,7 +114,7 @@ const ForgotPasswordScreen = ({navigation}) => {
               onPress={() => navigation.goBack()}
               style={styles.backButton}>
               <Text style={styles.backButtonText}>
-                ← Voltar para o login
+                {t('forgotPassword.backToLogin')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -118,16 +122,16 @@ const ForgotPasswordScreen = ({navigation}) => {
           <View style={styles.successContainer}>
             <Text style={styles.successIcon}>✅</Text>
             <Text style={styles.successText}>
-              Enviamos um link de recuperação para:
+              {t('forgotPassword.successInfo')}
             </Text>
             <Text style={styles.emailText}>{email}</Text>
 
             <Text style={styles.instructionsText}>
-              Verifique sua caixa de entrada e spam.
+              {t('forgotPassword.instructions')}
             </Text>
 
             <Button
-              title="Voltar para o Login"
+              title={t('forgotPassword.backLoginButton')}
               onPress={() => navigation.navigate('Login')}
               style={styles.backToLoginButton}
             />
@@ -136,7 +140,7 @@ const ForgotPasswordScreen = ({navigation}) => {
               onPress={() => setEmailSent(false)}
               style={styles.resendButton}>
               <Text style={styles.resendText}>
-                Não recebeu? Enviar novamente
+                {t('forgotPassword.resend')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -146,10 +150,11 @@ const ForgotPasswordScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -163,12 +168,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 20,
   },
@@ -184,7 +189,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   successContainer: {
@@ -197,19 +202,19 @@ const styles = StyleSheet.create({
   },
   successText: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 12,
   },
   emailText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: 24,
   },
   instructionsText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
   },
@@ -222,7 +227,7 @@ const styles = StyleSheet.create({
   },
   resendText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 });

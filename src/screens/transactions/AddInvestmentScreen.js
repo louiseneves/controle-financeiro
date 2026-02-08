@@ -2,7 +2,8 @@
  * Tela de Adicionar Investimento
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -14,11 +15,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {COLORS, INVESTMENT_CATEGORIES} from '../../utils';
+import { INVESTMENT_CATEGORIES} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
+import { isoToBR, brToISO } from '../../utils/helpers/formatters';
 
 const AddInvestmentScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {addTransaction} = useTransactionStore();
 
@@ -63,16 +67,30 @@ const AddInvestmentScreen = ({navigation}) => {
   const handleSave = async () => {
     if (!validateFields()) return;
 
+    if (!user?.uid) {
+          Alert.alert('Sessão expirada', 'Faça login novamente.');
+          navigation.replace('Login');
+          return;
+        }
+
     try {
       setLoading(true);
 
+      // Conversão segura da data
+            const parsedDate = new Date(`${date}T00:00:00`);
+      
+            if (isNaN(parsedDate.getTime())) {
+              Alert.alert('Erro', 'Data inválida');
+              return;
+      }
+      
       const transactionData = {
         type: 'investimento',
         description: description.trim(),
         amount: parseFloat(amount),
         category,
         profitability: profitability ? parseFloat(profitability) : 0,
-        date: new Date(date).toISOString(),
+        date: parsedDate.toISOString(),
         userId: user.uid,
       };
 
@@ -124,7 +142,7 @@ const AddInvestmentScreen = ({navigation}) => {
           />
 
           <Input
-            label="Valor Investido (R$)"
+            label="Valor Investido "
             value={amount}
             onChangeText={setAmount}
             placeholder="0,00"
@@ -144,9 +162,9 @@ const AddInvestmentScreen = ({navigation}) => {
 
           <Input
             label="Data de Aplicação"
-            value={date}
-            onChangeText={setDate}
-            placeholder="YYYY-MM-DD"
+            value={isoToBR(date)}
+            onChangeText={(text) => setDate(brToISO(text))}
+            placeholder="DD/MM/AAAA"
             leftIcon={<Text style={styles.iconText}>📅</Text>}
           />
 
@@ -215,10 +233,11 @@ const AddInvestmentScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -235,12 +254,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   form: {
@@ -252,7 +271,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   categorySection: {
@@ -266,17 +285,17 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '31%',
     aspectRatio: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   categoryCardSelected: {
     borderWidth: 3,
-    backgroundColor: COLORS.investment + '10',
+    backgroundColor: colors.investment + '10',
   },
   categoryIcon: {
     fontSize: 28,
@@ -284,17 +303,17 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 11,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontWeight: '500',
   },
   categoryNameSelected: {
-    color: COLORS.investment,
+    color: colors.investment,
     fontWeight: '600',
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.investment + '10',
+    backgroundColor: colors.investment + '10',
     borderRadius: 8,
     padding: 12,
     marginTop: 8,
@@ -306,16 +325,16 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 18,
   },
   errorText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 14,
   },
   errorTextSmall: {
     fontSize: 12,
-    color: COLORS.error,
+    color: colors.error,
     marginTop: 4,
     marginLeft: 4,
   },

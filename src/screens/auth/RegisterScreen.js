@@ -2,7 +2,8 @@
  * Tela de Cadastro
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -17,10 +18,13 @@ import {
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {Button, Input} from '../../components/ui';
-import {COLORS} from '../../utils';
 import useAuthStore from '../../store/authStore';
+import {t} from '../../i18n';
 
 const RegisterScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,34 +55,34 @@ const RegisterScreen = ({navigation}) => {
     setConfirmPasswordError('');
 
     if (!name) {
-      setNameError('Nome é obrigatório');
+      setNameError(t('register.errors.nameRequired'));
       isValid = false;
     } else if (name.length < 3) {
-      setNameError('Nome deve ter no mínimo 3 caracteres');
+      setNameError(t('register.errors.nameMin'));
       isValid = false;
     }
 
     if (!email) {
-      setEmailError('Email é obrigatório');
+      setEmailError(t('register.errors.emailRequired'));
       isValid = false;
     } else if (!validateEmail(email)) {
-      setEmailError('Email inválido');
+      setEmailError(t('register.errors.emailInvalid'));
       isValid = false;
     }
 
     if (!password) {
-      setPasswordError('Senha é obrigatória');
+      setPasswordError(t('register.errors.passwordRequired'));
       isValid = false;
     } else if (password.length < 6) {
-      setPasswordError('Senha deve ter no mínimo 6 caracteres');
+      setPasswordError(t('register.errors.passwordMin'));
       isValid = false;
     }
 
     if (!confirmPassword) {
-      setConfirmPasswordError('Confirme sua senha');
+      setConfirmPasswordError(t('register.errors.confirmPasswordRequired'));
       isValid = false;
     } else if (password !== confirmPassword) {
-      setConfirmPasswordError('As senhas não coincidem');
+      setConfirmPasswordError(t('register.errors.passwordMismatch'));
       isValid = false;
     }
 
@@ -93,11 +97,11 @@ const RegisterScreen = ({navigation}) => {
 
     if (result.success) {
       Alert.alert(
-        'Sucesso!',
-        'Cadastro realizado com sucesso!',
+        t('register.alerts.successTitle'),
+        t('register.alerts.successMessage'),
       );
     } else {
-      Alert.alert('Erro', result.error || 'Erro ao fazer cadastro');
+      Alert.alert(t('register.alerts.errorTitle'), result.error || t('register.alerts.errorGeneric'));
     }
   };
 
@@ -115,68 +119,69 @@ const RegisterScreen = ({navigation}) => {
             source={require('../../assets/icons/logo.png')}
             style={styles.logo}
           />
-          <Text style={styles.title}>Criar Conta</Text>
+          <Text style={styles.title}>{t('register.title')}</Text>
           <Text style={styles.subtitle}>
-            Preencha os dados para começar
+            {t('register.subtitle')}
           </Text>
         </View>
 
         {/* Form */}
         <View style={styles.form}>
           <Input
-            label="Nome Completo"
+            label={t('register.name')}
             value={name}
             onChangeText={setName}
-            placeholder="João Silva"
+            placeholder={t('register.namePlaceholder')}
             autoCapitalize="words"
             error={nameError}
-            leftIcon={<FontAwesome name="user" size={24} color="black" />}
+            leftIcon={<FontAwesome name="user" size={24} color={colors.textSecondary}
+ />}
           />
 
           <Input
-            label="Email"
+            label={t('register.email')}
             value={email}
             onChangeText={setEmail}
-            placeholder="seu@email.com"
+            placeholder={t('register.emailPlaceholder')}
             keyboardType="email-address"
             autoCapitalize="none"
             error={emailError}
-            leftIcon={<MaterialIcons name="email" size={24} color="black" />}
+            leftIcon={<MaterialIcons name="email" size={24} color={colors.textSecondary} />}
           />
 
           <Input
-            label="Senha"
+            label={t('register.password')}
             value={password}
             onChangeText={setPassword}
-            placeholder="Mínimo 6 caracteres"
+            placeholder={t('register.passwordPlaceholder')}
             secureTextEntry
             error={passwordError}
             showPasswordToggle
-            leftIcon={<MaterialIcons name="lock" size={24} color="black" />}
+            leftIcon={<MaterialIcons name="lock" size={24} color={colors.textSecondary} />}
           />
 
           <Input
-            label="Confirmar Senha"
+            label={t('register.confirmPassword')}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
-            placeholder="Digite a senha novamente"
+            placeholder={t('register.confirmPasswordPlaceholder')}
             secureTextEntry
             error={confirmPasswordError}
             showPasswordToggle
-            leftIcon={<MaterialIcons name="lock" size={24} color="black" />}
+            leftIcon={<MaterialIcons name="lock" size={24} color={colors.textSecondary} />}
           />
 
           <Button
-            title="Cadastrar"
+            title={t('register.button')}
             onPress={handleRegister}
             loading={loading}
             style={styles.registerButton}
           />
 
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Já tem uma conta? </Text>
+            <Text style={styles.loginText}>{t('register.alreadyAccount')} </Text>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={styles.loginLink}>Faça login</Text>
+              <Text style={styles.loginLink}>{t('register.login')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -186,10 +191,11 @@ const RegisterScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -208,12 +214,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   form: {
@@ -229,11 +235,11 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   loginLink: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 });

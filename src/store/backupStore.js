@@ -26,44 +26,52 @@ export const backupStore = create((set, get) => ({
   },
 
   saveSettings: async () => {
-    try {
-      const { autoBackupEnabled, lastBackup } = get();
-      await AsyncStorage.setItem('backupSettings', JSON.stringify({
-        autoBackupEnabled,
-        lastBackup
-      }));
-    } catch (error) {
-      console.error('Erro ao salvar configurações:', error);
-    }
-  },
+  try {
+    const { autoBackupEnabled, lastBackup } = get();
+    await AsyncStorage.setItem(
+      'backupSettings',
+      JSON.stringify({ autoBackupEnabled, lastBackup })
+    );
+  } catch (error) {
+    console.error('Erro ao salvar configurações:', error);
+  }
+},
+
 
   toggleAutoBackup: async (enabled) => {
     set({ autoBackupEnabled: enabled });
     await get().saveSettings();
   },
 
-  createBackup: async (isAutomatic = false) => {
+  createBackup: async (isAutomatic = false, isPremium = false) => {
   const user = auth.currentUser;
   if (!user) return null;
 
   set({ loading: true });
     
+if (!isPremium && get().backups.length >= 3) {
+  throw new Error('Limite de backups atingido');
+}
 
   try {
-    const backupData = {
-      userId: user.uid,
-      isAutomatic,
-      version: '1.0.0',
-      data: {
-        transactions: useTransactionStore.getState().transactions,
-        goals: useGoalsStore.getState().goals,
-        budgets: useBudgetStore.getState().budgets,
-        userProfile: {
-          name: user.displayName,
-          email: user.email,
-        },
-      },
-    };
+const now = new Date().toISOString();
+
+const backupData = {
+  userId: user.uid,
+  isAutomatic,
+  version: '1.0.0',
+  timestamp: now, // 🔑 ESSENCIAL
+  data: {
+    transactions: useTransactionStore.getState().transactions,
+    goals: useGoalsStore.getState().goals,
+    budgets: useBudgetStore.getState().budgets,
+    userProfile: {
+      name: user.displayName,
+      email: user.email,
+    },
+  },
+};
+
     
     const backupId = await addDocument('backups', backupData);
 
@@ -74,7 +82,7 @@ export const backupStore = create((set, get) => ({
 
     set(state => ({
       backups: [backup, ...state.backups],
-      lastBackup: new Date().toISOString(),
+      lastBackup: now,
       loading: false,
     }));
 
@@ -97,7 +105,7 @@ export const backupStore = create((set, get) => ({
     const backups = await getDocuments(
       'backups',
       { field: 'userId', operator: '==', value: user.uid },
-      { field: 'createdAt', direction: 'desc' },
+      { field: 'timestamp', direction: 'desc' },
       10
     );
 

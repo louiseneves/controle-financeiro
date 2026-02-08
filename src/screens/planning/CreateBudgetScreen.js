@@ -2,7 +2,8 @@
  * Tela de Criar/Editar Orçamento
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -14,11 +15,17 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {COLORS, EXPENSE_CATEGORIES, formatCurrency} from '../../utils';
+import {COLORS, EXPENSE_CATEGORIES, formatMonthYear} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useBudgetStore from '../../store/budgetStore';
+import useSettingsStore from '../../store/settingsStore';
+import {t} from '../../i18n';
+import { getCurrencyPlaceholder, getCurrencySymbol } from '../../utils/helpers/formatters';
 
 const CreateBudgetScreen = ({navigation, route}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {user} = useAuthStore();
   const {addBudget, updateBudget} = useBudgetStore();
   
@@ -27,6 +34,7 @@ const CreateBudgetScreen = ({navigation, route}) => {
 
   const [categoryBudgets, setCategoryBudgets] = useState({});
   const [loading, setLoading] = useState(false);
+const currencySymbol = getCurrencySymbol();
 
   useEffect(() => {
     if (isEditing && existingBudget.categories) {
@@ -49,7 +57,7 @@ const CreateBudgetScreen = ({navigation, route}) => {
     const total = calculateTotal();
 
     if (total === 0) {
-      Alert.alert('Erro', 'Defina pelo menos um orçamento de categoria');
+      Alert.alert(t('budget.alerts.error'), t('budget.alerts.minRequired'));
       return;
     }
 
@@ -82,8 +90,8 @@ const CreateBudgetScreen = ({navigation, route}) => {
 
       if (result.success) {
         Alert.alert(
-          'Sucesso! ✅',
-          isEditing ? 'Orçamento atualizado!' : 'Orçamento criado!',
+          t('budget.alerts.successTitle'),
+          isEditing ? t('budget.alerts.updated') : t('budget.alerts.created'),
           [
             {
               text: 'OK',
@@ -92,11 +100,11 @@ const CreateBudgetScreen = ({navigation, route}) => {
           ],
         );
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao salvar orçamento');
+        Alert.alert(t('budget.alerts.error'), result.error || t('budget.alerts.genericError'));
       }
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      Alert.alert('Erro', 'Não foi possível salvar o orçamento');
+      Alert.alert(t('budget.alerts.error'), t('budget.alerts.saveError'));
     } finally {
       setLoading(false);
     }
@@ -104,11 +112,11 @@ const CreateBudgetScreen = ({navigation, route}) => {
 
   const handleQuickFill = () => {
     Alert.alert(
-      'Preenchimento Rápido',
-      'Escolha uma opção:',
+      t('budget.quickFill.title'),
+      t('budget.quickFill.choose'),
       [
         {
-          text: 'Distribuir Igualmente',
+          text: t('budget.quickFill.equal'),
           onPress: () => {
             const equalAmount = 500; // R$ 500 por categoria
             const budgets = {};
@@ -119,7 +127,7 @@ const CreateBudgetScreen = ({navigation, route}) => {
           },
         },
         {
-          text: 'Valores Sugeridos',
+          text: t('budget.quickFill.suggested'),
           onPress: () => {
             // Sugestões baseadas em prioridades
             const suggestions = {
@@ -153,26 +161,29 @@ const CreateBudgetScreen = ({navigation, route}) => {
         <View style={styles.header}>
           <Text style={styles.headerIcon}>📊</Text>
           <Text style={styles.headerTitle}>
-            {isEditing ? 'Editar Orçamento' : 'Criar Orçamento Mensal'}
+            {isEditing ? t('budget.editTitle') : t('budget.createTitle')}
           </Text>
           <Text style={styles.headerSubtitle}>
-            Defina limites de gastos por categoria
+            {t('budget.subtitle')}
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            {formatMonthYear(new Date())}
           </Text>
         </View>
 
         {/* Total */}
         <View style={styles.totalCard}>
-          <Text style={styles.totalLabel}>Orçamento Total</Text>
+          <Text style={styles.totalLabel}>{t('budget.total')}</Text>
           <Text style={styles.totalAmount}>{formatCurrency(totalBudget)}</Text>
           
           <TouchableOpacity style={styles.quickFillButton} onPress={handleQuickFill}>
-            <Text style={styles.quickFillText}>⚡ Preenchimento Rápido</Text>
+            <Text style={styles.quickFillText}>⚡ {t('budget.quickFill.title')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Categorias */}
         <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>Orçamento por Categoria</Text>
+          <Text style={styles.sectionTitle}>{t('budget.categoryTitle')}</Text>
 
           {EXPENSE_CATEGORIES.map(category => (
             <View key={category.id} style={styles.categoryInput}>
@@ -184,9 +195,9 @@ const CreateBudgetScreen = ({navigation, route}) => {
               <Input
                 value={categoryBudgets[category.id]?.toString() || ''}
                 onChangeText={value => handleAmountChange(category.id, value)}
-                placeholder="0,00"
+                placeholder={getCurrencyPlaceholder()}
                 keyboardType="numeric"
-                leftIcon={<Text style={styles.inputIcon}>R$</Text>}
+                leftIcon={<Text style={styles.inputIcon}>{currencySymbol}</Text>}
                 style={styles.input}
               />
             </View>
@@ -197,10 +208,9 @@ const CreateBudgetScreen = ({navigation, route}) => {
         <View style={styles.tipBox}>
           <Text style={styles.tipIcon}>💡</Text>
           <View style={styles.tipContent}>
-            <Text style={styles.tipTitle}>Dica</Text>
+            <Text style={styles.tipTitle}>{t('budget.tip.title')}</Text>
             <Text style={styles.tipText}>
-              Uma regra comum é: 50% para necessidades, 30% para desejos e 20%
-              para poupança e investimentos.
+              {t('budget.tip.text')}
             </Text>
           </View>
         </View>
@@ -208,7 +218,7 @@ const CreateBudgetScreen = ({navigation, route}) => {
         {/* Botões */}
         <View style={styles.actions}>
           <Button
-            title={isEditing ? 'Salvar Alterações' : 'Criar Orçamento'}
+            title={isEditing ? t('budget.actions.save') : t('budget.actions.create')}
             onPress={handleSave}
             loading={loading}
             disabled={totalBudget === 0}
@@ -216,7 +226,7 @@ const CreateBudgetScreen = ({navigation, route}) => {
           />
 
           <Button
-            title="Cancelar"
+            title={t('budget.actions.cancel')}
             onPress={() => navigation.goBack()}
             variant="outline"
           />
@@ -226,10 +236,11 @@ const CreateBudgetScreen = ({navigation, route}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -246,17 +257,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   totalCard: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
@@ -269,25 +280,25 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.9,
     marginBottom: 8,
   },
   totalAmount: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.card,
     marginBottom: 16,
   },
   quickFillButton: {
-    backgroundColor: COLORS.white + '20',
+    backgroundColor: colors.card + '20',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
   },
   quickFillText: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.card,
     fontWeight: '600',
   },
   categoriesSection: {
@@ -296,7 +307,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   categoryInput: {
@@ -314,7 +325,7 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   input: {
     marginBottom: 0,
@@ -322,11 +333,11 @@ const styles = StyleSheet.create({
   inputIcon: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   tipBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.info + '10',
+    backgroundColor: colors.info + '10',
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
@@ -341,12 +352,12 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   tipText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     lineHeight: 20,
   },
   actions: {

@@ -4,50 +4,50 @@
  */
 
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
+
 import HistoryScreen from '../screens/reports/HistoryScreen';
 import ReportsScreen from '../screens/reports/ReportsScreen';
 import AdvancedReportsScreen from '../screens/reports/AdvancedReportsScreen';
-import {COLORS} from '../utils';
 
 const Stack = createNativeStackNavigator();
 
 const ReportsNavigator = () => {
+  const { colors } = useTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: COLORS.white,
+          backgroundColor: colors.card,
         },
-        headerTintColor: COLORS.text,
+        headerTintColor: colors.text,
         headerTitleStyle: {
           fontWeight: '600',
         },
         headerShadowVisible: false,
-      }}>
+        contentStyle: {
+          backgroundColor: colors.background,
+        },
+      }}
+    >
       <Stack.Screen
         name="ReportsMain"
         component={ReportsScreen}
-        options={{
-          title: 'Relatórios',
-          headerShown: true,
-        }}
+        options={{ title: 'Relatórios' }}
       />
+
       <Stack.Screen
         name="History"
         component={HistoryScreen}
-        options={{
-          title: 'Histórico',
-          headerShown: true,
-        }}
+        options={{ title: 'Histórico' }}
       />
+
       <Stack.Screen
         name="AdvancedReports"
         component={AdvancedReportsScreen}
-        options={{
-          title: 'Relatórios Avançados',
-          headerShown: true,
-        }}
+        options={{ title: 'Relatórios Avançados' }}
       />
     </Stack.Navigator>
   );

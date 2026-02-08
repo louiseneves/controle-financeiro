@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -12,9 +13,12 @@ import {
 import useSettingsStore from '../../store/settingsStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
+import { t } from '../../i18n';
 
 
 const SettingsScreen = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {
   darkMode,
   currency,
@@ -29,7 +33,6 @@ const SettingsScreen = ({ navigation }) => {
   updateNotifications,
   setNotificationTime,
   resetSettings,
-  getTheme,
 } = useSettingsStore();
 
 
@@ -50,9 +53,6 @@ useEffect(() => {
   setSelectedTime(date);
 }, [notifications.time]);
 
-
-  const theme = getTheme();
-
   useEffect(() => {
     loadSettings();
   }, []);
@@ -69,24 +69,19 @@ useEffect(() => {
   const handleSelectLanguage = async (languageCode) => {
     await setLanguage(languageCode);
     setShowLanguageModal(false);
-    Alert.alert(
-      'Idioma Alterado',
-      'O idioma será aplicado no próximo reinício do app.'
-    );
   };
 
   const handleResetSettings = () => {
     Alert.alert(
-      'Resetar Configurações',
-      'Isso irá restaurar todas as configurações padrão. Deseja continuar?',
+      t('settings.resetConfirmTitle'),
+      t('settings.resetConfirmMessage'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('settings.cancel'), style: 'cancel' },
         {
-          text: 'Resetar',
           style: 'destructive',
           onPress: async () => {
             await resetSettings();
-            Alert.alert('Sucesso', 'Configurações restauradas!');
+            Alert.alert(t('settings.successTitle'), t('settings.resetSuccessMessage'));
           },
         },
       ]
@@ -109,72 +104,75 @@ useEffect(() => {
 
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView>
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: theme.primary }]}>
-          <Text style={styles.headerTitle}>Configurações</Text>
+        <View style={[styles.header, { backgroundColor: colors.primary }]}>
+          <Text style={styles.headerTitle}>{t('settings.title')}</Text>
           <Text style={styles.headerSubtitle}>
-            Personalize seu aplicativo
+            {t('settings.subtitle')}
           </Text>
         </View>
 
         {/* Aparência */}
-        <View style={[styles.section, { backgroundColor: theme.card }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            🎨 Aparência
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {t('settings.appearance')}
           </Text>
 
-          <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
+          <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
             <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, { color: theme.text }]}>
-                Modo Escuro
+              <Text style={[styles.settingLabel, { color: colors.text }]}>
+                {t('settings.darkMode')}
               </Text>
-              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                Tema escuro para economizar bateria
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                {t('settings.darkModeDesc')}
               </Text>
             </View>
             <Switch
               value={darkMode}
               onValueChange={handleToggleDarkMode}
-              trackColor={{ false: '#ccc', true: theme.primary }}
-              thumbColor="#fff"
+              trackColor={{
+                false: colors.border,
+                true: colors.primary,
+              }}
+              thumbColor={colors.card}
             />
           </View>
         </View>
 
         {/* Região e Moeda */}
-        <View style={[styles.section, { backgroundColor: theme.card }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            🌍 Região e Moeda
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {t('settings.regionCurrency')}
           </Text>
 
           <TouchableOpacity
-            style={[styles.settingRow, { borderBottomColor: theme.border }]}
+            style={[styles.settingRow, { borderBottomColor: colors.border }]}
             onPress={() => setShowCurrencyModal(true)}
           >
             <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, { color: theme.text }]}>
-                Moeda
+              <Text style={[styles.settingLabel, { color: colors.text }]}>
+                {t('settings.currency')}
               </Text>
-              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                 {currentCurrency?.name}
               </Text>
             </View>
-            <Text style={[styles.settingValue, { color: theme.primary }]}>
+            <Text style={[styles.settingValue, { color: colors.primary }]}>
               {currentCurrency?.symbol}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.settingRow, { borderBottomColor: theme.border }]}
+            style={[styles.settingRow, { borderBottomColor: colors.border }]}
             onPress={() => setShowLanguageModal(true)}
           >
             <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, { color: theme.text }]}>
-                Idioma
+              <Text style={[styles.settingLabel, { color: colors.text }]}>
+                {t('settings.language')}
               </Text>
-              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                 {currentLanguage?.name}
               </Text>
             </View>
@@ -185,95 +183,110 @@ useEffect(() => {
         </View>
 
         {/* Notificações */}
-        <View style={[styles.section, { backgroundColor: theme.card }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            🔔 Notificações
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {t('settings.notifications')}
           </Text>
 
-          <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
+          <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
             <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, { color: theme.text }]}>
-                Notificações Ativadas
+              <Text style={[styles.settingLabel, { color: colors.text }]}>
+                {t('settings.notificationsEnabled')}
               </Text>
-              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                Ativar/desativar todas as notificações
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                {t('settings.notificationsEnabledDesc')}
               </Text>
             </View>
             <Switch
               value={notifications.enabled}
               onValueChange={(value) => updateNotifications({ enabled: value })}
-              trackColor={{ false: '#ccc', true: theme.primary }}
-              thumbColor="#fff"
+              trackColor={{
+    false: colors.border,
+    true: colors.primary,
+  }}
+  thumbColor={colors.card}
             />
           </View>
 
           {notifications.enabled && (
             <>
-              <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
+              <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
                 <View style={styles.settingInfo}>
-                  <Text style={[styles.settingLabel, { color: theme.text }]}>
-                    Lembrete de Contas
+                  <Text style={[styles.settingLabel, { color: colors.text }]}>
+                    {t('settings.bills')}
                   </Text>
-                  <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                    Avisar sobre contas a vencer
+                  <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                    {t('settings.billsDesc')}
                   </Text>
                 </View>
                 <Switch
                   value={notifications.bills}
                   onValueChange={(value) => updateNotifications({ bills: value })}
-                  trackColor={{ false: '#ccc', true: theme.primary }}
-                  thumbColor="#fff"
+                  trackColor={{
+    false: colors.border,
+    true: colors.primary,
+  }}
+  thumbColor={colors.card}
                 />
               </View>
 
-              <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
+              <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
                 <View style={styles.settingInfo}>
-                  <Text style={[styles.settingLabel, { color: theme.text }]}>
-                    Lembrete de Dízimo
+                  <Text style={[styles.settingLabel, { color: colors.text }]}>
+                    {t('settings.tithe')}
                   </Text>
-                  <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                    Lembrar de pagar o dízimo mensalmente
+                  <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                    {t('settings.titheDesc')}
                   </Text>
                 </View>
                 <Switch
                   value={notifications.tithe}
                   onValueChange={(value) => updateNotifications({ tithe: value })}
-                  trackColor={{ false: '#ccc', true: theme.primary }}
-                  thumbColor="#fff"
+                  trackColor={{
+    false: colors.border,
+    true: colors.primary,
+  }}
+  thumbColor={colors.card}
                 />
               </View>
 
-              <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
+              <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
                 <View style={styles.settingInfo}>
-                  <Text style={[styles.settingLabel, { color: theme.text }]}>
-                    Avisos de Metas
+                  <Text style={[styles.settingLabel, { color: colors.text }]}>
+                    {t('settings.goals')}
                   </Text>
-                  <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                    Progresso e conquistas de metas
+                  <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                    {t('settings.goalsDesc')}
                   </Text>
                 </View>
                 <Switch
                   value={notifications.goals}
                   onValueChange={(value) => updateNotifications({ goals: value })}
-                  trackColor={{ false: '#ccc', true: theme.primary }}
-                  thumbColor="#fff"
+                  trackColor={{
+    false: colors.border,
+    true: colors.primary,
+  }}
+  thumbColor={colors.card}
                 />
               </View>
 
-              <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
+              <View style={[styles.settingRow, { borderBottomColor: colors.border }]}>
                 <View style={styles.settingInfo}>
-                  <Text style={[styles.settingLabel, { color: theme.text }]}>
-                    Lembrete Diário
+                  <Text style={[styles.settingLabel, { color: colors.text }]}>
+                    {t('settings.daily')}
                   </Text>
-                  <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                    Lembrar de registrar gastos diários
+                  <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                    {t('settings.dailyDesc')}
                   </Text>
                 </View>
                 <Switch
                   value={notifications.dailyReminder}
                   onValueChange={(value) => updateNotifications({ dailyReminder: value })}
-                  trackColor={{ false: '#ccc', true: theme.primary }}
-                  thumbColor="#fff"
+                  trackColor={{
+    false: colors.border,
+    true: colors.primary,
+  }}
+  thumbColor={colors.card}
                 />
               </View>
 
@@ -282,14 +295,14 @@ useEffect(() => {
                 onPress={() => setShowTimeModal(true)}
               >
                 <View style={styles.settingInfo}>
-                  <Text style={[styles.settingLabel, { color: theme.text }]}>
-                    Horário das Notificações
+                  <Text style={[styles.settingLabel, { color: colors.text }]}>
+                    {t('settings.notificationTime')}
                   </Text>
-                  <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                    Definir horário padrão
+                  <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                    {t('settings.notificationTimeDesc')}
                   </Text>
                 </View>
-                <Text style={[styles.settingValue, { color: theme.primary }]}>
+                <Text style={[styles.settingValue, { color: colors.primary }]}>
                   {notifications.time}
                 </Text>
               </TouchableOpacity>
@@ -298,24 +311,24 @@ useEffect(() => {
         </View>
 
         {/* Outros */}
-        <View style={[styles.section, { backgroundColor: theme.card }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            ⚙️ Outros
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+             {t('settings.others')}
           </Text>
 
           <TouchableOpacity
-            style={[styles.settingRow, { borderBottomColor: theme.border }]}
+            style={[styles.settingRow, { borderBottomColor: colors.border }]}
             onPress={() => navigation.navigate('About')}
           >
             <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, { color: theme.text }]}>
-                Sobre o App
+              <Text style={[styles.settingLabel, { color: colors.text }]}>
+                {t('settings.about')}
               </Text>
-              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                Versão, licenças e créditos
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                {t('settings.aboutDesc')}
               </Text>
             </View>
-            <Text style={[styles.settingArrow, { color: theme.textSecondary }]}>›</Text>
+            <Text style={[styles.settingArrow, { color: colors.textSecondary }]}>›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -323,21 +336,20 @@ useEffect(() => {
             onPress={handleResetSettings}
           >
             <View style={styles.settingInfo}>
-              <Text style={[styles.settingLabel, { color: theme.danger }]}>
-                Resetar Configurações
+              <Text style={[styles.settingLabel, { color: colors.errorLight }]}>
+                {t('settings.reset')}
               </Text>
-              <Text style={[styles.settingDescription, { color: theme.textSecondary }]}>
-                Restaurar configurações padrão
+              <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                {t('settings.resetDesc')}
               </Text>
             </View>
           </TouchableOpacity>
         </View>
 
         {/* Informações */}
-        <View style={[styles.infoSection, { backgroundColor: theme.card, borderColor: theme.border }]}>
-          <Text style={[styles.infoText, { color: theme.textSecondary }]}>
-            Controle Financeiro v1.0.0{'\n'}
-            Desenvolvido com ❤️ em React Native
+        <View style={[styles.infoSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
+            {t('settings.footer')}
           </Text>
         </View>
       </ScrollView>
@@ -350,9 +362,9 @@ useEffect(() => {
         onRequestClose={() => setShowCurrencyModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>
-              Selecionar Moeda
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              {t('settings.selectCurrency')}
             </Text>
             <ScrollView>
               {availableCurrencies.map((curr) => (
@@ -360,26 +372,26 @@ useEffect(() => {
                   key={curr.code}
                   style={[
                     styles.modalOption,
-                    { borderBottomColor: theme.border },
-                    currency === curr.code && { backgroundColor: theme.primary + '20' }
+                    { borderBottomColor: colors.border },
+                    currency === curr.code && { backgroundColor: colors.primary + '20' }
                   ]}
                   onPress={() => handleSelectCurrency(curr.code)}
                 >
-                  <Text style={[styles.modalOptionText, { color: theme.text }]}>
+                  <Text style={[styles.modalOptionText, { color: colors.text }]}>
                     {curr.symbol} {curr.name}
                   </Text>
                   {currency === curr.code && (
-                    <Text style={{ color: theme.primary }}>✓</Text>
+                    <Text style={{ color: colors.primary }}>✓</Text>
                   )}
                 </TouchableOpacity>
               ))}
             </ScrollView>
             <TouchableOpacity
-              style={[styles.modalCloseButton, { backgroundColor: theme.border }]}
+              style={[styles.modalCloseButton, { backgroundColor: colors.border }]}
               onPress={() => setShowCurrencyModal(false)}
             >
-              <Text style={[styles.modalCloseText, { color: theme.text }]}>
-                Fechar
+              <Text style={[styles.modalCloseText, { color: colors.text }]}>
+                {t('settings.close')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -394,9 +406,9 @@ useEffect(() => {
         onRequestClose={() => setShowLanguageModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>
-              Selecionar Idioma
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              {t('settings.selectLanguage')}
             </Text>
             <ScrollView>
               {availableLanguages.map((lang) => (
@@ -404,26 +416,26 @@ useEffect(() => {
                   key={lang.code}
                   style={[
                     styles.modalOption,
-                    { borderBottomColor: theme.border },
-                    language === lang.code && { backgroundColor: theme.primary + '20' }
+                    { borderBottomColor: colors.border },
+                    language === lang.code && { backgroundColor: colors.primary + '20' }
                   ]}
                   onPress={() => handleSelectLanguage(lang.code)}
                 >
-                  <Text style={[styles.modalOptionText, { color: theme.text }]}>
+                  <Text style={[styles.modalOptionText, { color: colors.text }]}>
                     {lang.flag} {lang.name}
                   </Text>
                   {language === lang.code && (
-                    <Text style={{ color: theme.primary }}>✓</Text>
+                    <Text style={{ color: colors.primary }}>✓</Text>
                   )}
                 </TouchableOpacity>
               ))}
             </ScrollView>
             <TouchableOpacity
-              style={[styles.modalCloseButton, { backgroundColor: theme.border }]}
+              style={[styles.modalCloseButton, { backgroundColor: colors.border }]}
               onPress={() => setShowLanguageModal(false)}
             >
-              <Text style={[styles.modalCloseText, { color: theme.text }]}>
-                Fechar
+              <Text style={[styles.modalCloseText, { color: colors.text }]}>
+                {t('settings.close')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -437,9 +449,9 @@ useEffect(() => {
   onRequestClose={() => setShowTimeModal(false)}
 >
   <View style={styles.modalOverlay}>
-    <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-      <Text style={[styles.modalTitle, { color: theme.text }]}>
-        Definir Horário
+    <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+      <Text style={[styles.modalTitle, { color: colors.text }]}>
+        {t('settings.timeTitle')}
       </Text>
 
       <View style={{ paddingHorizontal: 20 }}>
@@ -465,20 +477,20 @@ useEffect(() => {
       </View>
 
       <TouchableOpacity
-        style={[styles.modalCloseButton, { backgroundColor: theme.primary }]}
+        style={[styles.modalCloseButton, { backgroundColor: colors.primary }]}
         onPress={handleSaveTime}
       >
         <Text style={{ color: '#fff', fontWeight: '600' }}>
-          Salvar Horário
+          {t('settings.saveTitle')}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.modalCloseButton, { backgroundColor: theme.border }]}
+        style={[styles.modalCloseButton, { backgroundColor: colors.border }]}
         onPress={() => setShowTimeModal(false)}
       >
-        <Text style={[styles.modalCloseText, { color: theme.text }]}>
-          Cancelar
+        <Text style={[styles.modalCloseText, { color: colors.text }]}>
+          {t('settings.cancel')}
         </Text>
       </TouchableOpacity>
     </View>
@@ -489,7 +501,8 @@ useEffect(() => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
   },

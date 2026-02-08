@@ -2,7 +2,8 @@
  * Tela de Relatórios Avançados (Premium)
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,19 +14,22 @@ import {
   Dimensions,
 } from 'react-native';
 import {Button} from '../../components/ui';
-import {COLORS, formatCurrency, formatMonthYear} from '../../utils';
+import {COLORS} from '../../utils';
 import usePremiumStore from '../../store/premiumStore';
 import useTransactionStore from '../../store/transactionStore';
 import useAuthStore from '../../store/authStore';
 import { LineChart } from 'react-native-gifted-charts';
+import useSettingsStore from '../../store/settingsStore';
 
 const screenWidth = Dimensions.get('window').width;
 
 const AdvancedReportsScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {isPremium, hasAccess} = usePremiumStore();
   const {transactions, loadTransactions} = useTransactionStore();
-  
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const [selectedView, setSelectedView] = useState('yearly'); // yearly, comparison, projection
 
   useEffect(() => {
@@ -180,14 +184,14 @@ const expenseLineData = yearlyData.map(item => ({
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Receitas</Text>
-                <Text style={[styles.summaryValue, {color: COLORS.success}]}>
+                <Text style={[styles.summaryValue, {color: colors.success}]}>
                   {formatCurrency(totalYearIncome)}
                 </Text>
               </View>
 
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryLabel}>Despesas</Text>
-                <Text style={[styles.summaryValue, {color: COLORS.error}]}>
+                <Text style={[styles.summaryValue, {color: colors.error}]}>
                   {formatCurrency(totalYearExpense)}
                 </Text>
               </View>
@@ -198,7 +202,7 @@ const expenseLineData = yearlyData.map(item => ({
               <Text
                 style={[
                   styles.balanceValue,
-                  {color: totalYearBalance >= 0 ? COLORS.success : COLORS.error},
+                  {color: totalYearBalance >= 0 ? colors.success : colors.error},
                 ]}>
                 {formatCurrency(totalYearBalance)}
               </Text>
@@ -219,8 +223,8 @@ const expenseLineData = yearlyData.map(item => ({
     thickness={3}
     thickness2={3}
 
-    color={COLORS.success}
-    color2={COLORS.error}
+    color={colors.success}
+    color2={colors.error}
 
     hideRules
     hideYAxisText
@@ -229,7 +233,7 @@ const expenseLineData = yearlyData.map(item => ({
 
     xAxisLabelTextStyle={{
       fontSize: 10,
-      color: COLORS.text,
+      color: colors.text,
     }}
 
     isAnimated
@@ -242,12 +246,12 @@ const expenseLineData = yearlyData.map(item => ({
   {/* Legenda — MANTIDA */}
   <View style={styles.legend}>
     <View style={styles.legendItem}>
-      <View style={[styles.legendDot, {backgroundColor: COLORS.success}]} />
+      <View style={[styles.legendDot, {backgroundColor: colors.success}]} />
       <Text style={styles.legendLabel}>Receitas</Text>
     </View>
 
     <View style={styles.legendItem}>
-      <View style={[styles.legendDot, {backgroundColor: COLORS.error}]} />
+      <View style={[styles.legendDot, {backgroundColor: colors.error}]} />
       <Text style={styles.legendLabel}>Despesas</Text>
     </View>
   </View>
@@ -270,7 +274,7 @@ const expenseLineData = yearlyData.map(item => ({
                       styles.comparisonBarFill,
                       {
                         width: `${(month.income / Math.max(totalYearIncome / 12, 1)) * 100}%`,
-                        backgroundColor: COLORS.success,
+                        backgroundColor: colors.success,
                       },
                     ]}
                   />
@@ -281,7 +285,7 @@ const expenseLineData = yearlyData.map(item => ({
                       styles.comparisonBarFill,
                       {
                         width: `${(month.expense / Math.max(totalYearExpense / 12, 1)) * 100}%`,
-                        backgroundColor: COLORS.error,
+                        backgroundColor: colors.error,
                       },
                     ]}
                   />
@@ -290,7 +294,7 @@ const expenseLineData = yearlyData.map(item => ({
               <Text
                 style={[
                   styles.comparisonBalance,
-                  {color: month.balance >= 0 ? COLORS.success : COLORS.error},
+                  {color: month.balance >= 0 ? colors.success : colors.error},
                 ]}>
                 {formatCurrency(month.balance)}
               </Text>
@@ -306,14 +310,14 @@ const expenseLineData = yearlyData.map(item => ({
             
             <View style={styles.projectionItem}>
               <Text style={styles.projectionLabel}>Receitas Previstas</Text>
-              <Text style={[styles.projectionValue, {color: COLORS.success}]}>
+              <Text style={[styles.projectionValue, {color: colors.success}]}>
                 {formatCurrency(projection.nextMonthIncome)}
               </Text>
             </View>
 
             <View style={styles.projectionItem}>
               <Text style={styles.projectionLabel}>Despesas Previstas</Text>
-              <Text style={[styles.projectionValue, {color: COLORS.error}]}>
+              <Text style={[styles.projectionValue, {color: colors.error}]}>
                 {formatCurrency(projection.nextMonthExpense)}
               </Text>
             </View>
@@ -323,7 +327,7 @@ const expenseLineData = yearlyData.map(item => ({
               <Text
                 style={[
                   styles.projectionHighlightValue,
-                  {color: projection.nextMonthBalance >= 0 ? COLORS.success : COLORS.error},
+                  {color: projection.nextMonthBalance >= 0 ? colors.success : colors.error},
                 ]}>
                 {formatCurrency(projection.nextMonthBalance)}
               </Text>
@@ -360,10 +364,11 @@ const expenseLineData = yearlyData.map(item => ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -382,17 +387,17 @@ const styles = StyleSheet.create({
   lockedTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   lockedText: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 32,
   },
   premiumFeatures: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 20,
     marginBottom: 32,
@@ -401,19 +406,19 @@ const styles = StyleSheet.create({
   premiumFeaturesTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   premiumFeature: {
     fontSize: 15,
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   upgradeButton: {
     width: '100%',
   },
   premiumBadge: {
-    backgroundColor: COLORS.warning,
+    backgroundColor: colors.warning,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -423,11 +428,11 @@ const styles = StyleSheet.create({
   premiumText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.card,
   },
   viewSelector: {
     flexDirection: 'row',
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.modeSelectorBg,
     borderRadius: 12,
     padding: 4,
     marginBottom: 24,
@@ -439,22 +444,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   viewButtonActive: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
   },
   viewButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   viewButtonTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   summaryCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -463,7 +468,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   summaryRow: {
@@ -476,7 +481,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   summaryValue: {
@@ -484,7 +489,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   balanceRow: {
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.modeSelectorBg,
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -494,18 +499,18 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   balanceValue: {
     fontSize: 24,
     fontWeight: 'bold',
   },
   chartCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -529,14 +534,14 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
   },
   comparisonCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -551,7 +556,7 @@ const styles = StyleSheet.create({
   comparisonMonth: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     width: 40,
   },
   comparisonBars: {
@@ -560,7 +565,7 @@ const styles = StyleSheet.create({
   },
   comparisonBar: {
     height: 8,
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.modeSelectorBg,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -575,11 +580,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   projectionCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -592,14 +597,14 @@ const styles = StyleSheet.create({
   },
   projectionLabel: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   projectionValue: {
     fontSize: 18,
     fontWeight: '600',
   },
   projectionHighlight: {
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.modeSelectorBg,
     padding: 16,
     borderRadius: 12,
     marginTop: 12,
@@ -610,7 +615,7 @@ const styles = StyleSheet.create({
   projectionHighlightLabel: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   projectionHighlightValue: {
     fontSize: 24,
@@ -618,7 +623,7 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.info + '10',
+    backgroundColor: colors.info + '10',
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
@@ -630,7 +635,7 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 20,
   },
   exportSection: {
@@ -639,7 +644,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   exportButtons: {
@@ -648,11 +653,11 @@ const styles = StyleSheet.create({
   },
   exportButton: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -665,7 +670,7 @@ const styles = StyleSheet.create({
   exportText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
 });
 

@@ -2,22 +2,27 @@
  * Gráfico de Receitas vs Despesas
  */
 
-import React from 'react';
+import React, {useMemo} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {PieChart} from 'react-native-gifted-charts';
-import {COLORS, formatCurrency} from '../../utils';
+import useSettingsStore from '../../store/settingsStore';
+import { useTheme } from '../../context/ThemeContext';
+import { t } from '../../i18n';
 
-const IncomeExpenseChart = ({income, expense}) => {
+const IncomeExpenseChart = ({ income, expense }) => {
+  const { colors } = useTheme();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
+    const styles = useMemo(() => createStyles(colors), [colors]);
   const total = income + expense;
 
   if (total === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Receitas vs Despesas</Text>
+        <Text style={styles.title}>{t('incomeExpenseChart.title')}</Text>
 
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📊</Text>
-          <Text style={styles.emptyText}>Sem transações neste mês</Text>
+          <Text style={styles.emptyText}>{t('incomeExpenseChart.empty')}</Text>
         </View>
       </View>
     );
@@ -26,19 +31,19 @@ const IncomeExpenseChart = ({income, expense}) => {
   const data = [
     {
       value: income,
-      color: COLORS.success,
-      text: 'Receitas',
+      color: colors.success,
+      text: t('incomeExpenseChart.income'),
     },
     {
       value: expense,
-      color: COLORS.error,
-      text: 'Despesas',
+      color: colors.error,
+      text: t('incomeExpenseChart.expense'),
     },
   ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Receitas vs Despesas</Text>
+      <Text style={styles.title}>{t('incomeExpenseChart.title')}</Text>
 
       <View style={styles.chartContainer}>
         <PieChart
@@ -46,8 +51,9 @@ const IncomeExpenseChart = ({income, expense}) => {
           donut
           radius={90}
           innerRadius={60}
+          innerCircleColor={colors.card}
           showText
-          textColor="#fff"
+          textColor={colors.onPrimary}
           textSize={14}
           focusOnPress
         />
@@ -55,9 +61,9 @@ const IncomeExpenseChart = ({income, expense}) => {
 
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, {backgroundColor: COLORS.success}]} />
+          <View style={[styles.legendDot, {backgroundColor: colors.success}]} />
           <View>
-            <Text style={styles.legendLabel}>Receitas</Text>
+            <Text style={styles.legendLabel}>{t('incomeExpenseChart.income')}</Text>
             <Text style={styles.legendValue}>
               {formatCurrency(income)}
             </Text>
@@ -65,9 +71,9 @@ const IncomeExpenseChart = ({income, expense}) => {
         </View>
 
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, {backgroundColor: COLORS.error}]} />
+          <View style={[styles.legendDot, {backgroundColor: colors.error}]} />
           <View>
-            <Text style={styles.legendLabel}>Despesas</Text>
+            <Text style={styles.legendLabel}>{t('incomeExpenseChart.expense')}</Text>
             <Text style={styles.legendValue}>
               {formatCurrency(expense)}
             </Text>
@@ -78,9 +84,10 @@ const IncomeExpenseChart = ({income, expense}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
@@ -89,7 +96,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   chartContainer: {
@@ -113,12 +120,12 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 12,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   legendValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   emptyState: {
     alignItems: 'center',
@@ -130,7 +137,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
 });
 

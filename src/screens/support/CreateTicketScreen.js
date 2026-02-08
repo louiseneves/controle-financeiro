@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -12,6 +13,8 @@ import {
 import useSupportStore from '../../store/supportStore';
 
 const CreateTicketScreen = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { createTicket, loading } = useSupportStore();
   
   const [formData, setFormData] = useState({
@@ -35,9 +38,9 @@ const CreateTicketScreen = ({ navigation }) => {
   ];
 
   const priorities = [
-    { value: 'low', label: 'Baixa', color: '#4CAF50' },
-    { value: 'medium', label: 'Média', color: '#FF9800' },
-    { value: 'high', label: 'Alta', color: '#f44336' },
+    { value: 'low', label: 'Baixa', color: colors.success },
+    { value: 'medium', label: 'Média', color: colors.warning },
+    { value: 'high', label: 'Alta', color: colors.error },
   ];
 
   const handleSubmit = async () => {
@@ -101,7 +104,7 @@ const CreateTicketScreen = ({ navigation }) => {
             placeholder="Ex: Problema ao adicionar receita"
             value={formData.subject}
             onChangeText={(text) => setFormData({ ...formData, subject: text })}
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.placeholder}
           />
         </View>
 
@@ -171,7 +174,7 @@ const CreateTicketScreen = ({ navigation }) => {
             multiline
             numberOfLines={8}
             textAlignVertical="top"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.placeholder}
           />
           <Text style={styles.charCount}>
             {formData.description.length} caracteres (mínimo 20)
@@ -206,13 +209,14 @@ const CreateTicketScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 40,
   },
@@ -236,18 +240,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 10,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   textArea: {
     minHeight: 150,
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textTertiary,
     marginTop: 5,
     textAlign: 'right',
   },
@@ -263,21 +267,21 @@ const styles = StyleSheet.create({
     marginHorizontal: -5,
   },
   categoryButton: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     marginHorizontal: 5,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   categoryButtonActive: {
-    backgroundColor: '#2196F3',
-    borderColor: '#2196F3',
+    backgroundColor: colors.primary,
+    bordercolor: colors.primary,
   },
   categoryButtonText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   categoryButtonTextActive: {
@@ -289,16 +293,16 @@ const styles = StyleSheet.create({
   },
   priorityButton: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   priorityButtonText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   priorityButtonTextActive: {
@@ -310,7 +314,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 25,
     borderWidth: 1,
-    borderColor: '#2196F3',
+    bordercolor: colors.primary,
   },
   tipsTitle: {
     fontSize: 14,
@@ -324,7 +328,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   submitButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.success,
     paddingVertical: 16,
     borderRadius: 10,
     alignItems: 'center',

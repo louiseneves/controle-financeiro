@@ -15,6 +15,7 @@ import {
 import { auth, db } from './firebase/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CryptoJS from 'crypto-js';
+import * as SecureStore from 'expo-secure-store';
 
 const ENCRYPTION_KEY = '353f2e3088866287f900a444aac7a006f730dd25d16aabad26d8f9753f9599cf'; // Mude para uma chave forte em produção
 
@@ -27,13 +28,22 @@ class BackupService {
       if (!user) throw new Error('Usuário não autenticado');
       this.userId = user.uid;
     }
+async getEncryptionKey() {
+    let key = await SecureStore.getItemAsync('encryption_key');
+    
+    if (!key) {
+      // Gerar chave única por dispositivo na primeira vez
+      key = CryptoJS.lib.WordArray.random(32).toString();
+      await SecureStore.setItemAsync('encryption_key', key);
+    }
+    
+    return key;
+  }
 
   // Criptografar dados sensíveis
-  encrypt(data) {
-    return CryptoJS.AES.encrypt(
-      JSON.stringify(data),
-      ENCRYPTION_KEY
-    ).toString();
+  async encrypt(data) {
+    const key = await this.getEncryptionKey();
+    return CryptoJS.AES.encrypt(JSON.stringify(data), key).toString();
   }
 
   // Descriptografar dados

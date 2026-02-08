@@ -2,7 +2,8 @@
  * Tela de Relatórios
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,22 +14,22 @@ import {
   Dimensions,
 } from 'react-native';
 import {BarChart, PieChart} from 'react-native-gifted-charts';
-import {
-  COLORS,
-  formatCurrency,
-  formatMonthYear,
-  INCOME_CATEGORIES,
-  EXPENSE_CATEGORIES,
-} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
+import useSettingsStore from '../../store/settingsStore';
 
 const screenWidth = Dimensions.get('window').width;
 
 const ReportsScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {transactions, loadTransactions, getCurrentMonthTransactions} = useTransactionStore();
-  
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
+  const convertFromBRL = useSettingsStore(state => state.convertFromBRL);
+
+
+
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('month'); // month, 3months, year
 
@@ -67,7 +68,11 @@ const ReportsScreen = ({navigation}) => {
     }
   };
 
-  const periodTransactions = getTransactionsByPeriod();
+  const periodTransactions = useMemo(() => {
+  const data = getTransactionsByPeriod();
+  return Array.isArray(data) ? data : [];
+}, [transactions, selectedPeriod]);
+
 
   // Calcular totais
   const income = periodTransactions
@@ -105,30 +110,59 @@ const ReportsScreen = ({navigation}) => {
       .map(([category, amount]) => ({
         category,
         amount,
-        percentage: expense > 0 ? (amount / expense) * 100 : 0,
+        percentage: expense > 0
+  ? Number(((amount / expense) * 100).toFixed(1))
+  : 0,
+
       }))
       .sort((a, b) => b.amount - a.amount);
   };
 
-  const categoryData = expensesByCategory();
+  const categoryData = useMemo(() => {
+  const data = expensesByCategory();
+  return Array.isArray(data) ? data : [];
+}, [periodTransactions, expense]);
+
 
   // Dados para gráfico de pizza (top 5 categorias)
-  const pieData = categoryData.slice(0, 5).map((item, index) => {
-    const colors = [COLORS.error, COLORS.warning, COLORS.investment, COLORS.offer, COLORS.primary];
-    return {
-      x: item.category,
-      y: item.amount,
-      color: colors[index],
-    };
-  });
+  const pieColors = [
+  colors.error,
+  colors.warning,
+  colors.investment,
+  colors.offer,
+  colors.primary,
+  ];
+  
+  const legendColors = [
+  colors.error,
+  colors.warning,
+  colors.investment,
+  colors.offer,
+  colors.primary,
+];
+
+    const normalizeChartValue = (value) => {
+  const num = Number(value) || 0;
+  return Number(num.toFixed(2)); // 🔑 força 2 casas
+  };
+  
+const pieData = categoryData.slice(0, 5).map((item, index) => ({
+  x: item.category,
+  y: normalizeChartValue(item.amount),
+  color: pieColors[index],
+}));
+
+
+
 
   // Dados para gráfico de barras (receitas vs despesas)
   const barData = [
-    {type: 'Receitas', amount: income, color: COLORS.success},
-    {type: 'Despesas', amount: expense, color: COLORS.error},
-    {type: 'Investimentos', amount: investment, color: COLORS.investment},
-    {type: 'Ofertas', amount: offer, color: COLORS.offer},
-  ];
+  { type: 'Receitas', amount: convertFromBRL(income), color: colors.success },
+  { type: 'Despesas', amount: convertFromBRL(expense), color: colors.error },
+  { type: 'Investimentos', amount: convertFromBRL(investment), color: colors.investment },
+  { type: 'Ofertas', amount: convertFromBRL(offer), color: colors.offer },
+];
+
 
   const periods = [
     {id: 'month', label: 'Este Mês'},
@@ -155,12 +189,12 @@ const ReportsScreen = ({navigation}) => {
 
             {/* Botão Relatórios Avançados (Premium) */}
       <TouchableOpacity
-        style={[styles.historyButton, {backgroundColor: COLORS.warning + '10', borderWidth: 2, borderColor: COLORS.warning}]}
+        style={[styles.historyButton, {backgroundColor: colors.warning + '10', borderWidth: 2, borderColor: colors.warning}]}
         onPress={() => navigation.navigate('AdvancedReports')}
         activeOpacity={0.7}>
         <Text style={styles.historyButtonIcon}>⭐</Text>
-        <Text style={[styles.historyButtonText, {color: COLORS.warning}]}>Relatórios Avançados Premium</Text>
-        <Text style={[styles.historyButtonArrow, {color: COLORS.warning}]}>›</Text>
+        <Text style={[styles.historyButtonText, {color: colors.warning}]}>Relatórios Avançados Premium</Text>
+        <Text style={[styles.historyButtonArrow, {color: colors.warning}]}>›</Text>
       </TouchableOpacity>
       {/* Seletor de período */}
       <View style={styles.periodSelector}>
@@ -186,32 +220,32 @@ const ReportsScreen = ({navigation}) => {
 
       {/* Cards de resumo */}
       <View style={styles.summaryCards}>
-        <View style={[styles.summaryCard, {backgroundColor: COLORS.success + '20'}]}>
+        <View style={[styles.summaryCard, {backgroundColor: colors.success + '20'}]}>
           <Text style={styles.summaryCardLabel}>Receitas</Text>
-          <Text style={[styles.summaryCardValue, {color: COLORS.success}]}>
+          <Text style={[styles.summaryCardValue, {color: colors.success}]}>
             {formatCurrency(income)}
           </Text>
         </View>
 
-        <View style={[styles.summaryCard, {backgroundColor: COLORS.error + '20'}]}>
+        <View style={[styles.summaryCard, {backgroundColor: colors.error + '20'}]}>
           <Text style={styles.summaryCardLabel}>Despesas</Text>
-          <Text style={[styles.summaryCardValue, {color: COLORS.error}]}>
+          <Text style={[styles.summaryCardValue, {color: colors.error}]}>
             {formatCurrency(expense)}
           </Text>
         </View>
       </View>
 
       <View style={styles.summaryCards}>
-        <View style={[styles.summaryCard, {backgroundColor: COLORS.investment + '20'}]}>
+        <View style={[styles.summaryCard, {backgroundColor: colors.investment + '20'}]}>
           <Text style={styles.summaryCardLabel}>Investimentos</Text>
-          <Text style={[styles.summaryCardValue, {color: COLORS.investment}]}>
+          <Text style={[styles.summaryCardValue, {color: colors.investment}]}>
             {formatCurrency(investment)}
           </Text>
         </View>
 
-        <View style={[styles.summaryCard, {backgroundColor: COLORS.offer + '20'}]}>
+        <View style={[styles.summaryCard, {backgroundColor: colors.offer + '20'}]}>
           <Text style={styles.summaryCardLabel}>Ofertas</Text>
-          <Text style={[styles.summaryCardValue, {color: COLORS.offer}]}>
+          <Text style={[styles.summaryCardValue, {color: colors.offer}]}>
             {formatCurrency(offer)}
           </Text>
         </View>
@@ -220,7 +254,7 @@ const ReportsScreen = ({navigation}) => {
       {/* Saldo */}
       <View style={[
         styles.balanceCard,
-        {backgroundColor: balance >= 0 ? COLORS.success : COLORS.error}
+        {backgroundColor: balance >= 0 ? colors.success : colors.error}
       ]}>
         <Text style={styles.balanceLabel}>Saldo do Período</Text>
         <Text style={styles.balanceValue}>{formatCurrency(balance)}</Text>
@@ -231,20 +265,43 @@ const ReportsScreen = ({navigation}) => {
         <Text style={styles.chartTitle}>Visão Geral</Text>
         {barData.some(d => d.amount > 0) ? (
           <BarChart
-            data={barData.map(item => ({
-                value: item.amount,
-                label: item.type,
-                frontColor: item.color,
-            }))}
-            height={250}
-            barWidth={28}
-            spacing={32}
-            hideRules
-            yAxisThickness={0}
-            xAxisThickness={0}
-            noOfSections={4}
-            yAxisLabelPrefix="R$ "
-            />
+  data={barData.map(item => ({
+    value: item.amount,
+    label: item.type,
+    frontColor: item.color,
+  }))}
+
+  height={220}
+  spacing={25}
+  maxValue={Math.max(income, expense, investment, offer, 1)}
+
+  /* 🔑 TOOLTIP COM MOEDA */
+  renderTooltip={(item) => (
+    <View
+      style={{
+        backgroundColor: colors.card,
+        padding: 6,
+        borderRadius: 6,
+      }}
+    >
+      <Text style={{ color: colors.text, fontWeight: '600' }}>
+        {formatCurrency(item.value / EXCHANGE_RATES[currency])}
+      </Text>
+    </View>
+  )}
+
+  yAxisTextStyle={{
+    color: colors.textSecondary,
+    fontSize: 12,
+  }}
+  xAxisLabelTextStyle={{
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: '600',
+  }}
+/>
+
+
         ) : (
           <View style={styles.emptyChart}>
             <Text style={styles.emptyChartText}>Sem dados para exibir</Text>
@@ -260,34 +317,40 @@ const ReportsScreen = ({navigation}) => {
           {pieData.length > 0 ? (
             <>
                 <PieChart
-                data={pieData.map(item => ({
-                    value: item.y,
-                    color: item.color,
-                    text: `${((item.y / expense) * 100).toFixed(0)}%`,
-                }))}
+  data={pieData.map(item => ({
+    value: item.y,
+    color: item.color,
+    text: `${((item.y / expense) * 100).toFixed(0)}%`,
+  }))}
                 donut
                 radius={90}
                 innerRadius={60}
+                innerCircleColor={colors.card}
                 showText
                 textColor="white"
                 textSize={12}
                 />
               {/* Legenda */}
               <View style={styles.legend}>
-                {categoryData.slice(0, 5).map((item, index) => {
-                  const colors = [COLORS.error, COLORS.warning, COLORS.investment, COLORS.offer, COLORS.primary];
-                  return (
-                    <View key={item.category} style={styles.legendItem}>
-                      <View style={[styles.legendDot, {backgroundColor: colors[index]}]} />
-                      <View style={styles.legendContent}>
-                        <Text style={styles.legendLabel}>{item.category}</Text>
-                        <Text style={styles.legendValue}>
-                          {formatCurrency(item.amount)} ({item.percentage.toFixed(0)}%)
-                        </Text>
-                      </View>
-                    </View>
-                  );
-                })}
+                
+
+{categoryData.slice(0, 5).map((item, index) => (
+  <View key={item.category} style={styles.legendItem}>
+    <View
+      style={[
+        styles.legendDot,
+        { backgroundColor: legendColors[index] },
+      ]}
+    />
+    <View style={styles.legendContent}>
+      <Text style={styles.legendLabel}>{item.category}</Text>
+      <Text style={styles.legendValue}>
+        {formatCurrency(item.amount)} ({item.percentage.toFixed(0)}%)
+      </Text>
+    </View>
+  </View>
+))}
+
               </View>
             </>
           ) : (
@@ -345,10 +408,11 @@ const ReportsScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -357,11 +421,11 @@ const styles = StyleSheet.create({
   historyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -375,15 +439,15 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   historyButtonArrow: {
     fontSize: 24,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   periodSelector: {
     flexDirection: 'row',
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 12,
     padding: 4,
     marginBottom: 20,
@@ -395,15 +459,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   periodButtonActive: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
   },
   periodButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   periodButtonTextActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   summaryCards: {
     flexDirection: 'row',
@@ -417,7 +481,7 @@ const styles = StyleSheet.create({
   },
   summaryCardLabel: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   summaryCardValue: {
@@ -432,21 +496,28 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.onPrimary,
     opacity: 0.9,
     marginBottom: 8,
   },
   balanceValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.white,
-  },
+    color: colors.onPrimary,
+    },
+  barValue: {
+  fontSize: 11,
+  fontWeight: '600',
+  color: colors.onPrimary,
+  marginBottom: 6,
+},
+
   chartCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -455,7 +526,7 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   emptyChart: {
@@ -464,7 +535,7 @@ const styles = StyleSheet.create({
   },
   emptyChartText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   legend: {
     marginTop: 16,
@@ -485,19 +556,19 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 14,
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   legendValue: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   categoryList: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -506,7 +577,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 16,
   },
   categoryItem: {
@@ -519,14 +590,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.backgroundSecondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   categoryRankText: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   categoryInfo: {
     flex: 1,
@@ -534,18 +605,18 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 6,
   },
   categoryBar: {
     height: 6,
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.backgroundSecondary,
     borderRadius: 3,
     overflow: 'hidden',
   },
   categoryBarFill: {
     height: '100%',
-    backgroundColor: COLORS.error,
+    backgroundColor: colors.error,
   },
   categoryValues: {
     alignItems: 'flex-end',
@@ -553,17 +624,17 @@ const styles = StyleSheet.create({
   categoryAmount: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   categoryPercentage: {
     fontSize: 12,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -573,12 +644,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
 });
 

@@ -1,8 +1,4 @@
-/**
- * Componente Input customizado
- */
-
-import React, {useState} from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   TextInput,
@@ -10,132 +6,105 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
-import {COLORS} from '../../utils';
 
 const Input = ({
   label,
   value,
   onChangeText,
   placeholder,
+  secureTextEntry,
+  keyboardType,
   error,
-  secureTextEntry = false,
-  keyboardType = 'default',
-  autoCapitalize = 'none',
-  leftIcon = null,
-  rightIcon = null,
-  showPasswordToggle = false,
-  multiline = false,
-  numberOfLines = 1,
-  editable = true,
-  style,
-  inputStyle,
+  leftIcon,
+  ...props
 }) => {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const containerStyles = [
-    styles.container,
-    isFocused && styles.containerFocused,
-    error && styles.containerError,
-    !editable && styles.containerDisabled,
-    style,
-  ];
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const isPassword = secureTextEntry;
 
   return (
-    <View style={styles.wrapper}>
+    <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      
-      <View style={containerStyles}>
-        {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
+
+      <View
+        style={[
+          styles.inputWrapper,
+          {
+            backgroundColor: colors.inputBackground,
+            borderColor: error ? colors.error : colors.inputBorder,
+          },
+        ]}
+      >
+        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
 
         <TextInput
-          style={[styles.input, inputStyle]}
+          style={styles.input}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={COLORS.gray400}
-          secureTextEntry={secureTextEntry && !isPasswordVisible}
+          placeholderTextColor={colors.placeholder}
+          secureTextEntry={isPassword && !isPasswordVisible}
           keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          multiline={multiline}
-          numberOfLines={numberOfLines}
-          editable={editable}
+          {...props}
         />
 
-        {showPasswordToggle && (
+        {isPassword && (
           <TouchableOpacity
-            style={styles.rightIcon}
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
-            <Text style={styles.toggleText}>
-              {isPasswordVisible ? <Feather name="eye" size={24} color="black" /> : <Feather name="eye-off" size={24} color="black" />}
-            </Text>
+            onPress={() => setIsPasswordVisible(prev => !prev)}
+            style={styles.iconContainer}
+          >
+            <Feather
+              name={isPasswordVisible ? 'eye-off' : 'eye'}
+              size={22}
+              color={colors.textSecondary}
+            />
           </TouchableOpacity>
-        )}
-
-        {rightIcon && !showPasswordToggle && (
-          <View style={styles.rightIcon}>{rightIcon}</View>
         )}
       </View>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    minHeight: 48,
-  },
-  containerFocused: {
-    borderColor: COLORS.primary,
-    borderWidth: 2,
-  },
-  containerError: {
-    borderColor: COLORS.error,
-  },
-  containerDisabled: {
-    backgroundColor: COLORS.gray100,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.text,
-    paddingVertical: 12,
-  },
-  leftIcon: {
-    marginRight: 12,
-  },
-  rightIcon: {
-    marginLeft: 12,
-  },
-  toggleText: {
-    fontSize: 20,
-  },
-  errorText: {
-    fontSize: 12,
-    color: COLORS.error,
-    marginTop: 4,
-    marginLeft: 4,
-  },
-});
+const createStyles = colors =>
+  StyleSheet.create({
+    container: {
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+      marginBottom: 8,
+      color: colors.text,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderRadius: 12,
+      height: 50,
+      paddingHorizontal: 12,
+    },
+    iconContainer: {
+      marginHorizontal: 4,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text,
+    },
+    error: {
+      fontSize: 12,
+      marginTop: 4,
+      color: colors.error,
+    },
+  });
 
 export default Input;
+

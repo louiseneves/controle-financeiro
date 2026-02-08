@@ -2,7 +2,8 @@
  * Tela de Adicionar Receita
  */
 
-import React, {useState} from 'react';
+import React, { useState, useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,14 +14,18 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-import {Button, Input} from '../../components/ui';
-import {COLORS, INCOME_CATEGORIES} from '../../utils';
+import { Button, Input } from '../../components/ui';
+import { INCOME_CATEGORIES } from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
+import { isoToBR, brToISO } from '../../utils/helpers/formatters';
 
-const AddIncomeScreen = ({navigation}) => {
-  const {user} = useAuthStore();
-  const {addTransaction} = useTransactionStore();
+const AddIncomeScreen = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const { user, initialized, loading: authLoading } = useAuthStore();
+  const { addTransaction } = useTransactionStore();
 
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
@@ -33,9 +38,11 @@ const AddIncomeScreen = ({navigation}) => {
   const [categoryError, setCategoryError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Validar campos
+  // -----------------------------
+  // Validação
+  // -----------------------------
   const validateFields = () => {
-    let isValid = true;
+    let valid = true;
 
     setDescriptionError('');
     setAmountError('');
@@ -43,50 +50,63 @@ const AddIncomeScreen = ({navigation}) => {
 
     if (!description.trim()) {
       setDescriptionError('Descrição é obrigatória');
-      isValid = false;
+      valid = false;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
       setAmountError('Valor deve ser maior que zero');
-      isValid = false;
+      valid = false;
     }
 
     if (!category) {
       setCategoryError('Selecione uma categoria');
-      isValid = false;
+      valid = false;
     }
 
-    return isValid;
+    return valid;
   };
 
-  // Salvar receita
+  // -----------------------------
+  // Salvar Receita
+  // -----------------------------
   const handleSave = async () => {
     if (!validateFields()) return;
 
+    if (!user?.uid) {
+      Alert.alert('Sessão expirada', 'Faça login novamente.');
+      navigation.replace('Login');
+      return;
+    }
+
     try {
       setLoading(true);
+
+      // Conversão segura da data
+      const parsedDate = new Date(`${date}T00:00:00`);
+
+      if (isNaN(parsedDate.getTime())) {
+        Alert.alert('Erro', 'Data inválida');
+        return;
+      }
 
       const transactionData = {
         type: 'receita',
         description: description.trim(),
         amount: parseFloat(amount),
         category,
-        date: new Date(date).toISOString(),
+        date: parsedDate.toISOString(),
         isRecurring,
         userId: user.uid,
       };
 
       const result = await addTransaction(transactionData);
 
-      if (result.success) {
+      if (result?.success) {
         Alert.alert('Sucesso! ✅', 'Receita adicionada com sucesso!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack(),
-          },
+          { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao adicionar receita');
+        Alert.alert('Erro', result?.error || 'Erro ao adicionar receita');
       }
     } catch (error) {
       console.error('Erro ao salvar receita:', error);
@@ -96,14 +116,31 @@ const AddIncomeScreen = ({navigation}) => {
     }
   };
 
+  // -----------------------------
+  // Estados de carregamento
+  // -----------------------------
+  if (!initialized || authLoading) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: colors.text }}>Carregando...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    navigation.replace('Login');
+    return null;
+  }
+
+  // -----------------------------
+  // Render
+  // -----------------------------
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled">
-        {/* Formulário */}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.form}>
           <Input
             label="Descrição"
@@ -115,7 +152,7 @@ const AddIncomeScreen = ({navigation}) => {
           />
 
           <Input
-            label="Valor (R$)"
+            label="Valor "
             value={amount}
             onChangeText={setAmount}
             placeholder="0,00"
@@ -126,50 +163,50 @@ const AddIncomeScreen = ({navigation}) => {
 
           <Input
             label="Data"
-            value={date}
-            onChangeText={setDate}
-            placeholder="YYYY-MM-DD"
+            value={isoToBR(date)}
+            onChangeText={(text) => setDate(brToISO(text))}
+            placeholder="DD/MM/AAAA"
             leftIcon={<Text style={styles.iconText}>📅</Text>}
           />
 
           {/* Categorias */}
           <View style={styles.categorySection}>
-            <Text style={styles.label}>
-              Categoria {categoryError && <Text style={styles.errorText}>*</Text>}
-            </Text>
+            <Text style={styles.label}>Categoria</Text>
+
             <View style={styles.categoryGrid}>
-              {INCOME_CATEGORIES.map(cat => (
+              {INCOME_CATEGORIES.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
                   style={[
                     styles.categoryCard,
                     category === cat.id && styles.categoryCardSelected,
-                    {borderColor: cat.color},
+                    { borderColor: cat.color },
                   ]}
                   onPress={() => setCategory(cat.id)}
-                  activeOpacity={0.7}>
+                >
                   <Text style={styles.categoryIcon}>{cat.icon}</Text>
                   <Text
                     style={[
                       styles.categoryName,
                       category === cat.id && styles.categoryNameSelected,
                     ]}
-                    numberOfLines={2}>
+                  >
                     {cat.name}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
+
             {categoryError && (
               <Text style={styles.errorTextSmall}>{categoryError}</Text>
             )}
           </View>
 
-          {/* Receita Recorrente */}
+          {/* Recorrente */}
           <TouchableOpacity
             style={styles.checkboxContainer}
             onPress={() => setIsRecurring(!isRecurring)}
-            activeOpacity={0.7}>
+          >
             <View style={[styles.checkbox, isRecurring && styles.checkboxChecked]}>
               {isRecurring && <Text style={styles.checkmark}>✓</Text>}
             </View>
@@ -182,15 +219,12 @@ const AddIncomeScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-        {/* Botões */}
         <View style={styles.actions}>
           <Button
             title="Salvar Receita"
             onPress={handleSave}
             loading={loading}
-            style={styles.saveButton}
           />
-
           <Button
             title="Cancelar"
             onPress={() => navigation.goBack()}
@@ -202,119 +236,57 @@ const AddIncomeScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  form: {
-    marginBottom: 24,
-  },
-  iconText: {
-    fontSize: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 12,
-  },
-  categorySection: {
-    marginBottom: 16,
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  categoryCard: {
-    width: '31%',
-    aspectRatio: 1,
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.border,
-  },
-  categoryCardSelected: {
-    borderWidth: 3,
-    backgroundColor: COLORS.success + '10',
-  },
-  categoryIcon: {
-    fontSize: 28,
-    marginBottom: 6,
-  },
-  categoryName: {
-    fontSize: 11,
-    color: COLORS.textLight,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  categoryNameSelected: {
-    color: COLORS.success,
-    fontWeight: '600',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  checkmark: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  checkboxContent: {
-    flex: 1,
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  checkboxDescription: {
-    fontSize: 13,
-    color: COLORS.textLight,
-  },
-  errorText: {
-    color: COLORS.error,
-    fontSize: 14,
-  },
-  errorTextSmall: {
-    fontSize: 12,
-    color: COLORS.error,
-    marginTop: 4,
-    marginLeft: 4,
-  },
-  actions: {
-    gap: 12,
-  },
-  saveButton: {
-    marginBottom: 12,
-  },
-});
+const createStyles = (colors) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { padding: 20, paddingBottom: 40 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    form: { marginBottom: 24 },
+    iconText: { fontSize: 20 },
+    label: { fontSize: 14, fontWeight: '600', color: colors.text },
+    categorySection: { marginBottom: 16 },
+    categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    categoryCard: {
+      width: '31%',
+      aspectRatio: 1,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+    },
+    categoryCardSelected: {
+      borderWidth: 3,
+      backgroundColor: colors.success + '10',
+    },
+    categoryIcon: { fontSize: 28 },
+    categoryName: { fontSize: 11, color: colors.textSecondary },
+    categoryNameSelected: { color: colors.success },
+    checkboxContainer: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      gap: 12,
+    },
+    checkbox: {
+      width: 24,
+      height: 24,
+      borderWidth: 2,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderColor: colors.border,
+    },
+    checkboxChecked: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    checkmark: { color: colors.card, fontWeight: 'bold' },
+    checkboxLabel: { fontSize: 16, color: colors.text },
+    checkboxDescription: { fontSize: 13, color: colors.textSecondary },
+    errorTextSmall: { fontSize: 12, color: colors.error, marginTop: 4 },
+    actions: { gap: 12 },
+  });
 
 export default AddIncomeScreen;

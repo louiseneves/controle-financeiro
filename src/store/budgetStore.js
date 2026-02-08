@@ -115,6 +115,45 @@ const useBudgetStore = create((set, get) => ({
     }
   },
 
+  restoreBudgets: async (budgets) => {
+  const user = auth.currentUser;
+  if (!user) {
+    return { success: false, error: 'Usuário não autenticado' };
+  }
+
+  try {
+    set({ loading: true, error: null });
+
+    const existingBudgets = get().budgets;
+    for (const budget of existingBudgets) {
+      await deleteDocument(COLLECTIONS.PLANNING, budget.id);
+    }
+
+    const restoredBudgets = [];
+    for (const budget of budgets) {
+      const { id, ...data } = budget;
+      
+      const newBudgetData = {
+        ...data,
+        userId: user.uid,
+        restoredAt: new Date().toISOString(),
+      };
+
+      const newId = await addDocument(COLLECTIONS.PLANNING, newBudgetData);
+      restoredBudgets.push({ id: newId, ...newBudgetData });
+    }
+
+    set({ budgets: restoredBudgets, loading: false });
+    
+    console.log(`✅ ${restoredBudgets.length} orçamentos restaurados`);
+    return { success: true, count: restoredBudgets.length };
+  } catch (error) {
+    console.error('❌ Erro ao restaurar orçamentos:', error);
+    set({ error: error.message, loading: false });
+    return { success: false, error: error.message };
+  }
+},
+
   // ==================== GET CURRENT ====================
   getCurrentMonthBudget: () => {
     const now = new Date();

@@ -162,6 +162,45 @@ const useGoalsStore = create((set, get) => ({
     }
   },
 
+  restoreGoals: async (goals) => {
+  const user = auth.currentUser;
+  if (!user) {
+    return { success: false, error: 'Usuário não autenticado' };
+  }
+
+  try {
+    set({ loading: true, error: null });
+
+    const existingGoals = get().goals;
+    for (const goal of existingGoals) {
+      await deleteDocument(COLLECTIONS.GOALS, goal.id);
+    }
+
+    const restoredGoals = [];
+    for (const goal of goals) {
+      const { id, ...data } = goal;
+      
+      const newGoalData = {
+        ...data,
+        userId: user.uid,
+        restoredAt: new Date().toISOString(),
+      };
+
+      const newId = await addDocument(COLLECTIONS.GOALS, newGoalData);
+      restoredGoals.push({ id: newId, ...newGoalData });
+    }
+
+    set({ goals: restoredGoals, loading: false });
+    
+    console.log(`✅ ${restoredGoals.length} metas restauradas`);
+    return { success: true, count: restoredGoals.length };
+  } catch (error) {
+    console.error('❌ Erro ao restaurar metas:', error);
+    set({ error: error.message, loading: false });
+    return { success: false, error: error.message };
+  }
+},
+
   // ==================== UTILS ====================
   clearError: () => set({ error: null }),
 }));

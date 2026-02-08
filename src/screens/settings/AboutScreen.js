@@ -1,4 +1,5 @@
-import React from 'react';
+import React,{useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -11,6 +12,8 @@ import {
 import useSettingsStore from '../../store/settingsStore';
 
 const AboutScreen = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { getTheme } = useSettingsStore();
   const theme = getTheme();
 
@@ -28,30 +31,30 @@ const AboutScreen = () => {
   ];
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: theme.primary }]}>
+      <View style={[styles.header, { backgroundColor: colors.primary }]}>
         <Text style={styles.headerTitle}>Sobre o App</Text>
         <Text style={styles.headerSubtitle}>v1.0.0</Text>
       </View>
 
       {/* Logo/Ícone */}
-      <View style={[styles.logoSection, { backgroundColor: theme.card }]}>
+      <View style={[styles.logoSection, { backgroundColor: colors.card }]}>
         <Image source={require('../../assets/icons/logo.png')} style={styles.logoIcon} />
-        <Text style={[styles.appName, { color: theme.text }]}>
+        <Text style={[styles.appName, { color: colors.text }]}>
           Controle Financeiro
         </Text>
-        <Text style={[styles.appTagline, { color: theme.textSecondary }]}>
+        <Text style={[styles.appTagline, { color: colors.textSecondary }]}>
           Organize suas finanças com inteligência
         </Text>
       </View>
 
       {/* Descrição */}
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           📖 Sobre
         </Text>
-        <Text style={[styles.description, { color: theme.textSecondary }]}>
+        <Text style={[styles.description, { color: colors.textSecondary }]}>
           O Controle Financeiro é um aplicativo completo para gestão de suas
           finanças pessoais. Com ele você pode controlar receitas, despesas,
           investimentos, definir metas, criar orçamentos e muito mais.
@@ -59,8 +62,8 @@ const AboutScreen = () => {
       </View>
 
       {/* Funcionalidades */}
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           ✨ Funcionalidades
         </Text>
         <View style={styles.featuresList}>
@@ -78,10 +81,10 @@ const AboutScreen = () => {
             'Múltiplas moedas',
           ].map((feature, index) => (
             <View key={index} style={styles.featureItem}>
-              <Text style={[styles.featureBullet, { color: theme.primary }]}>
+              <Text style={[styles.featureBullet, { color: colors.primary }]}>
                 •
               </Text>
-              <Text style={[styles.featureText, { color: theme.textSecondary }]}>
+              <Text style={[styles.featureText, { color: colors.textSecondary }]}>
                 {feature}
               </Text>
             </View>
@@ -90,20 +93,20 @@ const AboutScreen = () => {
       </View>
 
       {/* Bibliotecas */}
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           📚 Bibliotecas de Código Aberto
         </Text>
         {libraries.map((lib, index) => (
           <View
             key={index}
-            style={[styles.libraryItem, { borderBottomColor: theme.border }]}
+            style={[styles.libraryItem, { borderBottomColor: colors.border }]}
           >
             <View style={styles.libraryInfo}>
-              <Text style={[styles.libraryName, { color: theme.text }]}>
+              <Text style={[styles.libraryName, { color: colors.text }]}>
                 {lib.name}
               </Text>
-              <Text style={[styles.libraryVersion, { color: theme.textSecondary }]}>
+              <Text style={[styles.libraryVersion, { color: colors.textSecondary }]}>
                 v{lib.version} • {lib.license}
               </Text>
             </View>
@@ -112,47 +115,47 @@ const AboutScreen = () => {
       </View>
 
       {/* Desenvolvedor */}
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           👨‍💻 Desenvolvedor
         </Text>
-        <Text style={[styles.developer, { color: theme.textSecondary }]}>
+        <Text style={[styles.developer, { color: colors.textSecondary }]}>
           Desenvolvido com ❤️ por Louise
         </Text>
-        <Text style={[styles.developer, { color: theme.textSecondary }]}>
+        <Text style={[styles.developer, { color: colors.textSecondary }]}>
           © 2026 Todos os direitos reservados
         </Text>
       </View>
 
       {/* Links */}
-      <View style={[styles.section, { backgroundColor: theme.card }]}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
           🔗 Links Úteis
         </Text>
         
         <TouchableOpacity
-          style={[styles.linkButton, { borderColor: theme.border }]}
+          style={[styles.linkButton, { borderColor: colors.border }]}
           onPress={() => openLink('https://controlefinanceiro.com/privacy')}
         >
-          <Text style={[styles.linkText, { color: theme.primary }]}>
+          <Text style={[styles.linkText, { color: colors.primary }]}>
             Política de Privacidade
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.linkButton, { borderColor: theme.border }]}
+          style={[styles.linkButton, { borderColor: colors.border }]}
           onPress={() => openLink('https://controlefinanceiro.com/terms')}
         >
-          <Text style={[styles.linkText, { color: theme.primary }]}>
+          <Text style={[styles.linkText, { color: colors.primary }]}>
             Termos de Uso
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.linkButton, { borderColor: theme.border }]}
+          style={[styles.linkButton, { borderColor: colors.border }]}
           onPress={() => openLink('https://github.com/louiseneves/controle-financeiro')}
         >
-          <Text style={[styles.linkText, { color: theme.primary }]}>
+          <Text style={[styles.linkText, { color: colors.primary }]}>
             Código Fonte (GitHub)
           </Text>
         </TouchableOpacity>
@@ -160,10 +163,10 @@ const AboutScreen = () => {
 
       {/* Rodapé */}
       <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: theme.textSecondary }]}>
+        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
           Feito com React Native 🚀
         </Text>
-        <Text style={[styles.footerText, { color: theme.textSecondary }]}>
+        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
           Build 2024.01.001
         </Text>
       </View>
@@ -171,7 +174,8 @@ const AboutScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -183,12 +187,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.onPrimary,
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#fff',
+    color: colors.textSecondary,
     opacity: 0.9,
   },
   logoSection: {
@@ -199,6 +203,8 @@ const styles = StyleSheet.create({
   logoIcon: {
     fontSize: 80,
     marginBottom: 15,
+    width: 125,
+    height: 125,
   },
   appName: {
     fontSize: 24,

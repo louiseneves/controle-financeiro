@@ -2,7 +2,8 @@
  * Tela de Histórico de Transações
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -12,15 +13,18 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import {COLORS, formatCurrency, formatDate} from '../../utils';
+import {COLORS} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
 import TransactionItem from '../../components/common/TransactionItem';
+import useSettingsStore from '../../store/settingsStore';
 
 const HistoryScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {transactions, loadTransactions} = useTransactionStore();
-  
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedType, setSelectedType] = useState('all'); // all, receita, despesa, investimento, oferta
@@ -105,10 +109,10 @@ const HistoryScreen = ({navigation}) => {
 
   const typeFilters = [
     {id: 'all', label: 'Todas', icon: '📋'},
-    {id: 'receita', label: 'Receitas', icon: '💰', color: COLORS.success},
-    {id: 'despesa', label: 'Despesas', icon: '💸', color: COLORS.error},
-    {id: 'investimento', label: 'Investimentos', icon: '📈', color: COLORS.investment},
-    {id: 'oferta', label: 'Ofertas', icon: '🙏', color: COLORS.offer},
+    {id: 'receita', label: 'Receitas', icon: '💰', color: colors.success},
+    {id: 'despesa', label: 'Despesas', icon: '💸', color: colors.error},
+    {id: 'investimento', label: 'Investimentos', icon: '📈', color: colors.investment},
+    {id: 'oferta', label: 'Ofertas', icon: '🙏', color: colors.offer},
   ];
 
   return (
@@ -287,20 +291,21 @@ const HistoryScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     margin: 16,
     marginBottom: 8,
     paddingHorizontal: 16,
     borderRadius: 12,
-    shadowColor: COLORS.black,
+    shadowColor: colors.shadow,
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -314,11 +319,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: COLORS.text,
+    color: colors.text,
   },
   clearIcon: {
     fontSize: 20,
-    color: COLORS.gray400,
+    color: colors.textSecondary,
     padding: 4,
   },
   filtersContainer: {
@@ -332,17 +337,17 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     gap: 6,
   },
   filterChipActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primary + '10',
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + '10',
   },
   filterIcon: {
     fontSize: 18,
@@ -350,10 +355,10 @@ const styles = StyleSheet.create({
   filterLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   filterLabelActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   sortContainer: {
     paddingHorizontal: 16,
@@ -362,7 +367,7 @@ const styles = StyleSheet.create({
   sortLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   sortButtons: {
@@ -372,24 +377,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.modeSelectorBg,
   },
   sortButtonActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   sortButtonText: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   sortButtonTextActive: {
-    color: COLORS.white,
+    color: colors.card,
   },
   summaryBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     marginHorizontal: 16,
     marginBottom: 8,
     padding: 12,
@@ -397,12 +402,12 @@ const styles = StyleSheet.create({
   },
   summaryText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   summaryAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   listContainer: {
     flex: 1,
@@ -414,7 +419,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -424,12 +429,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
 });
 

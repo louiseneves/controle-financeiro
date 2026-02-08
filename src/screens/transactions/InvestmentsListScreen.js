@@ -2,7 +2,8 @@
  * Tela de Listagem de Investimentos
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -12,12 +13,16 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button} from '../../components/ui';
-import {COLORS, formatCurrency, formatDate} from '../../utils';
+import {COLORS, formatDate} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
+import useSettingsStore from '../../store/settingsStore';
 
 const InvestmentsListScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {transactions, loadTransactions} = useTransactionStore();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -84,14 +89,14 @@ const InvestmentsListScreen = ({navigation}) => {
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
               <Text style={styles.summaryItemLabel}>Rendimento Estimado</Text>
-              <Text style={[styles.summaryItemValue, {color: COLORS.success}]}>
+              <Text style={[styles.summaryItemValue, {color: colors.success}]}>
                 {formatCurrency(totalEstimatedProfit)}
               </Text>
             </View>
 
             <View style={styles.summaryItem}>
               <Text style={styles.summaryItemLabel}>Patrimônio Total</Text>
-              <Text style={[styles.summaryItemValue, {color: COLORS.investment}]}>
+              <Text style={[styles.summaryItemValue, {color: colors.investment}]}>
                 {formatCurrency(totalInvested + totalEstimatedProfit)}
               </Text>
             </View>
@@ -151,7 +156,7 @@ const InvestmentsListScreen = ({navigation}) => {
 
                         <View style={styles.detailRow}>
                           <Text style={styles.detailLabel}>Rendimento:</Text>
-                          <Text style={[styles.detailValue, {color: COLORS.success}]}>
+                          <Text style={[styles.detailValue, {color: colors.success}]}>
                             + {formatCurrency(estimatedProfit)}
                           </Text>
                         </View>
@@ -192,17 +197,18 @@ const InvestmentsListScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
     paddingBottom: 100,
   },
   summaryCard: {
-    backgroundColor: COLORS.investment,
+    backgroundColor: colors.investment,
     borderRadius: 16,
     padding: 24,
     marginBottom: 24,
@@ -214,19 +220,19 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.9,
     marginBottom: 8,
   },
   summaryAmount: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.card,
     marginBottom: 20,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     opacity: 0.3,
     marginBottom: 16,
   },
@@ -239,14 +245,14 @@ const styles = StyleSheet.create({
   },
   summaryItemLabel: {
     fontSize: 12,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.8,
     marginBottom: 4,
   },
   summaryItemValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.card,
   },
   section: {
     marginBottom: 24,
@@ -257,10 +263,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   investmentCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
@@ -284,12 +290,12 @@ const styles = StyleSheet.create({
   investmentDescription: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   investmentCategory: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 2,
   },
   investmentDate: {
@@ -306,18 +312,18 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   detailValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   highlightRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: COLORS.investment + '10',
+    backgroundColor: colors.investment + '10',
     padding: 12,
     borderRadius: 8,
     marginTop: 8,
@@ -325,17 +331,17 @@ const styles = StyleSheet.create({
   highlightLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   highlightValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.investment,
+    color: colors.investment,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -345,12 +351,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   footer: {
@@ -359,9 +365,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   buttonIcon: {
     fontSize: 20,

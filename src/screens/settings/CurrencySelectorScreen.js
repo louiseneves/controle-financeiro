@@ -1,5 +1,6 @@
 // src/screens/settings/CurrencySelectorScreen.js
-import React, { useState } from 'react';
+import React, { useState,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -12,6 +13,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsService from '../../services/SettingsService';
 
 const CurrencySelectorScreen = ({ navigation, route }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { currentCurrency, onSelect } = route.params;
   const [searchText, setSearchText] = useState('');
   
@@ -72,7 +75,7 @@ const CurrencySelectorScreen = ({ navigation, route }) => {
           placeholder="Buscar moeda..."
           value={searchText}
           onChangeText={setSearchText}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
         />
         {searchText.length > 0 && (
           <TouchableOpacity onPress={() => setSearchText('')}>
@@ -100,34 +103,35 @@ const CurrencySelectorScreen = ({ navigation, route }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     margin: 15,
     paddingHorizontal: 15,
     borderRadius: 10,
     elevation: 2,
-    shadowColor: '#000',
+    shadowcolor: colors.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -139,7 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
   },
   list: {
     padding: 15,
@@ -148,19 +152,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     padding: 16,
     borderRadius: 12,
     marginBottom: 10,
     elevation: 2,
-    shadowColor: '#000',
+    shadowcolor: colors.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
   currencyItemSelected: {
     borderWidth: 2,
-    borderColor: '#4CAF50',
+    bordercolor: colors.success,
   },
   currencyInfo: {
     flexDirection: 'row',
@@ -177,12 +181,12 @@ const styles = StyleSheet.create({
   currencyName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 4,
   },
   currencyCode: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
   },
   infoCard: {
     flexDirection: 'row',
@@ -195,7 +199,7 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
     marginLeft: 10,
   },
 });

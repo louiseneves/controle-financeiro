@@ -2,7 +2,8 @@
  * Tela de Adicionar Oferta
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -14,11 +15,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {COLORS, OFFER_CATEGORIES} from '../../utils';
+import { OFFER_CATEGORIES} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
+import {  brToISO, isoToBR } from '../../utils/helpers/formatters';
 
 const AddOfferScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {addTransaction} = useTransactionStore();
 
@@ -62,9 +66,22 @@ const AddOfferScreen = ({navigation}) => {
   // Salvar oferta
   const handleSave = async () => {
     if (!validateFields()) return;
+if (!user?.uid) {
+          Alert.alert('Sessão expirada', 'Faça login novamente.');
+          navigation.replace('Login');
+          return;
+        }
 
     try {
       setLoading(true);
+
+      // Conversão segura da data
+            const parsedDate = new Date(`${date}T00:00:00`);
+      
+            if (isNaN(parsedDate.getTime())) {
+              Alert.alert('Erro', 'Data inválida');
+              return;
+      }
 
       const transactionData = {
         type: 'oferta',
@@ -72,7 +89,7 @@ const AddOfferScreen = ({navigation}) => {
         amount: parseFloat(amount),
         category,
         churchName: churchName.trim() || null,
-        date: new Date(date).toISOString(),
+        date: parsedDate.toISOString(),
         userId: user.uid,
       };
 
@@ -124,7 +141,7 @@ const AddOfferScreen = ({navigation}) => {
           />
 
           <Input
-            label="Valor (R$)"
+            label="Valor "
             value={amount}
             onChangeText={setAmount}
             placeholder="0,00"
@@ -143,9 +160,9 @@ const AddOfferScreen = ({navigation}) => {
 
           <Input
             label="Data"
-            value={date}
-            onChangeText={setDate}
-            placeholder="YYYY-MM-DD"
+            value={isoToBR(date)}
+            onChangeText={(text) => setDate(brToISO(text))}
+            placeholder="DD/MM/AAAA"
             leftIcon={<Text style={styles.iconText}>📅</Text>}
           />
 
@@ -214,10 +231,11 @@ const AddOfferScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -234,12 +252,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   form: {
@@ -251,7 +269,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   categorySection: {
@@ -265,17 +283,17 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '31%',
     aspectRatio: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   categoryCardSelected: {
     borderWidth: 3,
-    backgroundColor: COLORS.offer + '10',
+    backgroundColor: colors.offer + '10',
   },
   categoryIcon: {
     fontSize: 28,
@@ -283,17 +301,17 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 11,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontWeight: '500',
   },
   categoryNameSelected: {
-    color: COLORS.offer,
+    color: colors.offer,
     fontWeight: '600',
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.tithe + '10',
+    backgroundColor: colors.tithe + '10',
     borderRadius: 8,
     padding: 12,
     marginTop: 8,
@@ -305,16 +323,16 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 18,
   },
   errorText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 14,
   },
   errorTextSmall: {
     fontSize: 12,
-    color: COLORS.error,
+    color: colors.error,
     marginTop: 4,
     marginLeft: 4,
   },

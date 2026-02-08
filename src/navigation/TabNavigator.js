@@ -4,51 +4,63 @@
  */
 
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { FontAwesome } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../context/ThemeContext';
+
 import HomeScreen from '../screens/home/HomeScreen';
 import TransactionsNavigator from './TransactionsNavigator';
 import ReportsNavigator from './ReportsNavigator';
 import SettingsNavigator from './SettingsNavigator';
-import {COLORS} from '../utils';
-import { FontAwesome } from '@expo/vector-icons';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.gray400,
-        tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.border,
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom,
-          paddingTop: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-        headerStyle: {
-          backgroundColor: COLORS.white,
-        },
-        headerTintColor: COLORS.text,
-        headerTitleStyle: {
-          fontWeight: '600',
-        },
-        headerShadowVisible: false,
-      }}>
+  screenOptions={{
+    tabBarActiveTintColor: colors.primary,
+    tabBarInactiveTintColor: colors.textSecondary,
+
+    tabBarStyle: {
+      backgroundColor: colors.card,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      height: 60 + insets.bottom,
+      paddingBottom: insets.bottom,
+      paddingTop: 8,
+    },
+
+    tabBarLabelStyle: {
+      fontSize: 12,
+      fontWeight: '600',
+    },
+
+    sceneContainerStyle: {
+      backgroundColor: colors.background,
+    },
+
+    headerStyle: {
+      backgroundColor: colors.card,
+    },
+    headerTintColor: colors.text,
+    headerTitleStyle: {
+      fontWeight: '600',
+    },
+    headerShadowVisible: false,
+  }}
+>
+
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
         options={{
           title: 'Início',
-          headerShown:false,
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="home" size={size} color={color} />
           ),
@@ -56,16 +68,26 @@ const TabNavigator = () => {
       />
 
       <Tab.Screen
-        name="TransactionsTab"
-        component={TransactionsNavigator}
-        options={{
-          title: 'Transações',
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="exchange" size={size} color={color} />
-          ),
-        }}
-      />
+  name="TransactionsTab"
+  component={TransactionsNavigator}
+  options={{
+    title: 'Transações',
+    headerShown: false,
+    tabBarIcon: ({ color, size }) => (
+      <FontAwesome name="exchange" size={size} color={color} />
+    ),
+  }}
+  listeners={({ navigation }) => ({
+    tabPress: e => {
+      e.preventDefault();
+
+      navigation.navigate('TransactionsTab', {
+        screen: 'TransactionsList',
+      });
+    },
+  })}
+/>
+
 
       <Tab.Screen
         name="ReportsTab"
@@ -95,3 +117,4 @@ const TabNavigator = () => {
 };
 
 export default TabNavigator;
+

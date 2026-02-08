@@ -1,96 +1,88 @@
 import React, { useEffect } from 'react';
 import { StatusBar, Platform } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
-import { COLORS } from './utils';
 import * as NavigationBar from 'expo-navigation-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import useAuthStore from './store/authStore';
 import useSettingsStore from './store/settingsStore';
-
 import NotificationService from './services/notifications/notificationService';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+
+function AppContent() {
+  const { colors, dark } = useTheme();
+
+  return (
+    <>
+      <StatusBar
+        barStyle={dark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+        translucent={false}
+      />
+      <AppNavigator />
+    </>
+  );
+}
 
 export default function App() {
-
-  /* ==================== AUTH ==================== */
+  /* ==================== SELECTORS ==================== */
   const initializeAuth = useAuthStore(state => state.initializeAuth);
   const authInitialized = useAuthStore(state => state.initialized);
-
-  /* ==================== SETTINGS ==================== */
   const loadSettings = useSettingsStore(state => state.loadSettings);
-  const notifications = useSettingsStore(state => state.notifications);
 
   /* ==================== ANDROID NAV BAR ==================== */
   useEffect(() => {
     if (Platform.OS === 'android') {
       NavigationBar.setVisibilityAsync('visible');
-      NavigationBar.setBehaviorAsync('inset');
+      NavigationBar.setBehaviorAsync('inset-swipe');
+      NavigationBar.setBackgroundColorAsync('#0F172A'); // Modo escuro
     }
   }, []);
 
   /* ==================== INIT AUTH ==================== */
   useEffect(() => {
     const unsubscribe = initializeAuth?.();
+    
     return () => {
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
     };
-  }, []);
+  }, [initializeAuth]);
 
-  /* ==================== LOAD SETTINGS ==================== */
+  /* ==================== INIT APP ==================== */
   useEffect(() => {
-    loadSettings?.();
-  }, []);
+    const initializeApp = async () => {
+      try {
+        console.log('🚀 Inicializando aplicativo...');
 
-  /* ==================== INIT NOTIFICATIONS ==================== */
-  useEffect(() => {
-    NotificationService.applySettings(notifications);
+        // 1. Inicializar NotificationService
+        await NotificationService.init();
+        console.log('✅ NotificationService inicializado');
 
-  }, []);
+        // 2. Carregar settings (já aplica notificações)
+        await loadSettings();
+        console.log('✅ Settings carregados');
 
-  /* ==================== SCHEDULE NOTIFICATIONS ==================== */
-  useEffect(() => {
-    if (!notifications?.enabled) {
-      NotificationService.cancelAll();
-      return;
-    }
+        console.log('✅ Aplicativo inicializado com sucesso!');
+      } catch (error) {
+        console.error('❌ Erro ao inicializar app:', error);
+      }
+    };
 
-    const [hour, minute] = (notifications.time || '09:00')
-      .split(':')
-      .map(Number);
-
-    NotificationService.cancelAll();
-
-    if (notifications.bills || notifications.dailyReminder) {
-  NotificationService.scheduleBillsReminder(hour, minute);
-}
-
-
-    if (notifications.tithe) {
-      NotificationService.scheduleTitheReminder(hour, minute);
-    }
-
-    if (notifications.goals) {
-      NotificationService.scheduleGoalsReminder(hour, minute);
-    }
-  }, [notifications]);
+    initializeApp();
+  }, [loadSettings]);
 
   /* ==================== LOADING ==================== */
   if (!authInitialized) {
-    return null;
+    return null; // TODO: Adicionar splash screen aqui
   }
 
-  /* ==================== APP ==================== */
+  /* ==================== RENDER ==================== */
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={COLORS.white}
-        />
-        <AppNavigator />
+        <AppContent />
       </ThemeProvider>
     </SafeAreaProvider>
   );

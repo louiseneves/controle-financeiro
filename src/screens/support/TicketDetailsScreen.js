@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,6 +14,8 @@ import {
 import useSupportStore from '../../store/supportStore';
 
 const TicketDetailsScreen = ({ route, navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { ticketId } = route.params;
   const { tickets, addMessage, rateTicket, closeTicket } = useSupportStore();
   
@@ -88,9 +91,9 @@ const TicketDetailsScreen = ({ route, navigation }) => {
 
   const getStatusInfo = (status) => {
     const statusMap = {
-      open: { label: 'Aberto', color: '#4CAF50', icon: '🟢' },
-      in_progress: { label: 'Em Andamento', color: '#FF9800', icon: '🟡' },
-      resolved: { label: 'Resolvido', color: '#2196F3', icon: '🔵' },
+      open: { label: 'Aberto', color: colors.success, icon: '🟢' },
+      in_progress: { label: 'Em Andamento', color: colors.warning, icon: '🟡' },
+      resolved: { label: 'Resolvido', color: colors.primary, icon: '🔵' },
       closed: { label: 'Fechado', color: '#9E9E9E', icon: '⚪' },
     };
     return statusMap[status] || statusMap.open;
@@ -149,7 +152,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             <Text style={styles.messageSender}>{msg.senderName}</Text>
             <Text style={styles.messageText}>{msg.text}</Text>
             <Text style={styles.messageTime}>
-              {new Date(msg.timestamp).toLocaleString('pt-BR', {
+              {new Date(msg.createdAt).toLocaleString('pt-BR', {
                 day: '2-digit',
                 month: '2-digit',
                 hour: '2-digit',
@@ -194,7 +197,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
               onChangeText={setRatingFeedback}
               multiline
               numberOfLines={3}
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.placeholder}
             />
 
             <TouchableOpacity
@@ -228,7 +231,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             onChangeText={setMessage}
             multiline
             maxLength={500}
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.placeholder}
           />
           <TouchableOpacity
             style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
@@ -243,13 +246,14 @@ const TicketDetailsScreen = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   ticketHeader: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
@@ -260,12 +264,12 @@ const styles = StyleSheet.create({
   ticketSubject: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 5,
   },
   ticketCategory: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 10,
   },
   ticketMeta: {
@@ -285,10 +289,10 @@ const styles = StyleSheet.create({
   },
   ticketDate: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textTertiary,
   },
   closeButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: colors.error,
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
@@ -317,26 +321,26 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 5,
   },
   supportMessage: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 5,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   messageSender: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: colors.primary,
     marginBottom: 4,
   },
   messageText: {
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
     lineHeight: 20,
   },
   messageTime: {
     fontSize: 11,
-    color: '#999',
+    color: colors.textTertiary,
     marginTop: 4,
     textAlign: 'right',
   },
@@ -353,17 +357,17 @@ const styles = StyleSheet.create({
     color: '#E65100',
   },
   ratingContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     padding: 20,
     borderRadius: 10,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   ratingTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -377,17 +381,17 @@ const styles = StyleSheet.create({
     fontSize: 36,
   },
   feedbackInput: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 8,
     padding: 12,
     fontSize: 14,
-    color: '#333',
+    color: colors.text,
     marginBottom: 15,
     minHeight: 80,
     textAlignVertical: 'top',
   },
   submitRatingButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.success,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -416,7 +420,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   inputContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     flexDirection: 'row',
     padding: 12,
     borderTopWidth: 1,
@@ -425,17 +429,17 @@ const styles = StyleSheet.create({
   },
   messageInput: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 8,
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
     maxHeight: 100,
     marginRight: 10,
   },
   sendButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,

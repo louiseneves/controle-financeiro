@@ -2,21 +2,25 @@
  * Atalhos Rápidos
  */
 
-import React from 'react';
+import React,{useMemo} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {COLORS} from '../../utils';
+import { COLORS } from '../../utils';
+import { useTheme } from '../../context/ThemeContext';
+import {t} from '../../i18n';
 
-const QuickActions = ({onPress}) => {
+const QuickActions = ({ onPress }) => {
+  const { colors } = useTheme();
+    const styles = useMemo(() => createStyles(colors), [colors]);
   const actions = [
-    {id: 'receita', title: 'Receita', icon: '💰', color: COLORS.success},
-    {id: 'despesa', title: 'Despesa', icon: '💸', color: COLORS.error},
-    {id: 'investimento', title: 'Investimento', icon: '📈', color: COLORS.investment},
-    {id: 'oferta', title: 'Oferta', icon: '🙏', color: COLORS.offer},
+    {id: 'receita', title: t('quickActions.income'), icon: '💰', color: colors.success},
+    {id: 'despesa', title: t('quickActions.expense'), icon: '💸', color: colors.error},
+    {id: 'investimento', title: t('quickActions.investment'), icon: '📈', color: colors.investment},
+    {id: 'oferta', title: t('quickActions.offer'), icon: '🙏', color: colors.offer},
   ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Ações Rápidas</Text>
+      <Text style={styles.title}>{t('quickActions.title')}</Text>
       
       <View style={styles.grid}>
         {actions.map(action => (
@@ -34,14 +38,15 @@ const QuickActions = ({onPress}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     marginBottom: 24,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   grid: {
@@ -52,7 +57,7 @@ const styles = StyleSheet.create({
   actionCard: {
     flex: 1,
     minWidth: '47%',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
 });
 

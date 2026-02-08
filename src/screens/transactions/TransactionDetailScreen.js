@@ -2,7 +2,8 @@
  * Tela de Detalhes/Edição de Transação
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -20,13 +21,16 @@ import {
   EXPENSE_CATEGORIES,
   INVESTMENT_CATEGORIES,
   OFFER_CATEGORIES,
-  formatCurrency,
   formatDate,
 } from '../../utils';
 import useTransactionStore from '../../store/transactionStore';
+import useSettingsStore from '../../store/settingsStore';
 
 const TransactionDetailScreen = ({navigation, route}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {transaction} = route.params;
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {updateTransaction, deleteTransaction} = useTransactionStore();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -63,13 +67,13 @@ const TransactionDetailScreen = ({navigation, route}) => {
   const getTypeColor = () => {
     switch (transaction.type) {
       case 'receita':
-        return COLORS.success;
+        return colors.success;
       case 'despesa':
-        return COLORS.error;
+        return colors.error;
       case 'investimento':
-        return COLORS.investment;
+        return colors.investment;
       case 'oferta':
-        return COLORS.offer;
+        return colors.offer;
       default:
         return COLORS.gray500;
     }
@@ -210,7 +214,7 @@ const TransactionDetailScreen = ({navigation, route}) => {
             />
 
             <Input
-              label="Valor (R$)"
+              label="Valor "
               value={amount}
               onChangeText={setAmount}
               placeholder="0,00"
@@ -359,10 +363,11 @@ const TransactionDetailScreen = ({navigation, route}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     paddingBottom: 40,
@@ -375,7 +380,7 @@ const styles = StyleSheet.create({
   typeLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   headerAmount: {
@@ -391,7 +396,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   categorySection: {
@@ -408,13 +413,13 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '31%',
     aspectRatio: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   categoryCardSelected: {
     borderWidth: 3,
@@ -425,7 +430,7 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 11,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -435,7 +440,7 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     gap: 12,
@@ -446,16 +451,16 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: COLORS.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   checkmark: {
-    color: COLORS.white,
+    color: colors.card,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -465,20 +470,20 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   checkboxDescription: {
     fontSize: 13,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   errorText: {
-    color: COLORS.error,
+    color: colors.error,
     fontSize: 14,
   },
   errorTextSmall: {
     fontSize: 12,
-    color: COLORS.error,
+    color: colors.error,
     marginTop: 4,
     marginLeft: 4,
   },
@@ -486,7 +491,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   detailCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
@@ -501,17 +506,17 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     marginBottom: 6,
   },
   detailValue: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   actions: {
     gap: 12,

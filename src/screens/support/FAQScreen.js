@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -10,6 +11,8 @@ import {
 import useSupportStore from '../../store/supportStore';
 
 const FAQScreen = () => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { faqs, loadFAQs } = useSupportStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todas');
@@ -52,7 +55,7 @@ const FAQScreen = () => {
           placeholder="Buscar pergunta..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.placeholder}
         />
       </View>
 
@@ -135,79 +138,81 @@ const FAQScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 40,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.onPrimary,
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#fff',
+    color: colors.onPrimary + '90',
     opacity: 0.9,
   },
   searchSection: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
   },
   searchInput: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 12,
     fontSize: 15,
-    color: '#333',
+    color: colors.text,
   },
   categoriesScroll: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+    maxHeight: 60,
   },
   categoriesContainer: {
     paddingHorizontal: 15,
     paddingVertical: 12,
   },
   categoryChip: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 10,
   },
   categoryChipActive: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
   },
   categoryChipText: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   categoryChipTextActive: {
-    color: '#fff',
+    color: colors.onPrimary,
   },
   faqList: {
     flex: 1,
     padding: 15,
   },
   faqCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     padding: 15,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   faqHeader: {
     flexDirection: 'row',
@@ -223,17 +228,17 @@ const styles = StyleSheet.create({
   },
   faqCategoryText: {
     fontSize: 11,
-    color: '#2196F3',
+    color: colors.primary,
     fontWeight: '600',
   },
   faqIcon: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textTertiary,
   },
   faqQuestion: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     lineHeight: 22,
   },
   faqAnswerContainer: {
@@ -241,12 +246,12 @@ const styles = StyleSheet.create({
   },
   faqAnswerDivider: {
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.surface,
     marginBottom: 12,
   },
   faqAnswer: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     lineHeight: 22,
   },
   emptyState: {
@@ -260,12 +265,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: colors.textTertiary,
   },
   footer: {
     backgroundColor: '#FFF3E0',

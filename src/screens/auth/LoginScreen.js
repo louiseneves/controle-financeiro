@@ -2,7 +2,8 @@
  * Tela de Login
  */
 
-import React, {useState} from 'react';
+import React, {useState,useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -16,10 +17,13 @@ import {
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import {Button, Input} from '../../components/ui';
-import {COLORS} from '../../utils';
 import useAuthStore from '../../store/authStore';
+import { t } from '../../i18n';
+
 
 const LoginScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -43,18 +47,18 @@ const LoginScreen = ({navigation}) => {
     setPasswordError('');
 
     if (!email) {
-      setEmailError('Email é obrigatório');
+      setEmailError(t('login.errors.emailRequired'));
       isValid = false;
     } else if (!validateEmail(email)) {
-      setEmailError('Email inválido');
+      setEmailError(t('login.errors.emailInvalid'));
       isValid = false;
     }
 
     if (!password) {
-      setPasswordError('Senha é obrigatória');
+      setPasswordError(t('login.errors.passwordRequired'));
       isValid = false;
     } else if (password.length < 6) {
-      setPasswordError('Senha deve ter no mínimo 6 caracteres');
+      setPasswordError(t('login.errors.passwordMin'));
       isValid = false;
     }
 
@@ -69,12 +73,12 @@ const LoginScreen = ({navigation}) => {
       const result = await login(email, password);
 
       if (result?.success) {
-        Alert.alert('Sucesso!', 'Login realizado com sucesso!');
+        Alert.alert(t('login.alerts.successTitle'), t('login.alerts.successMessage'));
       } else {
-        Alert.alert('Erro', result?.error || 'Erro ao fazer login');
+        Alert.alert(t('login.alerts.errorTitle'), result?.error || t('login.alerts.loginError'));
       }
     } catch (error) {
-      Alert.alert('Erro', 'Erro inesperado ao fazer login');
+      Alert.alert(t('login.alerts.errorTitle'), t('login.alerts.unexpectedError'));
     }     
   };
 
@@ -93,44 +97,44 @@ const LoginScreen = ({navigation}) => {
             style={styles.logo}
           />
           <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-            <Text style={styles.title}>Controle </Text>
-            <Text style={styles.title2}>Financeiro</Text>
+            <Text style={styles.title}>{t('login.title')} </Text>
+            <Text style={styles.title2}>{t('login.titleHighlight')}</Text>
           </View>
-          <Text style={styles.subtitle}>Faça login para continuar</Text>
+          <Text style={styles.subtitle}>{t('login.subtitle')}</Text>
         </View>
 
         {/* Form */}
         <View style={styles.form}>
           <Input
-            label="Email"
+            label={t('login.email')}
             value={email}
             onChangeText={setEmail}
-            placeholder="seu@email.com"
+            placeholder={t('login.emailPlaceholder')}
             keyboardType="email-address"
             autoCapitalize="none"
             error={emailError}
-            leftIcon={<MaterialIcons name="email" size={24} color="black" />}
+            leftIcon={<MaterialIcons name="email" size={24} color={colors.textSecondary} />}
           />
 
           <Input
-            label="Senha"
+            label={t('login.password')}
             value={password}
             onChangeText={setPassword}
             placeholder="••••••••"
             secureTextEntry
             error={passwordError}
             showPasswordToggle
-            leftIcon={<MaterialIcons name="lock" size={24} color="black" />}
+            leftIcon={<MaterialIcons name="lock" size={24} color={colors.textSecondary} />}
           />
 
           <TouchableOpacity
             onPress={() => navigation.navigate('ForgotPassword')}
             style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+            <Text style={styles.forgotPasswordText}>{t('login.forgotPassword')}</Text>
           </TouchableOpacity>
 
           <Button
-            title="Entrar"
+            title={t('login.loginButton')}
             onPress={handleLogin}
             loading={loading}
             disabled={loading}
@@ -139,14 +143,14 @@ const LoginScreen = ({navigation}) => {
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={styles.dividerText}>{t('login.or')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
           <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Não tem uma conta? </Text>
+            <Text style={styles.registerText}>{t('login.noAccount')} </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerLink}>Cadastre-se</Text>
+              <Text style={styles.registerLink}>{t('login.register')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -155,10 +159,11 @@ const LoginScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -177,16 +182,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2563EB',
+    color: colors.primary,
   },
   title2: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.tithe,
+    color: colors.tithe,
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   form: {
     width: '100%',
@@ -197,7 +202,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   loginButton: {
@@ -211,12 +216,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
   },
   dividerText: {
     marginHorizontal: 16,
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   registerContainer: {
     flexDirection: 'row',
@@ -224,11 +229,11 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   registerLink: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 });

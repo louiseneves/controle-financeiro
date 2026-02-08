@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTheme } from '../context/ThemeContext';
+
 import ProfileScreen from '../screens/settings/ProfileScreen';
 import EditProfileScreen from '../screens/settings/EditProfileScreen';
 import PremiumScreen from '../screens/settings/PremiumScreen';
@@ -13,86 +15,83 @@ import BackupScreen from '../screens/settings/BackupScreen';
 import SupportNavigator from './SupportNavigator';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import AboutScreen from '../screens/settings/AboutScreen';
-import {COLORS} from '../utils';
 
 const Stack = createNativeStackNavigator();
 
 const SettingsNavigator = () => {
+  const { colors } = useTheme();
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: COLORS.white,
+          backgroundColor: colors.card,
         },
-        headerTintColor: COLORS.text,
+        headerTintColor: colors.text,
         headerTitleStyle: {
           fontWeight: '600',
         },
         headerShadowVisible: false,
-      }}>
+        contentStyle: {
+          backgroundColor: colors.background,
+        },
+      }}
+    >
       <Stack.Screen
         name="ProfileMain"
         component={ProfileScreen}
-        options={{
-          title: 'Perfil',
-          headerShown: true,
-        }}
+        options={{ title: 'Perfil' }}
       />
+
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
-        options={{
-          title: 'Editar Perfil',
-          headerShown: true,
-        }}
+        options={{ title: 'Editar Perfil' }}
       />
+
       <Stack.Screen
         name="Goals"
         component={PlanningNavigator}
-        options={{
-          title: 'Metas',
-          headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
+
       <Stack.Screen
         name="Planning"
         component={PlanningNavigator}
-        options={{
-          title: 'Orçamento',
-          headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
+
       <Stack.Screen
         name="Premium"
         component={PremiumScreen}
-        options={{
-          title: 'Premium',
-          headerShown: true,
-        }}
+        options={{ title: 'Premium' }}
       />
+
       <Stack.Screen
         name="Backup"
         component={BackupScreen}
         options={{ title: 'Backup' }}
       />
+
       <Stack.Screen
         name="Support"
         component={SupportNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="Settings" 
+
+      <Stack.Screen
+        name="Settings"
         component={SettingsScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="About" 
+
+      <Stack.Screen
+        name="About"
         component={AboutScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
-  
 };
 
 export default SettingsNavigator;

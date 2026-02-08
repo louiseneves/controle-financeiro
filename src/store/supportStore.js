@@ -104,26 +104,33 @@ const useSupportStore = create((set, get) => ({
     set({ loading: true });
 
     try {
-      const ticket = {
-        userId: user.uid,
-        userEmail: user.email,
-        userName: user.displayName || 'Usuário',
-        subject: ticketData.subject,
-        category: ticketData.category,
-        description: ticketData.description,
-        priority: ticketData.priority || 'medium',
-        status: 'open',
-        messages: [
-          {
-            id: Date.now().toString(),
-            sender: 'user',
-            senderName: user.displayName || 'Você',
-            text: ticketData.description,
-            createdAt: new Date().toISOString(),
-          },
-        ],
-        rating: null,
-      };
+      const now = new Date().toISOString();
+
+const ticket = {
+  userId: user.uid,
+  userEmail: user.email,
+  userName: user.displayName || 'Usuário',
+  subject: ticketData.subject,
+  category: ticketData.category,
+  description: ticketData.description,
+  priority: ticketData.priority || 'medium',
+  status: 'open',
+
+  createdAt: now,
+  updatedAt: now,
+
+  messages: [
+    {
+      id: Date.now().toString(),
+      sender: 'user',
+      senderName: user.displayName || 'Você',
+      text: ticketData.description,
+      createdAt: now,
+    },
+  ],
+  rating: null,
+};
+
 
       const id = await addDocument(COLLECTIONS.SUPPORT_TICKETS, ticket);
 
@@ -167,6 +174,7 @@ const useSupportStore = create((set, get) => ({
 
       await updateDocument(COLLECTIONS.SUPPORT_TICKETS, ticketId, {
         messages: updatedMessages,
+        updatedAt: new Date().toISOString(),
       });
 
       set(state => ({

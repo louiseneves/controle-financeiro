@@ -2,7 +2,8 @@
  * Tela de Metas Financeiras
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,12 +14,17 @@ import {
   Alert,
 } from 'react-native';
 import {Button} from '../../components/ui';
-import {COLORS, formatCurrency, formatDate} from '../../utils';
+import {COLORS} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useGoalsStore from '../../store/goalsStore';
+import useSettingsStore from '../../store/settingsStore';
+import { t } from '../../i18n';
 
 const GoalsScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {goals, loadGoals, deleteGoal} = useGoalsStore();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -46,17 +52,17 @@ const GoalsScreen = ({navigation}) => {
 
   const handleDeleteGoal = goalId => {
     Alert.alert(
-      'Excluir Meta',
-      'Tem certeza que deseja excluir esta meta?',
+      t('goals.actions.deleteTitle'),
+      t('goals.actions.deleteConfirm'),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('goals.actions.cancel'), style: 'cancel'},
         {
-          text: 'Excluir',
+          text: t('goals.actions.delete'),
           style: 'destructive',
           onPress: async () => {
             const result = await deleteGoal(goalId);
             if (result.success) {
-              Alert.alert('Sucesso! ✅', 'Meta excluída com sucesso!');
+              Alert.alert(t('goals.actions.deleteSuccessTitle'), t('goals.actions.deleteSuccess'));
             }
           },
         },
@@ -101,13 +107,13 @@ const GoalsScreen = ({navigation}) => {
           <View style={styles.summaryCard}>
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Metas Ativas</Text>
+                <Text style={styles.summaryLabel}>{t('goals.summary.active')}</Text>
                 <Text style={styles.summaryValue}>{activeGoals.length}</Text>
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Concluídas</Text>
-                <Text style={[styles.summaryValue, {color: COLORS.success}]}>
+                <Text style={styles.summaryLabel}>{t('goals.summary.completed')}</Text>
+                <Text style={[styles.summaryValue, {color: colors.success}]}>
                   {completedGoals.length}
                 </Text>
               </View>
@@ -118,7 +124,7 @@ const GoalsScreen = ({navigation}) => {
         {/* Metas Ativas */}
         {activeGoals.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Metas Ativas</Text>
+            <Text style={styles.sectionTitle}>{t('goals.active')}</Text>
             {activeGoals.map(goal => {
               const progress = calculateProgress(goal);
               const daysRemaining = getDaysRemaining(goal.deadline);
@@ -136,17 +142,17 @@ const GoalsScreen = ({navigation}) => {
                       <Text style={styles.goalTitle}>{goal.title}</Text>
                       <Text style={styles.goalDeadline}>
                         {daysRemaining > 0
-                          ? `${daysRemaining} dias restantes`
+                          ? t('goalDetail.daysRemaining', {count: daysRemaining})
                           : daysRemaining === 0
-                          ? 'Hoje é o prazo!'
-                          : `Atrasado ${Math.abs(daysRemaining)} dias`}
+                          ? t('goalDetail.todayDeadline')
+                          : t('goalDetail.late', {count: Math.abs(daysRemaining)})}
                       </Text>
                     </View>
                   </View>
 
                   <View style={styles.goalProgress}>
                     <View style={styles.progressHeader}>
-                      <Text style={styles.progressLabel}>Progresso</Text>
+                      <Text style={styles.progressLabel}>{t('goals.progress')}</Text>
                       <Text style={styles.progressPercentage}>
                         {progress.toFixed(0)}%
                       </Text>
@@ -155,7 +161,7 @@ const GoalsScreen = ({navigation}) => {
                       <View
                         style={[
                           styles.progressFill,
-                          {width: `${progress}%`, backgroundColor: COLORS.primary},
+                          {width: `${progress}%`, backgroundColor: colors.primary},
                         ]}
                       />
                     </View>
@@ -177,7 +183,7 @@ const GoalsScreen = ({navigation}) => {
         {/* Metas Concluídas */}
         {completedGoals.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Metas Concluídas 🎉</Text>
+            <Text style={styles.sectionTitle}>{t('goals.completedWithEmoji')}</Text>
             {completedGoals.map(goal => {
               const current = goal.currentAmount || 0;
 
@@ -191,8 +197,8 @@ const GoalsScreen = ({navigation}) => {
                     <Text style={styles.goalIcon}>✅</Text>
                     <View style={styles.goalInfo}>
                       <Text style={styles.goalTitle}>{goal.title}</Text>
-                      <Text style={[styles.goalDeadline, {color: COLORS.success}]}>
-                        Meta alcançada!
+                      <Text style={[styles.goalDeadline, {color: colors.success}]}>
+                        {t('goalDetail.completed')}
                       </Text>
                     </View>
                   </View>
@@ -212,9 +218,9 @@ const GoalsScreen = ({navigation}) => {
         {goals.length === 0 && (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>🎯</Text>
-            <Text style={styles.emptyText}>Nenhuma meta criada</Text>
+            <Text style={styles.emptyText}>{t('goals.empty.title')}</Text>
             <Text style={styles.emptySubtext}>
-              Defina metas financeiras e acompanhe seu progresso
+              {t('goals.empty.subtitle')}
             </Text>
           </View>
         )}
@@ -223,7 +229,7 @@ const GoalsScreen = ({navigation}) => {
       {/* Botão Adicionar */}
       <View style={styles.footer}>
         <Button
-          title="Criar Nova Meta"
+          title={t('goals.actions.create')}
           onPress={handleAddGoal}
           leftIcon={<Text style={styles.buttonIcon}>🎯</Text>}
         />
@@ -232,17 +238,18 @@ const GoalsScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
     paddingBottom: 100,
   },
   summaryCard: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
@@ -262,19 +269,19 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.9,
     marginBottom: 8,
   },
   summaryValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.card,
   },
   summaryDivider: {
     width: 1,
     height: 50,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     opacity: 0.3,
   },
   section: {
@@ -283,11 +290,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   goalCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
@@ -298,9 +305,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   goalCardCompleted: {
-    backgroundColor: COLORS.success + '10',
+    backgroundColor: colors.success + '10',
     borderWidth: 2,
-    borderColor: COLORS.success,
+    borderColor: colors.success,
   },
   goalHeader: {
     flexDirection: 'row',
@@ -317,12 +324,12 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   goalDeadline: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   goalProgress: {
     gap: 8,
@@ -334,12 +341,12 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   progressPercentage: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   progressBar: {
     height: 10,
@@ -359,14 +366,14 @@ const styles = StyleSheet.create({
   progressCurrent: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   progressTarget: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   completedBadge: {
-    backgroundColor: COLORS.success + '20',
+    backgroundColor: colors.success + '20',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -374,12 +381,12 @@ const styles = StyleSheet.create({
   completedText: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.success,
+    color: colors.success,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -389,12 +396,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   footer: {
@@ -403,9 +410,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   buttonIcon: {
     fontSize: 20,

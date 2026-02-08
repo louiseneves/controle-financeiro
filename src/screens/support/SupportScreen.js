@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useMemo } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -9,8 +10,12 @@ import {
   Alert,
 } from 'react-native';
 import useSupportStore from '../../store/supportStore';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const SupportScreen = ({ navigation }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { tickets, loadTickets } = useSupportStore();
 
   useEffect(() => {
@@ -29,37 +34,6 @@ const SupportScreen = ({ navigation }) => {
       }
     });
   };
-
-  const socialLinks = [
-    {
-      name: 'WhatsApp',
-      icon: '💬',
-      color: '#25D366',
-      url: 'https://wa.me/5511999999999',
-      description: 'Suporte rápido',
-    },
-    {
-      name: 'Instagram',
-      icon: '📷',
-      color: '#E4405F',
-      url: 'https://instagram.com/controlefinanceiro',
-      description: 'Dicas e novidades',
-    },
-    {
-      name: 'YouTube',
-      icon: '▶️',
-      color: '#FF0000',
-      url: 'https://youtube.com/@controlefinanceiro',
-      description: 'Tutoriais em vídeo',
-    },
-    {
-      name: 'Email',
-      icon: '📧',
-      color: '#0088CC',
-      url: 'mailto:suporte@controlefinanceiro.com',
-      description: 'suporte@controlefinanceiro.com',
-    },
-  ];
 
   return (
     <ScrollView style={styles.container}>
@@ -208,31 +182,6 @@ const SupportScreen = ({ navigation }) => {
         )}
       </View>
 
-      {/* Redes Sociais */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Siga-nos nas Redes Sociais</Text>
-        <Text style={styles.sectionDescription}>
-          Fique por dentro de novidades, dicas e atualizações
-        </Text>
-
-        <View style={styles.socialGrid}>
-          {socialLinks.map((social, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[styles.socialCard, { borderLeftColor: social.color }]}
-              onPress={() => handleOpenLink(social.url, social.name)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.socialIcon}>{social.icon}</Text>
-              <View style={styles.socialInfo}>
-                <Text style={styles.socialName}>{social.name}</Text>
-                <Text style={styles.socialDescription}>{social.description}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
       {/* Contato Rápido */}
       <View style={styles.contactSection}>
         <Text style={styles.contactTitle}>📞 Precisa de ajuda imediata?</Text>
@@ -244,13 +193,15 @@ const SupportScreen = ({ navigation }) => {
             style={styles.contactButton}
             onPress={() => handleOpenLink('https://wa.me/5511999999999', 'WhatsApp')}
           >
-            <Text style={styles.contactButtonText}>💬 WhatsApp</Text>
+            <MaterialCommunityIcons name="whatsapp" size={16} color={colors.onPrimary} />
+            <Text style={styles.contactButtonText}> WhatsApp</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.contactButton}
             onPress={() => handleOpenLink('mailto:suporte@controlefinanceiro.com', 'Email')}
           >
-            <Text style={styles.contactButtonText}>📧 Email</Text>
+            <MaterialIcons name="email" size={16} color={colors.onPrimary} />
+            <Text style={styles.contactButtonText}> Email</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -269,29 +220,30 @@ const SupportScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#2196F3',
+    backgroundColor: colors.primary,
     padding: 20,
     paddingTop: 40,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: colors.onPrimary,
     marginBottom: 5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#fff',
+    color: colors.onPrimary,
     opacity: 0.9,
   },
   section: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     padding: 20,
     marginTop: 15,
   },
@@ -303,31 +255,31 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 10,
   },
   sectionDescription: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 15,
     lineHeight: 20,
   },
   badge: {
-    backgroundColor: '#f44336',
+    backgroundColor: colors.error,
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 10,
   },
   badgeText: {
-    color: '#fff',
+    color: colors.onPrimary,
     fontSize: 12,
     fontWeight: 'bold',
   },
   subsectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 10,
     textTransform: 'uppercase',
   },
@@ -339,19 +291,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   primaryCard: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: colors.supportCards.primary,
     borderWidth: 1,
-    borderColor: '#2196F3',
+    borderColor: colors.primary,
   },
   secondaryCard: {
-    backgroundColor: '#F3E5F5',
+    backgroundColor: colors.supportCards.secondary,
     borderWidth: 1,
-    borderColor: '#9C27B0',
+    borderColor: colors.secondary,
   },
   tertiaryCard: {
-    backgroundColor: '#FFF3E0',
+    backgroundColor: colors.supportCards.tertiary,
     borderWidth: 1,
-    borderColor: '#FF9800',
+    borderColor: colors.warning,
   },
   optionIcon: {
     fontSize: 32,
@@ -363,16 +315,16 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.text,
     marginBottom: 3,
   },
   optionSubtitle: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   optionArrow: {
     fontSize: 24,
-    color: '#999',
+    color: colors.textTertiary,
   },
   emptyState: {
     alignItems: 'center',
@@ -385,20 +337,20 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: colors.textTertiary,
   },
   ticketCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.background,
     borderRadius: 10,
     padding: 15,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: colors.border,
   },
   closedTicket: {
     opacity: 0.7,
@@ -412,7 +364,7 @@ const styles = StyleSheet.create({
   ticketSubject: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     flex: 1,
     marginRight: 10,
   },
@@ -422,10 +374,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusopen: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.success,
   },
   statusin_progress: {
-    backgroundColor: '#FF9800',
+    backgroundColor: colors.warning,
   },
   statusresolved: {
     backgroundColor: '#9E9E9E',
@@ -440,12 +392,12 @@ const styles = StyleSheet.create({
   },
   ticketCategory: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   ticketDate: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textTertiary,
   },
   viewAllButton: {
     alignItems: 'center',
@@ -453,7 +405,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   viewAllText: {
-    color: '#2196F3',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -463,7 +415,7 @@ const styles = StyleSheet.create({
   socialCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.background,
     padding: 15,
     borderRadius: 10,
     borderLeftWidth: 4,
@@ -478,12 +430,12 @@ const styles = StyleSheet.create({
   socialName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: colors.text,
     marginBottom: 3,
   },
   socialDescription: {
     fontSize: 13,
-    color: '#666',
+    color: colors.textSecondary,
   },
   contactSection: {
     backgroundColor: '#E8F5E9',
@@ -491,7 +443,7 @@ const styles = StyleSheet.create({
     margin: 15,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#4CAF50',
+    borderColor: colors.success,
   },
   contactTitle: {
     fontSize: 16,
@@ -510,15 +462,19 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   contactButton: {
-    flex: 1,
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
+  flex: 1,
+  flexDirection: 'row',
+  gap: 8,
+  backgroundColor: colors.success,
+  paddingVertical: 12,
+  borderRadius: 8,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
   contactButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
   infoSection: {

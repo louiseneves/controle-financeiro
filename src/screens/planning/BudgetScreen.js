@@ -2,7 +2,8 @@
  * Tela de Planejamento Mensal (Orçamento)
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import {
   View,
   Text,
@@ -13,15 +14,20 @@ import {
   Alert,
 } from 'react-native';
 import {Button} from '../../components/ui';
-import {COLORS, formatCurrency, EXPENSE_CATEGORIES} from '../../utils';
+import {COLORS, EXPENSE_CATEGORIES} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useBudgetStore from '../../store/budgetStore';
 import useTransactionStore from '../../store/transactionStore';
+import { formatMonthYear } from '../../utils/helpers/formatters';
+import useSettingsStore from '../../store/settingsStore';
 
 const BudgetScreen = ({navigation}) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {user} = useAuthStore();
   const {budgets, loadBudgets, getCurrentMonthBudget} = useBudgetStore();
-  const {getCurrentMonthTransactions} = useTransactionStore();
+  const { getCurrentMonthTransactions } = useTransactionStore();
+  const formatCurrency = useSettingsStore(state => state.formatCurrency);
   
   const [refreshing, setRefreshing] = useState(false);
 
@@ -83,9 +89,9 @@ const BudgetScreen = ({navigation}) => {
   };
 
   const getCurrentMonth = () => {
-    const now = new Date();
-    return now.toLocaleDateString('pt-BR', {month: 'long', year: 'numeric'});
-  };
+  return formatMonthYear(new Date());
+};
+
 
   return (
     <View style={styles.container}>
@@ -118,7 +124,7 @@ const BudgetScreen = ({navigation}) => {
               <View style={styles.summaryDetails}>
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryItemLabel}>Gasto</Text>
-                  <Text style={[styles.summaryItemValue, {color: COLORS.error}]}>
+                  <Text style={[styles.summaryItemValue, {color: colors.error}]}>
                     {formatCurrency(totals.totalSpent)}
                   </Text>
                 </View>
@@ -130,7 +136,7 @@ const BudgetScreen = ({navigation}) => {
                   <Text
                     style={[
                       styles.summaryItemValue,
-                      {color: totals.remaining >= 0 ? COLORS.success : COLORS.error},
+                      {color: totals.remaining >= 0 ? colors.success : colors.error},
                     ]}>
                     {formatCurrency(totals.remaining)}
                   </Text>
@@ -150,10 +156,10 @@ const BudgetScreen = ({navigation}) => {
                         )}%`,
                         backgroundColor:
                           totals.totalSpent > totals.totalBudget
-                            ? COLORS.error
+                            ? colors.error
                             : totals.totalSpent > totals.totalBudget * 0.8
-                            ? COLORS.warning
-                            : COLORS.success,
+                            ? colors.warning
+                            : colors.success,
                       },
                     ]}
                   />
@@ -212,10 +218,10 @@ const BudgetScreen = ({navigation}) => {
                                 width: `${Math.min(percentage, 100)}%`,
                                 backgroundColor:
                                   percentage >= 100
-                                    ? COLORS.error
+                                    ? colors.error
                                     : percentage >= 80
-                                    ? COLORS.warning
-                                    : COLORS.success,
+                                    ? colors.warning
+                                    : colors.success,
                               },
                             ]}
                           />
@@ -229,7 +235,7 @@ const BudgetScreen = ({navigation}) => {
                         <Text
                           style={[
                             styles.categoryRemaining,
-                            {color: remaining >= 0 ? COLORS.success : COLORS.error},
+                            {color: remaining >= 0 ? colors.success : colors.error},
                           ]}>
                           {remaining >= 0 ? 'Disponível: ' : 'Excedido: '}
                           {formatCurrency(Math.abs(remaining))}
@@ -248,7 +254,7 @@ const BudgetScreen = ({navigation}) => {
                       )}
 
                       {percentage >= 100 && (
-                        <View style={[styles.suggestionBox, {backgroundColor: COLORS.error + '10'}]}>
+                        <View style={[styles.suggestionBox, {backgroundColor: colors.error + '10'}]}>
                           <Text style={styles.suggestionIcon}>🚨</Text>
                           <Text style={styles.suggestionText}>
                             Você ultrapassou o orçamento desta categoria em{' '}
@@ -288,10 +294,11 @@ const BudgetScreen = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   content: {
     padding: 20,
@@ -304,16 +311,15 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textLight,
-    textTransform: 'capitalize',
+    color: colors.textSecondary,
   },
   summaryCard: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 16,
     padding: 24,
     marginBottom: 24,
@@ -331,18 +337,18 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.9,
   },
   editButton: {
     fontSize: 14,
-    color: COLORS.white,
+    color: colors.card,
     fontWeight: '600',
   },
   summaryAmount: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: COLORS.white,
+    color: colors.card,
     marginBottom: 20,
   },
   summaryDetails: {
@@ -356,19 +362,19 @@ const styles = StyleSheet.create({
   },
   summaryItemLabel: {
     fontSize: 13,
-    color: COLORS.white,
+    color: colors.card,
     opacity: 0.8,
     marginBottom: 4,
   },
   summaryItemValue: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.card,
   },
   summaryDivider: {
     width: 1,
     height: 40,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     opacity: 0.3,
   },
   totalProgress: {
@@ -379,7 +385,7 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: COLORS.white + '30',
+    backgroundColor: colors.card + '30',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -390,7 +396,7 @@ const styles = StyleSheet.create({
   progressPercentage: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.white,
+    color: colors.card,
     minWidth: 40,
     textAlign: 'right',
   },
@@ -400,11 +406,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 12,
   },
   categoryCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -431,17 +437,17 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   alertBadge: {
-    backgroundColor: COLORS.error,
+    backgroundColor: colors.error,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   alertText: {
     fontSize: 11,
-    color: COLORS.white,
+    color: colors.card,
     fontWeight: '600',
   },
   categoryAmounts: {
@@ -453,11 +459,11 @@ const styles = StyleSheet.create({
   categorySpent: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   categoryBudget: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
   },
   categoryProgress: {
     flexDirection: 'row',
@@ -468,7 +474,7 @@ const styles = StyleSheet.create({
   categoryPercentage: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     minWidth: 40,
     textAlign: 'right',
   },
@@ -481,7 +487,7 @@ const styles = StyleSheet.create({
   },
   suggestionBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.warning + '10',
+    backgroundColor: colors.warning + '10',
     borderRadius: 8,
     padding: 12,
     marginTop: 12,
@@ -493,13 +499,13 @@ const styles = StyleSheet.create({
   suggestionText: {
     flex: 1,
     fontSize: 13,
-    color: COLORS.text,
+    color: colors.text,
     lineHeight: 18,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderRadius: 12,
   },
   emptyIcon: {
@@ -509,12 +515,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   footer: {
@@ -523,9 +529,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: COLORS.white,
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   buttonIcon: {
     fontSize: 20,
