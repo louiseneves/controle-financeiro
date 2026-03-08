@@ -20,37 +20,65 @@ import useAuthStore from '../../store/authStore';
 import useBudgetStore from '../../store/budgetStore';
 import useSettingsStore from '../../store/settingsStore';
 import {t} from '../../i18n';
-import { getCurrencyPlaceholder, getCurrencySymbol } from '../../utils/helpers/formatters';
+import { getCurrencyPlaceholder, getCurrencySymbol, getCurrentLocale, parseCurrencyInput, formatCurrency } from '../../utils/helpers/formatters';
 
 const CreateBudgetScreen = ({navigation, route}) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const formatCurrency = useSettingsStore(state => state.formatCurrency);
+
   const {user} = useAuthStore();
   const {addBudget, updateBudget} = useBudgetStore();
-  
+  const [categoryInputs, setCategoryInputs] = useState({});
+
   const existingBudget = route.params?.budget;
   const isEditing = !!existingBudget;
-
+  const locale = getCurrentLocale();
   const [categoryBudgets, setCategoryBudgets] = useState({});
   const [loading, setLoading] = useState(false);
-const currencySymbol = getCurrencySymbol();
 
+const currency = useSettingsStore(state => state.currency);
+const language = useSettingsStore(state => state.language);
+
+const currencyPlaceholder = useMemo(
+  () => getCurrencyPlaceholder(),
+  [currency, language]
+);
+
+  const currencySymbol = getCurrencySymbol();
   useEffect(() => {
-    if (isEditing && existingBudget.categories) {
-      setCategoryBudgets(existingBudget.categories);
-    }
-  }, [isEditing, existingBudget]);
+  if (isEditing && existingBudget.categories) {
+    setCategoryBudgets(existingBudget.categories);
+
+    const formattedInputs = {};
+    Object.entries(existingBudget.categories).forEach(([key, value]) => {
+      formattedInputs[key] = formatCurrency(value);
+    });
+
+    setCategoryInputs(formattedInputs);
+  }
+}, [isEditing, existingBudget]);
+
 
   const handleAmountChange = (category, value) => {
-    setCategoryBudgets(prev => ({
-      ...prev,
-      [category]: value ? parseFloat(value) : 0,
-    }));
-  };
+  // 1. Texto visual (sem formatar)
+  setCategoryInputs(prev => ({
+    ...prev,
+    [category]: value,
+  }));
+
+  // 2. Número real (independente de como foi digitado)
+  const numericValue = parseCurrencyInput(value);
+
+  setCategoryBudgets(prev => ({
+    ...prev,
+    [category]: numericValue,
+  }));
+};
+
+
 
   const calculateTotal = () => {
-    return Object.values(categoryBudgets).reduce((sum, amount) => sum + (amount || 0), 0);
+    return Object.values(categoryBudgets).reduce((sum, amount) => sum + Number(amount || 0), 0);
   };
 
   const handleSave = async () => {
@@ -68,7 +96,10 @@ const currencySymbol = getCurrencySymbol();
         obj[key] = value;
         return obj;
       }, {});
-
+if (!user?.uid) {
+      Alert.alert(t('auth.sessionExpired.title'), t('auth.sessionExpired.message'));
+      return;
+    }
     try {
       setLoading(true);
 
@@ -118,31 +149,44 @@ const currencySymbol = getCurrencySymbol();
         {
           text: t('budget.quickFill.equal'),
           onPress: () => {
-            const equalAmount = 500; // R$ 500 por categoria
-            const budgets = {};
-            EXPENSE_CATEGORIES.forEach(cat => {
-              budgets[cat.id] = equalAmount;
-            });
-            setCategoryBudgets(budgets);
-          },
+  const equalAmount = 500;
+  const budgets = {};
+  const inputs = {};
+
+  EXPENSE_CATEGORIES.forEach(cat => {
+    budgets[cat.id] = equalAmount;
+    inputs[cat.id] = formatCurrency(equalAmount);
+  });
+
+  setCategoryBudgets(budgets);
+  setCategoryInputs(inputs);
+},
+
         },
         {
-          text: t('budget.quickFill.suggested'),
-          onPress: () => {
-            // Sugestões baseadas em prioridades
-            const suggestions = {
-              alimentacao: 800,
-              moradia: 1200,
-              transporte: 400,
-              saude: 300,
-              contas: 500,
-              mercado: 600,
-              combustivel: 300,
-              telefone: 150,
-            };
-            setCategoryBudgets(suggestions);
-          },
-        },
+  text: t('budget.quickFill.suggested'),
+  onPress: () => {
+    const suggestions = {
+      alimentacao: 800,
+      moradia: 1200,
+      transporte: 400,
+      saude: 300,
+      contas: 500,
+      mercado: 600,
+      combustivel: 300,
+      telefone: 150,
+    };
+
+    const inputs = {};
+    Object.entries(suggestions).forEach(([key, value]) => {
+      inputs[key] = formatCurrency(value);
+    });
+
+    setCategoryBudgets(suggestions);
+    setCategoryInputs(inputs);
+  },
+},
+
         {text: 'Cancelar', style: 'cancel'},
       ],
     );
@@ -193,13 +237,22 @@ const currencySymbol = getCurrencySymbol();
               </View>
               
               <Input
-                value={categoryBudgets[category.id]?.toString() || ''}
-                onChangeText={value => handleAmountChange(category.id, value)}
-                placeholder={getCurrencyPlaceholder()}
-                keyboardType="numeric"
-                leftIcon={<Text style={styles.inputIcon}>{currencySymbol}</Text>}
-                style={styles.input}
-              />
+  value={categoryInputs[category.id] || ''}
+  onChangeText={value => handleAmountChange(category.id, value)}
+  onBlur={() => {
+    const value = categoryBudgets[category.id] || 0;
+    setCategoryInputs(prev => ({
+      ...prev,
+      [category.id]: value ? formatCurrency(value) : '',
+    }));
+  }}
+  placeholder={currencyPlaceholder}
+  keyboardType="numeric"
+  leftIcon={<Text style={styles.inputIcon}>{currencySymbol}</Text>}
+  style={styles.input}
+/>
+
+
             </View>
           ))}
         </View>

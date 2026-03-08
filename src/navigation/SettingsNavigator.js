@@ -6,6 +6,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 import ProfileScreen from '../screens/settings/ProfileScreen';
 import EditProfileScreen from '../screens/settings/EditProfileScreen';
@@ -40,19 +41,13 @@ const SettingsNavigator = () => {
       <Stack.Screen
         name="ProfileMain"
         component={ProfileScreen}
-        options={{ title: 'Perfil' }}
+        options={{ title: t('settingsNavigator.profile') }}
       />
 
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}
-        options={{ title: 'Editar Perfil' }}
-      />
-
-      <Stack.Screen
-        name="Goals"
-        component={PlanningNavigator}
-        options={{ headerShown: false }}
+        options={{ title: t('settingsNavigator.editProfile') }}
       />
 
       <Stack.Screen
@@ -64,13 +59,13 @@ const SettingsNavigator = () => {
       <Stack.Screen
         name="Premium"
         component={PremiumScreen}
-        options={{ title: 'Premium' }}
+        options={{ title: t('settingsNavigator.premium') }}
       />
 
       <Stack.Screen
         name="Backup"
         component={BackupScreen}
-        options={{ title: 'Backup' }}
+        options={{ title: t('settingsNavigator.backup') }}
       />
 
       <Stack.Screen

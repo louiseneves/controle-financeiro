@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import SettingsService from '../../services/SettingsService';
+import {t} from '../../i18n';
 
 const CurrencySelectorScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { currentCurrency, onSelect } = route.params;
+  const { currentCurrency, onSelect } = route.params || {};
   const [searchText, setSearchText] = useState('');
   
   const allCurrencies = SettingsService.getCurrencies();
@@ -61,25 +62,25 @@ const CurrencySelectorScreen = ({ navigation, route }) => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#333" />
+          <Icon name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Selecionar Moeda</Text>
+        <Text style={styles.headerTitle}>{t('currencySelector.headerTitle')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       {/* Busca */}
       <View style={styles.searchContainer}>
-        <Icon name="magnify" size={20} color="#666" style={styles.searchIcon} />
+        <Icon name="magnify" size={20} color={colors.textSecondary} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar moeda..."
+          placeholder={t('currencySelector.searchPlaceholder')}
           value={searchText}
           onChangeText={setSearchText}
           placeholderTextColor={colors.placeholder}
         />
         {searchText.length > 0 && (
           <TouchableOpacity onPress={() => setSearchText('')}>
-            <Icon name="close-circle" size={20} color="#666" />
+            <Icon name="close-circle" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -96,7 +97,7 @@ const CurrencySelectorScreen = ({ navigation, route }) => {
       <View style={styles.infoCard}>
         <Icon name="information" size={18} color="#666" />
         <Text style={styles.infoText}>
-          A moeda selecionada será usada em todo o app
+          {t('currencySelector.info')}
         </Text>
       </View>
     </View>
@@ -201,6 +202,13 @@ const createStyles = (colors) =>
     fontSize: 13,
     color: colors.textSecondary,
     marginLeft: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.error,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
   },
 });
 

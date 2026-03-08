@@ -2,8 +2,8 @@
  * Tela de Adicionar Receita
  */
 
-import React, { useState, useMemo } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useState, useMemo } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import {
   View,
   Text,
@@ -13,12 +13,14 @@ import {
   Platform,
   Alert,
   TouchableOpacity,
-} from 'react-native';
-import { Button, Input } from '../../components/ui';
-import { INCOME_CATEGORIES } from '../../utils';
-import useAuthStore from '../../store/authStore';
-import useTransactionStore from '../../store/transactionStore';
-import { isoToBR, brToISO } from '../../utils/helpers/formatters';
+} from "react-native";
+import { Button, Input } from "../../components/ui";
+import { INCOME_CATEGORIES } from "../../utils";
+import useAuthStore from "../../store/authStore";
+import useTransactionStore from "../../store/transactionStore";
+import { isoToBR, brToISO } from "../../utils/helpers/formatters";
+import { t } from "../../i18n";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const AddIncomeScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -27,15 +29,15 @@ const AddIncomeScreen = ({ navigation }) => {
   const { user, initialized, loading: authLoading } = useAuthStore();
   const { addTransaction } = useTransactionStore();
 
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [isRecurring, setIsRecurring] = useState(false);
 
-  const [descriptionError, setDescriptionError] = useState('');
-  const [amountError, setAmountError] = useState('');
-  const [categoryError, setCategoryError] = useState('');
+  const [descriptionError, setDescriptionError] = useState("");
+  const [amountError, setAmountError] = useState("");
+  const [categoryError, setCategoryError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // -----------------------------
@@ -44,22 +46,22 @@ const AddIncomeScreen = ({ navigation }) => {
   const validateFields = () => {
     let valid = true;
 
-    setDescriptionError('');
-    setAmountError('');
-    setCategoryError('');
+    setDescriptionError("");
+    setAmountError("");
+    setCategoryError("");
 
     if (!description.trim()) {
-      setDescriptionError('Descrição é obrigatória');
+      setDescriptionError(t("addIncome.form.description.required"));
       valid = false;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      setAmountError('Valor deve ser maior que zero');
+      setAmountError(t("addIncome.form.amount.invalid"));
       valid = false;
     }
 
     if (!category) {
-      setCategoryError('Selecione uma categoria');
+      setCategoryError(t("addIncome.form.category.required"));
       valid = false;
     }
 
@@ -73,8 +75,11 @@ const AddIncomeScreen = ({ navigation }) => {
     if (!validateFields()) return;
 
     if (!user?.uid) {
-      Alert.alert('Sessão expirada', 'Faça login novamente.');
-      navigation.replace('Login');
+      Alert.alert(
+        t("addIncome.alerts.sessionExpired.title"),
+        t("addIncome.alerts.sessionExpired.message"),
+      );
+      navigation.replace("Login");
       return;
     }
 
@@ -85,12 +90,12 @@ const AddIncomeScreen = ({ navigation }) => {
       const parsedDate = new Date(`${date}T00:00:00`);
 
       if (isNaN(parsedDate.getTime())) {
-        Alert.alert('Erro', 'Data inválida');
+        Alert.alert(t("addIncome.error.title"), t("addIncome.date.invalid"));
         return;
       }
 
       const transactionData = {
-        type: 'receita',
+        type: "receita",
         description: description.trim(),
         amount: parseFloat(amount),
         category,
@@ -102,15 +107,20 @@ const AddIncomeScreen = ({ navigation }) => {
       const result = await addTransaction(transactionData);
 
       if (result?.success) {
-        Alert.alert('Sucesso! ✅', 'Receita adicionada com sucesso!', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+        Alert.alert(
+          t("addIncome.success.title"),
+          t("addIncome.success.message"),
+          [{ text: "OK", onPress: () => navigation.goBack() }],
+        );
       } else {
-        Alert.alert('Erro', result?.error || 'Erro ao adicionar receita');
+        Alert.alert(
+          t("addIncome.error.title"),
+          result?.error || t("addIncome.error.generic"),
+        );
       }
     } catch (error) {
-      console.error('Erro ao salvar receita:', error);
-      Alert.alert('Erro', 'Não foi possível adicionar a receita');
+      console.error("Erro ao salvar receita:", error);
+      Alert.alert(t("addIncome.error.title"), t("addIncome.error.save"));
     } finally {
       setLoading(false);
     }
@@ -122,13 +132,13 @@ const AddIncomeScreen = ({ navigation }) => {
   if (!initialized || authLoading) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: colors.text }}>Carregando...</Text>
+        <Text style={{ color: colors.text }}>{t("addIncome.loading")}</Text>
       </View>
     );
   }
 
   if (!user) {
-    navigation.replace('Login');
+    navigation.replace("Login");
     return null;
   }
 
@@ -137,41 +147,67 @@ const AddIncomeScreen = ({ navigation }) => {
   // -----------------------------
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.form}>
           <Input
-            label="Descrição"
+            label={t("addIncome.form.description.label")}
             value={description}
             onChangeText={setDescription}
-            placeholder="Ex: Salário, Freelance, Bônus..."
+            placeholder={t("addIncome.form.description.placeholder")}
             error={descriptionError}
-            leftIcon={<Text style={styles.iconText}>📝</Text>}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="file-document-edit-outline"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           <Input
-            label="Valor "
+            label={t("addIncome.form.amount.label")}
             value={amount}
             onChangeText={setAmount}
-            placeholder="0,00"
+            placeholder={t("addIncome.form.amount.placeholder")}
             keyboardType="numeric"
             error={amountError}
-            leftIcon={<Text style={styles.iconText}>💰</Text>}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="currency-usd"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           <Input
-            label="Data"
+            label={t("addIncome.form.date.label")}
             value={isoToBR(date)}
             onChangeText={(text) => setDate(brToISO(text))}
-            placeholder="DD/MM/AAAA"
-            leftIcon={<Text style={styles.iconText}>📅</Text>}
+            placeholder={t("addIncome.form.date.placeholder")}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           {/* Categorias */}
           <View style={styles.categorySection}>
-            <Text style={styles.label}>Categoria</Text>
+            <Text style={styles.label}>
+              {t("addIncome.form.category.label")}
+            </Text>
 
             <View style={styles.categoryGrid}>
               {INCOME_CATEGORIES.map((cat) => (
@@ -207,13 +243,17 @@ const AddIncomeScreen = ({ navigation }) => {
             style={styles.checkboxContainer}
             onPress={() => setIsRecurring(!isRecurring)}
           >
-            <View style={[styles.checkbox, isRecurring && styles.checkboxChecked]}>
+            <View
+              style={[styles.checkbox, isRecurring && styles.checkboxChecked]}
+            >
               {isRecurring && <Text style={styles.checkmark}>✓</Text>}
             </View>
             <View style={styles.checkboxContent}>
-              <Text style={styles.checkboxLabel}>Receita recorrente</Text>
+              <Text style={styles.checkboxLabel}>
+                {t("addIncome.form.recurring.label")}
+              </Text>
               <Text style={styles.checkboxDescription}>
-                Marque se essa receita se repete mensalmente
+                {t("addIncome.form.recurring.description")}
               </Text>
             </View>
           </TouchableOpacity>
@@ -221,12 +261,12 @@ const AddIncomeScreen = ({ navigation }) => {
 
         <View style={styles.actions}>
           <Button
-            title="Salvar Receita"
+            title={t("addIncome.actions.save")}
             onPress={handleSave}
             loading={loading}
           />
           <Button
-            title="Cancelar"
+            title={t("addIncome.actions.cancel")}
             onPress={() => navigation.goBack()}
             variant="outline"
           />
@@ -238,32 +278,64 @@ const AddIncomeScreen = ({ navigation }) => {
 
 const createStyles = (colors) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    content: { padding: 20, paddingBottom: 40 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    form: { marginBottom: 24 },
-    iconText: { fontSize: 20 },
-    label: { fontSize: 14, fontWeight: '600', color: colors.text },
-    categorySection: { marginBottom: 16 },
-    categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: 20,
+      paddingBottom: 40,
+    },
+    center: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    form: {
+      marginBottom: 24,
+    },
+    iconText: {
+      fontSize: 20,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.text,
+    },
+    categorySection: {
+      marginBottom: 16,
+    },
+    categoryGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+      marginTop: 8,
+    },
     categoryCard: {
-      width: '31%',
+      width: "31%",
       aspectRatio: 1,
       backgroundColor: colors.card,
       borderRadius: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       borderWidth: 2,
     },
     categoryCardSelected: {
       borderWidth: 3,
-      backgroundColor: colors.success + '10',
+      backgroundColor: colors.success + "10",
     },
-    categoryIcon: { fontSize: 28 },
-    categoryName: { fontSize: 11, color: colors.textSecondary },
-    categoryNameSelected: { color: colors.success },
+    categoryIcon: {
+      fontSize: 28,
+    },
+    categoryName: {
+      fontSize: 11,
+      color: colors.textSecondary,
+    },
+    categoryNameSelected: {
+      color: colors.success,
+    },
     checkboxContainer: {
-      flexDirection: 'row',
+      flexDirection: "row",
       backgroundColor: colors.card,
       borderRadius: 12,
       padding: 16,
@@ -274,19 +346,34 @@ const createStyles = (colors) =>
       height: 24,
       borderWidth: 2,
       borderRadius: 6,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       borderColor: colors.border,
     },
     checkboxChecked: {
       backgroundColor: colors.primary,
       borderColor: colors.primary,
     },
-    checkmark: { color: colors.card, fontWeight: 'bold' },
-    checkboxLabel: { fontSize: 16, color: colors.text },
-    checkboxDescription: { fontSize: 13, color: colors.textSecondary },
-    errorTextSmall: { fontSize: 12, color: colors.error, marginTop: 4 },
-    actions: { gap: 12 },
+    checkmark: {
+      color: colors.card,
+      fontWeight: "bold",
+    },
+    checkboxLabel: {
+      fontSize: 16,
+      color: colors.text,
+    },
+    checkboxDescription: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    errorTextSmall: {
+      fontSize: 12,
+      color: colors.error,
+      marginTop: 4,
+    },
+    actions: {
+      gap: 12,
+    },
   });
 
 export default AddIncomeScreen;

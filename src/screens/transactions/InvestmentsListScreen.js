@@ -13,10 +13,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button} from '../../components/ui';
-import {COLORS, formatDate} from '../../utils';
+import {COLORS, formatDate, INVESTMENT_CATEGORIES} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
 import useSettingsStore from '../../store/settingsStore';
+import { t } from '../../i18n';
 
 const InvestmentsListScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -36,18 +37,21 @@ const InvestmentsListScreen = ({navigation}) => {
   const investments = transactions.filter(t => t.type === 'investimento');
 
   // Calcular totais
-  const totalInvested = investments.reduce((sum, inv) => sum + inv.amount, 0);
+  const totalInvested = investments.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
 
   // Calcular rendimento estimado
   const calculateEstimatedProfit = investment => {
-    if (!investment.profitability) return 0;
+    if (!investment.profitability || !investment.date) return 0;
     
     const startDate = new Date(investment.date);
+    // ✅ Validar se a data é válida
+    if (isNaN(startDate.getTime())) return 0;
+    
     const now = new Date();
     const monthsDiff = (now.getFullYear() - startDate.getFullYear()) * 12 + 
                        (now.getMonth() - startDate.getMonth());
     
-    const yearlyProfit = (investment.amount * investment.profitability) / 100;
+    const yearlyProfit = (Number(investment.amount || 0) * investment.profitability) / 100;
     const monthlyProfit = yearlyProfit / 12;
     
     return monthlyProfit * monthsDiff;
@@ -79,7 +83,7 @@ const InvestmentsListScreen = ({navigation}) => {
         }>
         {/* Resumo */}
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Total Investido</Text>
+          <Text style={styles.summaryLabel}>{t('investmentsList.totalInvested')}</Text>
           <Text style={styles.summaryAmount}>
             {formatCurrency(totalInvested)}
           </Text>
@@ -88,14 +92,14 @@ const InvestmentsListScreen = ({navigation}) => {
 
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryItemLabel}>Rendimento Estimado</Text>
+              <Text style={styles.summaryItemLabel}>{t('investmentsList.estimatedReturn')}</Text>
               <Text style={[styles.summaryItemValue, {color: colors.success}]}>
                 {formatCurrency(totalEstimatedProfit)}
               </Text>
             </View>
 
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryItemLabel}>Patrimônio Total</Text>
+              <Text style={styles.summaryItemLabel}>{t('investmentsList.totalAssets')}</Text>
               <Text style={[styles.summaryItemValue, {color: colors.investment}]}>
                 {formatCurrency(totalInvested + totalEstimatedProfit)}
               </Text>
@@ -107,7 +111,7 @@ const InvestmentsListScreen = ({navigation}) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
-              Meus Investimentos ({investments.length})
+              {t('investmentsList.myInvestments', {count: investments.length})} ({investments.length})
             </Text>
           </View>
 
@@ -129,17 +133,17 @@ const InvestmentsListScreen = ({navigation}) => {
                         {investment.description}
                       </Text>
                       <Text style={styles.investmentCategory}>
-                        {investment.category}
+                        {INVESTMENT_CATEGORIES.find(c => c.id === investment.category)?.name || investment.category}
                       </Text>
                       <Text style={styles.investmentDate}>
-                        Aplicado em {formatDate(investment.date)}
+                        {t('investmentsList.appliedOn', {date: formatDate(investment.date)})}
                       </Text>
                     </View>
                   </View>
 
                   <View style={styles.investmentDetails}>
                     <View style={styles.detailRow}>
-                      <Text style={styles.detailLabel}>Investido:</Text>
+                      <Text style={styles.detailLabel}>{t('investmentsList.invested')}</Text>
                       <Text style={styles.detailValue}>
                         {formatCurrency(investment.amount)}
                       </Text>
@@ -148,21 +152,21 @@ const InvestmentsListScreen = ({navigation}) => {
                     {investment.profitability > 0 && (
                       <>
                         <View style={styles.detailRow}>
-                          <Text style={styles.detailLabel}>Rentabilidade:</Text>
+                          <Text style={styles.detailLabel}>{t('investmentsList.profitability')}</Text>
                           <Text style={styles.detailValue}>
-                            {investment.profitability}% a.a.
+                            {investment.profitability}{t('investmentsList.perYear')}
                           </Text>
                         </View>
 
                         <View style={styles.detailRow}>
-                          <Text style={styles.detailLabel}>Rendimento:</Text>
+                          <Text style={styles.detailLabel}>{t('investmentsList.earnings')}</Text>
                           <Text style={[styles.detailValue, {color: colors.success}]}>
                             + {formatCurrency(estimatedProfit)}
                           </Text>
                         </View>
 
                         <View style={styles.highlightRow}>
-                          <Text style={styles.highlightLabel}>Valor Atual:</Text>
+                          <Text style={styles.highlightLabel}>{t('investmentsList.currentValue')}</Text>
                           <Text style={styles.highlightValue}>
                             {formatCurrency(currentValue)}
                           </Text>
@@ -176,9 +180,9 @@ const InvestmentsListScreen = ({navigation}) => {
           ) : (
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>📈</Text>
-              <Text style={styles.emptyText}>Nenhum investimento registrado</Text>
+              <Text style={styles.emptyText}>{t('investmentsList.noInvestments')}</Text>
               <Text style={styles.emptySubtext}>
-                Comece a investir e acompanhe seus rendimentos
+                {t('investmentsList.emptySubtext')}
               </Text>
             </View>
           )}
@@ -188,7 +192,7 @@ const InvestmentsListScreen = ({navigation}) => {
       {/* Botão Adicionar */}
       <View style={styles.footer}>
         <Button
-          title="Adicionar Investimento"
+          title={t('investmentsList.addButton')}
           onPress={() => navigation.navigate('AddInvestment')}
           leftIcon={<Text style={styles.buttonIcon}>📈</Text>}
         />
@@ -300,7 +304,8 @@ const createStyles = (colors) =>
   },
   investmentDate: {
     fontSize: 12,
-    color: COLORS.gray400,
+    // ✅ Usar cor do tema em vez de cor fixa
+    color: colors.textTertiary,
   },
   investmentDetails: {
     gap: 8,

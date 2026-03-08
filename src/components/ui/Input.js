@@ -97,7 +97,7 @@ const createStyles = colors =>
     input: {
       flex: 1,
       fontSize: 16,
-      color: colors.text,
+      color: colors.inputText || colors.text,
     },
     error: {
       fontSize: 12,

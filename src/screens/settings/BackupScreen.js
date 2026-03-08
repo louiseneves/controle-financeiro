@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { backupStore } from '../../store/backupStore';
 import usePremiumStore from '../../store/premiumStore'; // ← CORRIGIDO
+import {t} from '../../i18n';
 
 const BackupScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -44,9 +45,9 @@ const BackupScreen = ({ navigation }) => {
     setCreating(true);
     try {
       await createBackup(false, isPremium);
-      Alert.alert('Sucesso', 'Backup criado com sucesso!');
+      Alert.alert(t('alerts.success'), t('alerts.created'));
     } catch (error) {
-      Alert.alert('Erro', 'Falha ao criar backup: ' + error.message);
+      Alert.alert(t('alerts.error'), t('alerts.createFail') + error.message);
     } finally {
       setCreating(false);
     }
@@ -54,24 +55,24 @@ const BackupScreen = ({ navigation }) => {
 
   const handleRestoreBackup = (backupId) => {
     Alert.alert(
-      'Confirmar Restauração',
-      'Isso irá substituir todos os seus dados atuais. Deseja continuar?',
+      t('alerts.confirmRestoreTitle'),
+      t('alerts.confirmRestoreMessage'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('alerts.cancel'), style: 'cancel' },
         {
-          text: 'Restaurar',
+          text: t('alerts.restore'),
           style: 'destructive',
           onPress: async () => {
             try {
               await restoreBackup(backupId);
-              Alert.alert('Sucesso', 'Dados restaurados com sucesso!', [
+              Alert.alert(t('alerts.success'), t('alerts.restored'), [
                 {
-                  text: 'OK',
+                  text: t('alerts.ok'),
                   onPress: () => navigation.goBack(),
                 },
               ]);
             } catch (error) {
-              Alert.alert('Erro', 'Falha ao restaurar backup: ' + error.message);
+              Alert.alert(t('alerts.error'), t('alerts.restoreError') + error.message);
             }
           },
         },
@@ -81,19 +82,19 @@ const BackupScreen = ({ navigation }) => {
 
   const handleDeleteBackup = (backupId) => {
     Alert.alert(
-      'Confirmar Exclusão',
-      'Tem certeza que deseja excluir este backup?',
+      t('alerts.deleteBackupTitle'),
+      t('alerts.deleteBackupMessage'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('alerts.cancel'), style: 'cancel' },
         {
-          text: 'Excluir',
+          text: t('alerts.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteBackup(backupId);
-              Alert.alert('Sucesso', 'Backup excluído com sucesso!');
+              Alert.alert(t('alerts.success'), t('alerts.deleted'));
             } catch (error) {
-              Alert.alert('Erro', 'Falha ao excluir backup: ' + error.message);
+              Alert.alert(t('alerts.error'), t('alerts.deleteError') + error.message);
             }
           },
         },
@@ -104,12 +105,12 @@ const BackupScreen = ({ navigation }) => {
   const handleExportJSON = async () => {
     if (!isPremium) {
       Alert.alert(
-        'Recurso Premium',
-        'A exportação de dados está disponível apenas para usuários Premium.',
+        t('alerts.premiumTitle'),
+        t('alerts.premiumMessage'),
         [
-          { text: 'Cancelar', style: 'cancel' },
+          { text: t('alerts.cancel'), style: 'cancel' },
           {
-            text: 'Upgrade',
+            text: t('alerts.upgrade'),
             onPress: () => navigation.navigate('Premium'),
           },
         ]
@@ -121,18 +122,18 @@ const BackupScreen = ({ navigation }) => {
       const jsonData = await exportBackupJSON();
       await Share.share({
         message: jsonData,
-        title: 'Backup - Controle Financeiro',
+        title: t('alerts.backupTitle'),
       });
     } catch (error) {
-      Alert.alert('Erro', 'Falha ao exportar dados: ' + error.message);
+      Alert.alert(t('alerts.error'), t('alerts.exportError') + error.message);
     }
   };
 
   const formatDate = (dateString) => {
-  if (!dateString) return 'Data indisponível';
+  if (!dateString) return t('misc.unavailable');
 
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return 'Data inválida';
+  if (isNaN(date.getTime())) return t('misc.invalidDate');
 
   return date.toLocaleString('pt-BR', {
     day: '2-digit',
@@ -149,23 +150,23 @@ const BackupScreen = ({ navigation }) => {
       (backup.data.transactions?.length || 0) +
       (backup.data.goals?.length || 0) +
       (backup.data.budgets?.length || 0);
-    return `${count} itens`;
+    return `${t(count === 1 ? 'backup.misc.items_one' : 'backup.misc.items_other', { count })}`;
   };
 
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Backup e Restauração</Text>
+        <Text style={styles.headerTitle}>{t('backup.header.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Mantenha seus dados seguros
+          {t('backup.header.subtitle')}
         </Text>
       </View>
 
       {/* Backup Automático */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Backup Automático</Text>
+          <Text style={styles.sectionTitle}>{t('backup.auto.title')}</Text>
           <Switch
             value={autoBackupEnabled}
             onValueChange={toggleAutoBackup}
@@ -174,18 +175,18 @@ const BackupScreen = ({ navigation }) => {
           />
         </View>
         <Text style={styles.sectionDescription}>
-          Cria backup na nuvem automaticamente quando você adiciona ou edita dados
+          {t('backup.auto.description')}
         </Text>
         {lastBackup && (
           <Text style={styles.lastBackup}>
-            Último backup: {formatDate(lastBackup)}
+             {t('backup.auto.last')} {formatDate(lastBackup)}
           </Text>
         )}
       </View>
 
       {/* Ações Rápidas */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Ações Rápidas</Text>
+        <Text style={styles.sectionTitle}>{t('backup.quickActions.title')}</Text>
         
         <TouchableOpacity
           onPress={handleCreateBackup}
@@ -198,9 +199,9 @@ const BackupScreen = ({ navigation }) => {
             <>
               <Text style={styles.actionButtonIcon}>☁️</Text>
               <View style={styles.actionButtonText}>
-                <Text style={styles.actionButtonTitle}>Criar Backup Agora</Text>
+                <Text style={styles.actionButtonTitle}>{t('backup.quickActions.create')}</Text>
                 <Text style={styles.actionButtonSubtitle}>
-                  Salvar na nuvem
+                  {t('backup.quickActions.createSubtitle')}
                 </Text>
               </View>
             </>
@@ -213,9 +214,9 @@ const BackupScreen = ({ navigation }) => {
         >
           <Text style={styles.actionButtonIcon}>📥</Text>
           <View style={styles.actionButtonText}>
-            <Text style={styles.actionButtonTitle}>Exportar Dados</Text>
+            <Text style={styles.actionButtonTitle}>{t('backup.quickActions.export')}</Text>
             <Text style={styles.actionButtonSubtitle}>
-              {isPremium ? 'Baixar arquivo JSON' : 'Premium apenas'}
+              {isPremium ? t('backup.quickActions.exportSubtitle') : t('backup.quickActions.exportPremium')}
             </Text>
           </View>
           {!isPremium && <Text style={styles.premiumBadge}>Premium</Text>}
@@ -224,16 +225,16 @@ const BackupScreen = ({ navigation }) => {
 
       {/* Lista de Backups */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Backups Salvos</Text>
+        <Text style={styles.sectionTitle}>{t('backup.list.title')}</Text>
         
         {loading ? (
           <ActivityIndicator size="large" color="#2196F3" style={styles.loader} />
         ) : backups.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateIcon}>📦</Text>
-            <Text style={styles.emptyStateText}>Nenhum backup disponível</Text>
+            <Text style={styles.emptyStateText}>{t('backup.list.emptyTitle')}</Text>
             <Text style={styles.emptyStateSubtext}>
-              Crie seu primeiro backup para proteger seus dados
+              {t('backup.list.emptySubtitle')}
             </Text>
           </View>
         ) : (
@@ -250,7 +251,7 @@ const BackupScreen = ({ navigation }) => {
                 </View>
                 {backup.isAutomatic && (
                   <View style={styles.autoTag}>
-                    <Text style={styles.autoTagText}>Auto</Text>
+                    <Text style={styles.autoTagText}>{t('backup.list.autoTag')}</Text>
                   </View>
                 )}
               </View>
@@ -260,14 +261,14 @@ const BackupScreen = ({ navigation }) => {
                   style={[styles.backupButton, styles.restoreButton]}
                   onPress={() => handleRestoreBackup(backup.id)}
                 >
-                  <Text style={styles.backupButtonText}>🔄 Restaurar</Text>
+                  <Text style={styles.backupButtonText}>🔄 {t('backup.list.restore')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={[styles.backupButton, styles.deleteButton]}
                   onPress={() => handleDeleteBackup(backup.id)}
                 >
-                  <Text style={styles.backupButtonText}>🗑️ Excluir</Text>
+                  <Text style={styles.backupButtonText}>🗑️ {t('backup.list.delete')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -277,13 +278,9 @@ const BackupScreen = ({ navigation }) => {
 
       {/* Informações */}
       <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>ℹ️ Sobre Backups</Text>
+        <Text style={styles.infoTitle}> {t('backup.info.title')}</Text>
         <Text style={styles.infoText}>
-          • Backups são salvos na nuvem {'\n'}
-          • Incluem transações, metas e orçamentos{'\n'}
-          • Usuários gratuitos: até 3 backups{'\n'}
-          • Premium: backups ilimitados{'\n'}
-          • Restauração substitui dados atuais
+          {t('backup.info.text')}
         </Text>
       </View>
     </ScrollView>

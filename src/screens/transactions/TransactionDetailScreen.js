@@ -25,11 +25,22 @@ import {
 } from '../../utils';
 import useTransactionStore from '../../store/transactionStore';
 import useSettingsStore from '../../store/settingsStore';
+import { t } from '../../i18n';
 
 const TransactionDetailScreen = ({navigation, route}) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const {transaction} = route.params;
+  const {transaction} = route.params || {};
+  
+  // Protegção contra transaction undefined
+  if (!transaction) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{t('transactionDetail.notFound')}</Text>
+      </View>
+    );
+  }
+  
   const formatCurrency = useSettingsStore(state => state.formatCurrency);
   const {updateTransaction, deleteTransaction} = useTransactionStore();
 
@@ -37,7 +48,12 @@ const TransactionDetailScreen = ({navigation, route}) => {
   const [description, setDescription] = useState(transaction.description);
   const [amount, setAmount] = useState(transaction.amount.toString());
   const [category, setCategory] = useState(transaction.category);
-  const [date, setDate] = useState(transaction.date.split('T')[0]);
+  const [date, setDate] = useState(() => {
+    if (transaction.date) {
+      return transaction.date.split('T')[0];
+    }
+    return new Date().toISOString().split('T')[0];
+  });
   const [isRecurring, setIsRecurring] = useState(transaction.isRecurring || false);
 
   const [descriptionError, setDescriptionError] = useState('');
@@ -61,22 +77,23 @@ const TransactionDetailScreen = ({navigation, route}) => {
     }
   };
 
+  // ✅ Obter nome da categoria
+  const getCategoryName = () => {
+    const categories = getCategories();
+    return categories.find(c => c.id === transaction.category)?.name || transaction.category;
+  };
+
   const categories = getCategories();
 
-  // Obter cor do tipo
+  // Obter cor do tipo usando objeto de transações do tema
   const getTypeColor = () => {
-    switch (transaction.type) {
-      case 'receita':
-        return colors.success;
-      case 'despesa':
-        return colors.error;
-      case 'investimento':
-        return colors.investment;
-      case 'oferta':
-        return colors.offer;
-      default:
-        return COLORS.gray500;
-    }
+    const map = {
+      receita: colors.transaction?.income || colors.success,
+      despesa: colors.transaction?.expense || colors.error,
+      investimento: colors.transaction?.investment || colors.primary,
+      oferta: colors.transaction?.offer || colors.warning,
+    };
+    return map[transaction.type] || colors.textSecondary;
   };
 
   const typeColor = getTypeColor();
@@ -90,17 +107,17 @@ const TransactionDetailScreen = ({navigation, route}) => {
     setCategoryError('');
 
     if (!description.trim()) {
-      setDescriptionError('Descrição é obrigatória');
+      setDescriptionError(t('transactionDetail.validation.descriptionRequired'));
       isValid = false;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      setAmountError('Valor deve ser maior que zero');
+      setAmountError(t('transactionDetail.validation.amountInvalid'));
       isValid = false;
     }
 
     if (!category) {
-      setCategoryError('Selecione uma categoria');
+      setCategoryError(t('transactionDetail.validation.categoryRequired'));
       isValid = false;
     }
 
@@ -125,7 +142,7 @@ const TransactionDetailScreen = ({navigation, route}) => {
       const result = await updateTransaction(transaction.id, updatedData);
 
       if (result.success) {
-        Alert.alert('Sucesso! ✅', 'Transação atualizada com sucesso!', [
+        Alert.alert(t('transactionDetail.successTitle'), t('transactionDetail.updateSuccess'), [
           {
             text: 'OK',
             onPress: () => {
@@ -135,11 +152,11 @@ const TransactionDetailScreen = ({navigation, route}) => {
           },
         ]);
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao atualizar transação');
+        Alert.alert(t('transactionDetail.errorTitle'), result.error || t('transactionDetail.updateError'));
       }
     } catch (error) {
-      console.error('Erro ao salvar:', error);
-      Alert.alert('Erro', 'Não foi possível atualizar a transação');
+      console.error(t('transactionDetail.updateError'), error);
+      Alert.alert(t('transactionDetail.errorTitle'), t('transactionDetail.updateFailed'));
     } finally {
       setLoading(false);
     }
@@ -148,12 +165,12 @@ const TransactionDetailScreen = ({navigation, route}) => {
   // Deletar transação
   const handleDelete = () => {
     Alert.alert(
-      'Excluir Transação',
-      'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.',
+      t('transactionDetail.deleteConfirmTitle'),
+      t('transactionDetail.deleteConfirm'),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('transactionDetail.cancelButton'), style: 'cancel'},
         {
-          text: 'Excluir',
+          text: t('transactionDetail.deleteButtonAction'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -161,18 +178,18 @@ const TransactionDetailScreen = ({navigation, route}) => {
               const result = await deleteTransaction(transaction.id);
 
               if (result.success) {
-                Alert.alert('Sucesso! ✅', 'Transação excluída com sucesso!', [
+                Alert.alert(t('transactionDetail.successTitle'), t('transactionDetail.deleteSuccess'), [
                   {
                     text: 'OK',
                     onPress: () => navigation.goBack(),
                   },
                 ]);
               } else {
-                Alert.alert('Erro', result.error || 'Erro ao excluir transação');
+                Alert.alert(t('transactionDetail.errorTitle'), result.error || t('transactionDetail.deleteError'));
               }
             } catch (error) {
-              console.error('Erro ao excluir:', error);
-              Alert.alert('Erro', 'Não foi possível excluir a transação');
+              console.error(t('transactionDetail.deleteError'), error);
+              Alert.alert(t('transactionDetail.errorTitle'), t('transactionDetail.deleteFailed'));
             } finally {
               setLoading(false);
             }
@@ -192,7 +209,8 @@ const TransactionDetailScreen = ({navigation, route}) => {
         {/* Header com info do tipo */}
         <View style={[styles.header, {backgroundColor: typeColor + '20'}]}>
           <Text style={styles.typeLabel}>
-            {transaction.type.toUpperCase()}
+            {/* ✅ Proteger contra transaction.type undefined */}
+            {(transaction?.type || 'TRANSAÇÃO').toUpperCase()}
           </Text>
           {!isEditing && (
             <Text style={[styles.headerAmount, {color: typeColor}]}>
@@ -205,16 +223,16 @@ const TransactionDetailScreen = ({navigation, route}) => {
           // Modo de Edição
           <View style={styles.form}>
             <Input
-              label="Descrição"
+              label={t('transactionDetail.descriptionLabel')}
               value={description}
               onChangeText={setDescription}
-              placeholder="Descrição"
+              placeholder={t('transactionDetail.descriptionLabel')}
               error={descriptionError}
               leftIcon={<Text style={styles.iconText}>📝</Text>}
             />
 
             <Input
-              label="Valor "
+              label={t('transactionDetail.amountLabel')}
               value={amount}
               onChangeText={setAmount}
               placeholder="0,00"
@@ -224,7 +242,7 @@ const TransactionDetailScreen = ({navigation, route}) => {
             />
 
             <Input
-              label="Data"
+              label={t('transactionDetail.dateLabel')}
               value={date}
               onChangeText={setDate}
               placeholder="YYYY-MM-DD"
@@ -234,12 +252,14 @@ const TransactionDetailScreen = ({navigation, route}) => {
             {/* Categorias */}
             <View style={styles.categorySection}>
               <Text style={styles.label}>
-                Categoria {categoryError && <Text style={styles.errorText}>*</Text>}
+                {t('transactionDetail.categoryLabel')} {categoryError && <Text style={styles.errorText}>*</Text>}
               </Text>
               <ScrollView 
                 style={styles.categoryScrollContainer}
                 contentContainerStyle={styles.categoryGrid}
-                showsVerticalScrollIndicator={true}>
+                showsVerticalScrollIndicator={true}
+                nestedScrollEnabled={true}
+                scrollEnabled={true}>
                 {categories.map(cat => (
                   <TouchableOpacity
                     key={cat.id}
@@ -276,9 +296,9 @@ const TransactionDetailScreen = ({navigation, route}) => {
                 {isRecurring && <Text style={styles.checkmark}>✓</Text>}
               </View>
               <View style={styles.checkboxContent}>
-                <Text style={styles.checkboxLabel}>Transação recorrente</Text>
+                <Text style={styles.checkboxLabel}>{t('transactionDetail.recurringLabel')}</Text>
                 <Text style={styles.checkboxDescription}>
-                  Marque se essa transação se repete mensalmente
+                  {t('transactionDetail.recurringDescription')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -286,13 +306,13 @@ const TransactionDetailScreen = ({navigation, route}) => {
             {/* Botões de edição */}
             <View style={styles.actions}>
               <Button
-                title="Salvar Alterações"
+                title={t('transactionDetail.saveButton')}
                 onPress={handleSave}
                 loading={loading}
                 style={styles.saveButton}
               />
               <Button
-                title="Cancelar"
+                title={t('transactionDetail.cancelButton')}
                 onPress={() => {
                   setIsEditing(false);
                   // Resetar valores
@@ -311,21 +331,21 @@ const TransactionDetailScreen = ({navigation, route}) => {
           <View style={styles.details}>
             <View style={styles.detailCard}>
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Descrição</Text>
+                <Text style={styles.detailLabel}>{t('transactionDetail.descriptionLabel')}</Text>
                 <Text style={styles.detailValue}>{transaction.description}</Text>
               </View>
 
               <View style={styles.divider} />
 
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Categoria</Text>
-                <Text style={styles.detailValue}>{transaction.category}</Text>
+                <Text style={styles.detailLabel}>{t('transactionDetail.categoryLabel')}</Text>
+                <Text style={styles.detailValue}>{getCategoryName()}</Text>
               </View>
 
               <View style={styles.divider} />
 
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Data</Text>
+                <Text style={styles.detailLabel}>{t('transactionDetail.dateLabel')}</Text>
                 <Text style={styles.detailValue}>
                   {formatDate(transaction.date)}
                 </Text>
@@ -334,9 +354,9 @@ const TransactionDetailScreen = ({navigation, route}) => {
               <View style={styles.divider} />
 
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Recorrente</Text>
+                <Text style={styles.detailLabel}>{t('transactionDetail.recurringLabel')}</Text>
                 <Text style={styles.detailValue}>
-                  {transaction.isRecurring ? 'Sim' : 'Não'}
+                  {transaction.isRecurring ? t('transactionDetail.yesText') : t('transactionDetail.noText')}
                 </Text>
               </View>
             </View>
@@ -344,13 +364,13 @@ const TransactionDetailScreen = ({navigation, route}) => {
             {/* Botões de ação */}
             <View style={styles.actions}>
               <Button
-                title="Editar Transação"
+                title={t('transactionDetail.editButton')}
                 onPress={() => setIsEditing(true)}
                 variant="primary"
                 style={styles.editButton}
               />
               <Button
-                title="Excluir Transação"
+                title={t('transactionDetail.deleteButton')}
                 onPress={handleDelete}
                 variant="error"
                 loading={loading}

@@ -15,6 +15,7 @@ import {
 import {Button} from '../../components/ui';
 import {COLORS, formatCurrency} from '../../utils';
 import usePremiumStore from '../../store/premiumStore';
+import {t} from '../../i18n';
 
 const PremiumScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -29,52 +30,62 @@ const PremiumScreen = ({navigation}) => {
   const plans = [
     {
       id: 'monthly',
-      name: 'Mensal',
+      name: t('premium.plans.monthly'),
       price: 9.90,
-      period: 'mês',
+      period: t('premium.plans.month'),
       savings: null,
     },
     {
       id: 'yearly',
-      name: 'Anual',
+      name: t('premium.plans.yearly'),
       price: 89.90,
-      period: 'ano',
-      savings: '25% de desconto',
+      period: t('premium.plans.year'),
+      savings: t('premium.plans.discount'),
       pricePerMonth: 7.49,
     },
   ];
 
   const features = [
-    {icon: '📊', title: 'Relatórios Avançados', description: 'Análises detalhadas e comparativos'},
-    {icon: '📈', title: 'Projeções Futuras', description: 'Previsões baseadas em seus dados'},
-    {icon: '📄', title: 'Exportar PDF', description: 'Salve seus relatórios em PDF'},
-    {icon: '📑', title: 'Exportar Excel', description: 'Exporte dados para planilhas'},
-    {icon: '📅', title: 'Relatórios Anuais', description: 'Visão completa do ano'},
-    {icon: '🔄', title: 'Comparativo de Períodos', description: 'Compare meses e anos'},
-    {icon: '🎯', title: 'Metas Ilimitadas', description: 'Crie quantas metas quiser'},
-    {icon: '☁️', title: 'Backup Ilimitado', description: 'Seus dados sempre seguros'},
-    {icon: '🚀', title: 'Novos Recursos', description: 'Acesso antecipado a novidades'},
+    {icon: '📊', title: t('premium.features.advancedReports.title'), description: t('premium.features.advancedReports.description')},
+    {icon: '📈', title: t('premium.features.futureProjections.title'), description: t('premium.features.futureProjections.description')},
+    {icon: '📄', title: t('premium.features.exportPdf.title'), description: t('premium.features.exportPdf.description')},
+    {icon: '📑', title: t('premium.features.exportExcel.title'), description: t('premium.features.exportExcel.description')},
+    {icon: '📅', title: t('premium.features.yearlyReports.title'), description: t('premium.features.yearlyReports.description')},
+    {icon: '🔄', title: t('premium.features.periodComparison.title'), description: t('premium.features.periodComparison.description')},
+    {icon: '🎯', title: t('premium.features.unlimitedGoals.title'), description: t('premium.features.unlimitedGoals.description')},
+    {icon: '☁️', title: t('premium.features.unlimitedBackup.title'), description: t('premium.features.unlimitedBackup.description')},
+    {icon: '🚀', title: t('premium.features.earlyAccess.title'), description: t('premium.features.earlyAccess.description')},
   ];
 
-  const handleSubscribe = async () => {
-    Alert.alert(
-      'Confirmar Assinatura',
-      `Você está prestes a assinar o plano ${plans.find(p => p.id === selectedPlan)?.name} por ${formatCurrency(plans.find(p => p.id === selectedPlan)?.price)}.
+  const selectedPlanData = useMemo(() => {
+    return plans.find(p => p.id === selectedPlan);
+  }, [selectedPlan]);
 
-      NOTA: Este é um modo de demonstração. Em produção, você será redirecionado para o Google Play para confirmar a compra.`,
+  const handleSubscribe = async () => {
+    if (!selectedPlanData) {
+      Alert.alert(t('premium.alerts.errorTitle'), t('premium.alerts.invalidPlan'));
+      return;
+    }
+
+    Alert.alert(
+      t('premium.alerts.confirmTitle'),
+      t('premium.alerts.confirmMessage', {
+        plan: selectedPlanData.name,
+        price: formatCurrency(selectedPlanData.price),
+      }),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('premium.buttons.cancel'), style: 'cancel'},
         {
-          text: 'Assinar (Demo)',
+          text: t('premium.buttons.confirmDemo'),
           onPress: async () => {
             const result = await activatePremium(selectedPlan);
             if (result.success) {
               Alert.alert(
-                'Bem-vindo ao Premium! 🎉',
-                'Você agora tem acesso a todos os recursos premium!',
+                t('premium.alerts.welcomeTitle'),
+                t('premium.alerts.welcomeMessage'),
                 [
                   {
-                    text: 'OK',
+                    text: t('premium.alerts.ok'),
                     onPress: () => navigation.goBack(),
                   },
                 ],
@@ -88,17 +99,22 @@ const PremiumScreen = ({navigation}) => {
 
   const handleCancelSubscription = () => {
     Alert.alert(
-      'Cancelar Assinatura',
-      'Tem certeza que deseja cancelar sua assinatura Premium? Você perderá acesso aos recursos premium.',
+      t('premium.alerts.cancelTitle'),
+      t('premium.alerts.cancelMessage'),
       [
-        {text: 'Não', style: 'cancel'},
+        {text: t('premium.buttons.no'), style: 'cancel'},
         {
-          text: 'Sim, Cancelar',
+          text: t('premium.buttons.yesCancel'),
           style: 'destructive',
           onPress: async () => {
             const result = await cancelPremium();
             if (result.success) {
-              Alert.alert('Assinatura Cancelada', 'Sua assinatura Premium foi cancelada.');
+              Alert.alert(t('premium.premiumStatus.canceled'), t('premium.premiumStatus.canceledMessage'), [
+                {
+                  text: t('premium.alerts.ok'),
+                  onPress: () => navigation.goBack(),
+                },
+              ]);
             }
           },
         },
@@ -111,23 +127,23 @@ const PremiumScreen = ({navigation}) => {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.premiumHeader}>
-          <Text style={styles.premiumBadge}>⭐ PREMIUM</Text>
-          <Text style={styles.premiumTitle}>Você é Premium!</Text>
+          <Text style={styles.premiumBadge}>{t('premium.badge')}</Text>
+          <Text style={styles.premiumTitle}>{t('premium.premiumStatus.title')}</Text>
           <Text style={styles.premiumSubtitle}>
-            Aproveite todos os recursos exclusivos
+            {t('premium.premiumStatus.subtitle')}
           </Text>
         </View>
 
         <View style={styles.statusCard}>
           <View style={styles.statusRow}>
-            <Text style={styles.statusLabel}>Plano:</Text>
+            <Text style={styles.statusLabel}>{t('premium.premiumStatus.plan')}</Text>
             <Text style={styles.statusValue}>
               {subscriptionType === 'monthly' ? 'Mensal' : 'Anual'}
             </Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.statusRow}>
-            <Text style={styles.statusLabel}>Válido até:</Text>
+            <Text style={styles.statusLabel}>{t('premium.premiumStatus.validUntil')}</Text>
             <Text style={styles.statusValue}>
               {new Date(expirationDate).toLocaleDateString('pt-BR')}
             </Text>
@@ -135,7 +151,7 @@ const PremiumScreen = ({navigation}) => {
         </View>
 
         <View style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>Recursos Disponíveis</Text>
+          <Text style={styles.sectionTitle}>{t('premium.features.titleAvailable')}</Text>
           {features.map((feature, index) => (
             <View key={index} style={styles.featureItem}>
               <Text style={styles.featureIcon}>{feature.icon}</Text>
@@ -149,7 +165,7 @@ const PremiumScreen = ({navigation}) => {
         </View>
 
         <Button
-          title="Gerenciar Assinatura"
+          title={t('premium.buttons.manage')}
           onPress={handleCancelSubscription}
           variant="outline"
           style={styles.manageButton}
@@ -163,16 +179,16 @@ const PremiumScreen = ({navigation}) => {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerBadge}>⭐ PREMIUM</Text>
-        <Text style={styles.headerTitle}>Desbloqueie Todo o Potencial</Text>
+        <Text style={styles.headerBadge}> {t('premium.badge')}</Text>
+        <Text style={styles.headerTitle}>{t('premium.header.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Recursos avançados para quem quer ir além
+          {t('premium.header.subtitle')}
         </Text>
       </View>
 
       {/* Planos */}
       <View style={styles.plansSection}>
-        <Text style={styles.sectionTitle}>Escolha seu Plano</Text>
+        <Text style={styles.sectionTitle}>{t('premium.plans.choose')}</Text>
         {plans.map(plan => (
           <TouchableOpacity
             key={plan.id}
@@ -198,14 +214,14 @@ const PremiumScreen = ({navigation}) => {
               </View>
               {plan.pricePerMonth && (
                 <Text style={styles.planPriceMonth}>
-                  {formatCurrency(plan.pricePerMonth)}/mês
+                  {formatCurrency(plan.pricePerMonth)}/{t('premium.plans.month')}
                 </Text>
               )}
             </View>
 
             {selectedPlan === plan.id && (
               <View style={styles.selectedIndicator}>
-                <Text style={styles.selectedText}>✓ Selecionado</Text>
+                <Text style={styles.selectedText}> {t('premium.plans.selected')}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -214,7 +230,7 @@ const PremiumScreen = ({navigation}) => {
 
       {/* Recursos */}
       <View style={styles.featuresSection}>
-        <Text style={styles.sectionTitle}>O que você ganha</Text>
+        <Text style={styles.sectionTitle}>{t('premium.features.titleGain')}</Text>
         {features.map((feature, index) => (
           <View key={index} style={styles.featureItem}>
             <Text style={styles.featureIcon}>{feature.icon}</Text>
@@ -230,22 +246,22 @@ const PremiumScreen = ({navigation}) => {
       <View style={styles.guaranteeBox}>
         <Text style={styles.guaranteeIcon}>🛡️</Text>
         <View style={styles.guaranteeContent}>
-          <Text style={styles.guaranteeTitle}>Garantia de 7 dias</Text>
+          <Text style={styles.guaranteeTitle}>{t('premium.guarantee.title')}</Text>
           <Text style={styles.guaranteeText}>
-            Não gostou? Devolveremos seu dinheiro, sem perguntas.
+            {t('premium.guarantee.text')}
           </Text>
         </View>
       </View>
 
       {/* Botão de Assinatura */}
       <Button
-        title={`Assinar por ${formatCurrency(plans.find(p => p.id === selectedPlan)?.price)}`}
+        title={t('premium.buttons.subscribe', { price: formatCurrency(selectedPlanData?.price) })}
         onPress={handleSubscribe}
         style={styles.subscribeButton}
       />
 
       <Text style={styles.disclaimer}>
-        * Modo de demonstração. Em produção, a cobrança será feita via Google Play.
+        {t('premium.alerts.demoDisclaimer')}
       </Text>
     </ScrollView>
   );

@@ -193,6 +193,23 @@ const ticket = {
   },
 
   // =====================
+  // REAL‑TIME SUBSCRIPTION
+  // =====================
+  subscribeToTicket: (ticketId, callback) => {
+    // returns unsubscribe function
+    const { db } = require('../services/firebase/config');
+    const { doc, onSnapshot } = require('firebase/firestore');
+    const ref = doc(db, COLLECTIONS.SUPPORT_TICKETS, ticketId);
+    const unsub = onSnapshot(ref, snap => {
+      const data = snap.data();
+      if (data) {
+        callback(data);
+      }
+    });
+    return unsub;
+  },
+
+  // =====================
   // AVALIAR TICKET
   // =====================
   rateTicket: async (ticketId, rating, feedback) => {

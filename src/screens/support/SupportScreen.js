@@ -12,6 +12,7 @@ import {
 import useSupportStore from '../../store/supportStore';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import {t} from '../../i18n';
 
 const SupportScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -20,7 +21,7 @@ const SupportScreen = ({ navigation }) => {
 
   useEffect(() => {
     loadTickets();
-  }, []);
+  }, [loadTickets]);
 
   const openTickets = tickets.filter(t => t.status === 'open' || t.status === 'in_progress');
   const closedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed');
@@ -30,7 +31,7 @@ const SupportScreen = ({ navigation }) => {
       if (supported) {
         Linking.openURL(url);
       } else {
-        Alert.alert('Erro', `Não foi possível abrir ${name}`);
+        Alert.alert(t('supportScreen.contact.errorTitle'), t('supportScreen.contact.errorOpenLink', { name }));
       }
     });
   };
@@ -39,9 +40,9 @@ const SupportScreen = ({ navigation }) => {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Central de Suporte</Text>
+        <Text style={styles.headerTitle}>{t('supportScreen.header.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Como podemos ajudar você?
+          {t('supportScreen.header.subtitle')}
         </Text>
       </View>
 
@@ -53,9 +54,9 @@ const SupportScreen = ({ navigation }) => {
         >
           <Text style={styles.optionIcon}>❓</Text>
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>Central de Ajuda (FAQ)</Text>
+            <Text style={styles.optionTitle}>{t('supportScreen.options.faq.title')}</Text>
             <Text style={styles.optionSubtitle}>
-              Respostas rápidas para perguntas comuns
+              {t('supportScreen.options.faq.subtitle')}
             </Text>
           </View>
           <Text style={styles.optionArrow}>›</Text>
@@ -67,9 +68,9 @@ const SupportScreen = ({ navigation }) => {
         >
           <Text style={styles.optionIcon}>✉️</Text>
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>Enviar Ticket</Text>
+            <Text style={styles.optionTitle}>{t('supportScreen.options.ticket.title')}</Text>
             <Text style={styles.optionSubtitle}>
-              Fale diretamente com nossa equipe
+              {t('supportScreen.options.ticket.subtitle')}
             </Text>
           </View>
           <Text style={styles.optionArrow}>›</Text>
@@ -81,9 +82,9 @@ const SupportScreen = ({ navigation }) => {
         >
           <Text style={styles.optionIcon}>📚</Text>
           <View style={styles.optionContent}>
-            <Text style={styles.optionTitle}>Tutoriais</Text>
+            <Text style={styles.optionTitle}>{t('supportScreen.options.tutorials.title')}</Text>
             <Text style={styles.optionSubtitle}>
-              Aprenda a usar todas as funcionalidades
+              {t('supportScreen.options.tutorials.subtitle')}
             </Text>
           </View>
           <Text style={styles.optionArrow}>›</Text>
@@ -93,7 +94,7 @@ const SupportScreen = ({ navigation }) => {
       {/* Meus Tickets */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Meus Tickets</Text>
+          <Text style={styles.sectionTitle}>{t('supportScreen.myTickets.title')}</Text>
           {openTickets.length > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{openTickets.length}</Text>
@@ -104,9 +105,9 @@ const SupportScreen = ({ navigation }) => {
         {tickets.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📭</Text>
-            <Text style={styles.emptyText}>Nenhum ticket aberto</Text>
+            <Text style={styles.emptyText}>{t('supportScreen.myTickets.emptyTitle')}</Text>
             <Text style={styles.emptySubtext}>
-              Envie um ticket se precisar de ajuda
+              {t('supportScreen.myTickets.emptySubtitle')}
             </Text>
           </View>
         ) : (
@@ -114,7 +115,7 @@ const SupportScreen = ({ navigation }) => {
             {/* Tickets Abertos */}
             {openTickets.length > 0 && (
               <>
-                <Text style={styles.subsectionTitle}>Abertos</Text>
+                <Text style={styles.subsectionTitle}>{t('supportScreen.myTickets.open')}</Text>
                 {openTickets.slice(0, 3).map(ticket => (
                   <TouchableOpacity
                     key={ticket.id}
@@ -127,7 +128,7 @@ const SupportScreen = ({ navigation }) => {
                       </Text>
                       <View style={[styles.statusBadge, styles[`status${ticket.status}`]]}>
                         <Text style={styles.statusText}>
-                          {ticket.status === 'open' ? 'Aberto' : 'Em Andamento'}
+                          {t(`supportScreen.ticketStatus.${ticket.status}`)}
                         </Text>
                       </View>
                     </View>
@@ -143,7 +144,7 @@ const SupportScreen = ({ navigation }) => {
                     onPress={() => navigation.navigate('TicketList', { filter: 'open' })}
                   >
                     <Text style={styles.viewAllText}>
-                      Ver todos ({openTickets.length})
+                      {t('supportScreen.myTickets.viewAll')} ({openTickets.length})
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -154,7 +155,7 @@ const SupportScreen = ({ navigation }) => {
             {closedTickets.length > 0 && (
               <>
                 <Text style={[styles.subsectionTitle, { marginTop: 20 }]}>
-                  Resolvidos Recentemente
+                  {t('supportScreen.myTickets.recentlyResolved')}
                 </Text>
                 {closedTickets.slice(0, 2).map(ticket => (
                   <TouchableOpacity
@@ -167,7 +168,7 @@ const SupportScreen = ({ navigation }) => {
                         {ticket.subject}
                       </Text>
                       <View style={[styles.statusBadge, styles.statusresolved]}>
-                        <Text style={styles.statusText}>Resolvido</Text>
+                        <Text style={styles.statusText}>{t('supportScreen.ticketStatus.resolved')}</Text>
                       </View>
                     </View>
                     <Text style={styles.ticketCategory}>📁 {ticket.category}</Text>
@@ -184,9 +185,9 @@ const SupportScreen = ({ navigation }) => {
 
       {/* Contato Rápido */}
       <View style={styles.contactSection}>
-        <Text style={styles.contactTitle}>📞 Precisa de ajuda imediata?</Text>
+        <Text style={styles.contactTitle}>{t('supportScreen.contact.title')}</Text>
         <Text style={styles.contactText}>
-          Nossa equipe está disponível de segunda a sexta, das 9h às 18h.
+          {t('supportScreen.contact.description')}
         </Text>
         <View style={styles.contactButtons}>
           <TouchableOpacity
@@ -194,26 +195,23 @@ const SupportScreen = ({ navigation }) => {
             onPress={() => handleOpenLink('https://wa.me/5511999999999', 'WhatsApp')}
           >
             <MaterialCommunityIcons name="whatsapp" size={16} color={colors.onPrimary} />
-            <Text style={styles.contactButtonText}> WhatsApp</Text>
+            <Text style={styles.contactButtonText}> {t('supportScreen.contact.whatsapp')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.contactButton}
             onPress={() => handleOpenLink('mailto:suporte@controlefinanceiro.com', 'Email')}
           >
             <MaterialIcons name="email" size={16} color={colors.onPrimary} />
-            <Text style={styles.contactButtonText}> Email</Text>
+            <Text style={styles.contactButtonText}> {t('supportScreen.contact.email')}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Informações Adicionais */}
       <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>ℹ️ Informações</Text>
+        <Text style={styles.infoTitle}>{t('supportScreen.info.title')}</Text>
         <Text style={styles.infoText}>
-          • Tempo médio de resposta: 24 horas{'\n'}
-          • Suporte disponível em português{'\n'}
-          • Todas as conversas são confidenciais{'\n'}
-          • Usuários Premium têm atendimento prioritário
+          {t('supportScreen.info.text')}
         </Text>
       </View>
     </ScrollView>

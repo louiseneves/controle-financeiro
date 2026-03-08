@@ -15,6 +15,7 @@ import {
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import SupportService from '../../services/SupportService';
 import useAuthStore from '../../store/authStore';
+import {t} from '../../i18n';
 
 const ContactScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -35,23 +36,23 @@ const ContactScreen = ({ navigation }) => {
   const handleSubmit = async () => {
     // Validação
     if (!formData.name.trim()) {
-      Alert.alert('Atenção', 'Por favor, informe seu nome');
+      Alert.alert(t('contact.errors.warningTitle'), t('contact.errors.name'));
       return;
     }
     if (!formData.email.trim()) {
-      Alert.alert('Atenção', 'Por favor, informe seu email');
+      Alert.alert(t('contact.errors.warningTitle'), t('contact.errors.email'));
       return;
     }
     if (!formData.subject.trim()) {
-      Alert.alert('Atenção', 'Por favor, informe o assunto');
+      Alert.alert(t('contact.errors.warningTitle'), t('contact.errors.subject'));
       return;
     }
     if (!formData.category) {
-      Alert.alert('Atenção', 'Por favor, selecione uma categoria');
+      Alert.alert(t('contact.errors.warningTitle'), t('contact.errors.category'));
       return;
     }
     if (!formData.message.trim()) {
-      Alert.alert('Atenção', 'Por favor, escreva sua mensagem');
+      Alert.alert(t('contact.errors.warningTitle'), t('contact.errors.message'));
       return;
     }
 
@@ -69,8 +70,8 @@ const ContactScreen = ({ navigation }) => {
 
       if (result.success) {
         Alert.alert(
-          'Mensagem Enviada! ✅',
-          `Recebemos sua mensagem e entraremos em contato em breve.\n\nNúmero do ticket: ${result.ticketId}`,
+          t('contact.successTitle'),
+          `${t('contact.successMessage', { ticket: result.ticketId })}`,
           [
             {
               text: 'OK',
@@ -88,7 +89,7 @@ const ContactScreen = ({ navigation }) => {
         });
       }
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível enviar sua mensagem. Tente novamente.');
+      Alert.alert(t('contact.errors.errorTitle'), t('contact.errors.send'));
     } finally {
       setLoading(false);
     }
@@ -101,9 +102,9 @@ const ContactScreen = ({ navigation }) => {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#333" />
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Fale Conosco</Text>
+        <Text style={styles.headerTitle}>{t('contact.title')}</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -111,9 +112,9 @@ const ContactScreen = ({ navigation }) => {
         {/* Info */}
         <View style={styles.infoCard}>
           <MaterialCommunityIcons name="message-text" size={32} color="#2196F3" />
-          <Text style={styles.infoTitle}>Como podemos ajudar?</Text>
+          <Text style={styles.infoTitle}>{t('contact.helpTitle')}</Text>
           <Text style={styles.infoText}>
-            Preencha o formulário abaixo e nossa equipe responderá em até 24 horas
+            {t('contact.helpdDescription')}
           </Text>
         </View>
 
@@ -121,14 +122,14 @@ const ContactScreen = ({ navigation }) => {
         <View style={styles.form}>
           {/* Nome */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Nome Completo</Text>
+            <Text style={styles.label}>{t('contact.form.name')}</Text>
             <View style={styles.inputContainer}>
-              <MaterialCommunityIcons name="account" size={20} color="#666" />
+              <MaterialCommunityIcons name="account" size={20} color={colors.textSecondary} />
               <TextInput
                 style={styles.input}
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
-                placeholder="Seu nome"
+                placeholder={t('contact.placeholder.name')}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
@@ -136,14 +137,14 @@ const ContactScreen = ({ navigation }) => {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('contact.form.email')}</Text>
             <View style={styles.inputContainer}>
-              <MaterialCommunityIcons name="email" size={20} color="#666" />
+              <MaterialCommunityIcons name="email" size={20} color={colors.textSecondary} />
               <TextInput
                 style={styles.input}
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
-                placeholder="seu@email.com"
+                placeholder={t('contact.placeholder.email')}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 placeholderTextColor={colors.placeholder}
@@ -153,7 +154,7 @@ const ContactScreen = ({ navigation }) => {
 
           {/* Categoria */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Categoria</Text>
+            <Text style={styles.label}>{t('contact.form.category')}</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -171,7 +172,7 @@ const ContactScreen = ({ navigation }) => {
                   <MaterialCommunityIcons
                     name={cat.icon}
                     size={18}
-                    color={formData.category === cat.id ? '#fff' : '#666'}
+                    color={formData.category === cat.id ? colors.white : colors.textSecondary}
                   />
                   <Text
                     style={[
@@ -188,14 +189,14 @@ const ContactScreen = ({ navigation }) => {
 
           {/* Assunto */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Assunto</Text>
+            <Text style={styles.label}>{t('contact.form.subject')}</Text>
             <View style={styles.inputContainer}>
-              <MaterialCommunityIcons name="text" size={20} color="#666" />
+              <MaterialCommunityIcons name="text" size={20} color={colors.textSecondary} />
               <TextInput
                 style={styles.input}
                 value={formData.subject}
                 onChangeText={(text) => setFormData({ ...formData, subject: text })}
-                placeholder="Resumo da sua dúvida"
+                placeholder={t('contact.placeholder.subject')}
                 placeholderTextColor={colors.placeholder}
               />
             </View>
@@ -203,13 +204,13 @@ const ContactScreen = ({ navigation }) => {
 
           {/* Mensagem */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mensagem</Text>
+            <Text style={styles.label}>{t('contact.form.message')}</Text>
             <View style={[styles.inputContainer, styles.textAreaContainer]}>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 value={formData.message}
                 onChangeText={(text) => setFormData({ ...formData, message: text })}
-                placeholder="Descreva sua dúvida ou sugestão com o máximo de detalhes possível..."
+                placeholder={t('contact.placeholder.message')}
                 placeholderTextColor={colors.placeholder}
                 multiline
                 numberOfLines={6}
@@ -227,12 +228,12 @@ const ContactScreen = ({ navigation }) => {
             {loading ? (
               <>
                 <MaterialCommunityIcons name="loading" size={20} color="#fff" />
-                <Text style={styles.submitButtonText}>Enviando...</Text>
+                <Text style={styles.submitButtonText}>{t('contact.sending')}</Text>
               </>
             ) : (
               <>
                 <MaterialCommunityIcons name="send" size={20} color="#fff" />
-                <Text style={styles.submitButtonText}>Enviar Mensagem</Text>
+                <Text style={styles.submitButtonText}>{t('contact.send')}</Text>
               </>
             )}
           </TouchableOpacity>
@@ -243,13 +244,13 @@ const ContactScreen = ({ navigation }) => {
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="clock-outline" size={20} color="#666" />
             <Text style={styles.infoRowText}>
-              Respondemos em até 24 horas úteis
+              {t('contact.info.responseTime')}
             </Text>
           </View>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="shield-check" size={20} color="#666" />
             <Text style={styles.infoRowText}>
-              Suas informações estão seguras
+              {t('contact.info.security')}
             </Text>
           </View>
         </View>

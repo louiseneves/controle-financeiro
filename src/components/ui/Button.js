@@ -145,14 +145,6 @@ const createStyles = (colors) =>
     justifyContent: 'center',
     borderRadius: 12,
     gap: 8,
-    shadowcolor: colors.text,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   text: {
     textAlign: 'center',

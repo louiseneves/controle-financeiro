@@ -20,6 +20,8 @@ import useBudgetStore from '../../store/budgetStore';
 import useTransactionStore from '../../store/transactionStore';
 import { formatMonthYear } from '../../utils/helpers/formatters';
 import useSettingsStore from '../../store/settingsStore';
+import {t} from '../../i18n';
+import usePremiumStore from '../../store/premiumStore';
 
 const BudgetScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -52,7 +54,7 @@ const BudgetScreen = ({navigation}) => {
   const getSpentByCategory = category => {
     return monthTransactions
       .filter(t => t.type === 'despesa' && t.category === category)
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
   };
 
   // Calcular totais
@@ -78,7 +80,20 @@ const BudgetScreen = ({navigation}) => {
 
   const totals = calculateTotals();
 
+  const { isPremium } = usePremiumStore();
+
   const handleCreateBudget = () => {
+    if (!isPremium && budgets.length >= 1) {
+      Alert.alert(
+        t('premium.limitTitle'),
+        t('premium.budgetLimit'),
+        [
+          { text: t('common.ok') },
+          { text: t('premium.upgrade'), onPress: () => navigation.navigate('UpgradePremium') },
+        ]
+      );
+      return;
+    }
     navigation.navigate('CreateBudget');
   };
 
@@ -102,7 +117,7 @@ const BudgetScreen = ({navigation}) => {
         }>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Orçamento Mensal</Text>
+          <Text style={styles.headerTitle}>{t('budgetOverview.title')}</Text>
           <Text style={styles.headerSubtitle}>{getCurrentMonth()}</Text>
         </View>
 
@@ -111,9 +126,9 @@ const BudgetScreen = ({navigation}) => {
             {/* Resumo Total */}
             <View style={styles.summaryCard}>
               <View style={styles.summaryHeader}>
-                <Text style={styles.summaryLabel}>Orçamento Total</Text>
+                <Text style={styles.summaryLabel}>{t('budgetOverview.total')}</Text>
                 <TouchableOpacity onPress={handleEditBudget}>
-                  <Text style={styles.editButton}>✏️ Editar</Text>
+                  <Text style={styles.editButton}>✏️ {t('budgetOverview.actions.edit')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -123,7 +138,7 @@ const BudgetScreen = ({navigation}) => {
 
               <View style={styles.summaryDetails}>
                 <View style={styles.summaryItem}>
-                  <Text style={styles.summaryItemLabel}>Gasto</Text>
+                  <Text style={styles.summaryItemLabel}>{t('budgetOverview.summary.spent')}</Text>
                   <Text style={[styles.summaryItemValue, {color: colors.error}]}>
                     {formatCurrency(totals.totalSpent)}
                   </Text>
@@ -132,7 +147,7 @@ const BudgetScreen = ({navigation}) => {
                 <View style={styles.summaryDivider} />
 
                 <View style={styles.summaryItem}>
-                  <Text style={styles.summaryItemLabel}>Disponível</Text>
+                  <Text style={styles.summaryItemLabel}>{t('budgetOverview.summary.available')}</Text>
                   <Text
                     style={[
                       styles.summaryItemValue,
@@ -150,14 +165,14 @@ const BudgetScreen = ({navigation}) => {
                     style={[
                       styles.progressFill,
                       {
-                        width: `${Math.min(
+                        width: `${totals.totalBudget > 0 ? Math.min(
                           (totals.totalSpent / totals.totalBudget) * 100,
                           100,
-                        )}%`,
+                        ) : 0}%`,
                         backgroundColor:
-                          totals.totalSpent > totals.totalBudget
+                          totals.totalBudget > 0 && totals.totalSpent > totals.totalBudget
                             ? colors.error
-                            : totals.totalSpent > totals.totalBudget * 0.8
+                            : totals.totalBudget > 0 && totals.totalSpent > totals.totalBudget * 0.8
                             ? colors.warning
                             : colors.success,
                       },
@@ -165,20 +180,20 @@ const BudgetScreen = ({navigation}) => {
                   />
                 </View>
                 <Text style={styles.progressPercentage}>
-                  {((totals.totalSpent / totals.totalBudget) * 100).toFixed(0)}%
+                  {totals.totalBudget > 0 ? ((totals.totalSpent / totals.totalBudget) * 100).toFixed(0) : '0'}%
                 </Text>
               </View>
             </View>
 
             {/* Orçamento por Categoria */}
             <View style={styles.categoriesSection}>
-              <Text style={styles.sectionTitle}>Orçamento por Categoria</Text>
+              <Text style={styles.sectionTitle}>{t('budgetOverview.category.title')}</Text>
 
               {Object.entries(currentBudget.categories).map(
                 ([category, budgetAmount]) => {
                   const spent = getSpentByCategory(category);
                   const remaining = budgetAmount - spent;
-                  const percentage = (spent / budgetAmount) * 100;
+                  const percentage = budgetAmount > 0 ? (spent / budgetAmount) * 100 : 0;
 
                   const categoryInfo = EXPENSE_CATEGORIES.find(c => c.id === category);
 
@@ -195,7 +210,7 @@ const BudgetScreen = ({navigation}) => {
                         </View>
                         {percentage >= 100 && (
                           <View style={styles.alertBadge}>
-                            <Text style={styles.alertText}>⚠️ Limite</Text>
+                            <Text style={styles.alertText}>⚠️ {t('budgetOverview.warnings.overLimit', {amount: formatCurrency(Math.abs(remaining))})}</Text>
                           </View>
                         )}
                       </View>
@@ -205,7 +220,7 @@ const BudgetScreen = ({navigation}) => {
                           {formatCurrency(spent)}
                         </Text>
                         <Text style={styles.categoryBudget}>
-                          de {formatCurrency(budgetAmount)}
+                          {t('budgetOverview.category.of', {amount: formatCurrency(budgetAmount)})}
                         </Text>
                       </View>
 
@@ -237,8 +252,7 @@ const BudgetScreen = ({navigation}) => {
                             styles.categoryRemaining,
                             {color: remaining >= 0 ? colors.success : colors.error},
                           ]}>
-                          {remaining >= 0 ? 'Disponível: ' : 'Excedido: '}
-                          {formatCurrency(Math.abs(remaining))}
+                          {remaining >= 0 ? t('budgetOverview.category.available', {amount: formatCurrency(remaining)}) : t('budgetOverview.category.exceeded', {amount: formatCurrency(Math.abs(remaining))})}
                         </Text>
                       </View>
 
@@ -247,8 +261,7 @@ const BudgetScreen = ({navigation}) => {
                         <View style={styles.suggestionBox}>
                           <Text style={styles.suggestionIcon}>💡</Text>
                           <Text style={styles.suggestionText}>
-                            Você está próximo do limite! Considere reduzir gastos nesta
-                            categoria.
+                            {t('budgetOverview.suggestions.nearLimit')}
                           </Text>
                         </View>
                       )}
@@ -257,7 +270,7 @@ const BudgetScreen = ({navigation}) => {
                         <View style={[styles.suggestionBox, {backgroundColor: colors.error + '10'}]}>
                           <Text style={styles.suggestionIcon}>🚨</Text>
                           <Text style={styles.suggestionText}>
-                            Você ultrapassou o orçamento desta categoria em{' '}
+                            {t('budgetOverview.suggestions.overLimit', {amount: formatCurrency(Math.abs(remaining))})}
                             {formatCurrency(Math.abs(remaining))}!
                           </Text>
                         </View>
@@ -272,9 +285,9 @@ const BudgetScreen = ({navigation}) => {
           // Estado vazio
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📊</Text>
-            <Text style={styles.emptyText}>Sem orçamento para este mês</Text>
+            <Text style={styles.emptyText}>{t('budgetOverview.empty.title')}</Text>
             <Text style={styles.emptySubtext}>
-              Crie um orçamento mensal para acompanhar seus gastos
+              {t('budgetOverview.empty.subtitle')}
             </Text>
           </View>
         )}
@@ -283,7 +296,7 @@ const BudgetScreen = ({navigation}) => {
       {/* Botão de ação */}
       <View style={styles.footer}>
         <Button
-          title={currentBudget ? 'Editar Orçamento' : 'Criar Orçamento'}
+          title={currentBudget ? t('budgetOverview.actions.edit') : t('budgetOverview.actions.create')}
           onPress={currentBudget ? handleEditBudget : handleCreateBudget}
           leftIcon={<Text style={styles.buttonIcon}>
             {currentBudget ? '✏️' : '📊'}

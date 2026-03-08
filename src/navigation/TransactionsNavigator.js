@@ -13,8 +13,8 @@ import AddInvestmentScreen from '../screens/transactions/AddInvestmentScreen';
 import InvestmentsListScreen from '../screens/transactions/InvestmentsListScreen';
 import TitheCalculatorScreen from '../screens/transactions/TitheCalculatorScreen';
 import TransactionDetailScreen from '../screens/transactions/TransactionDetailScreen';
-import {COLORS} from '../utils';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 const Stack = createNativeStackNavigator();
 
 // Tela temporária de Transações
@@ -24,8 +24,8 @@ const TransactionsListScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Transações</Text>
-      <Text style={styles.subtitle}>Escolha uma ação:</Text>
+      <Text style={styles.title}>{t('transactionsNavigator.title')}</Text>
+      <Text style={styles.subtitle}>{t('transactionsNavigator.subtitle')}</Text>
 
       <View style={styles.actions}>
         <TouchableOpacity
@@ -33,7 +33,7 @@ const TransactionsListScreen = ({navigation}) => {
           onPress={() => navigation.navigate('AddIncome')}
         >
           <Text style={styles.actionIcon}>💰</Text>
-          <Text style={styles.actionText}>Adicionar Receita</Text>
+          <Text style={styles.actionText}>{t('transactionsNavigator.addIncome')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -41,7 +41,7 @@ const TransactionsListScreen = ({navigation}) => {
           onPress={() => navigation.navigate('AddExpense')}
         >
           <Text style={styles.actionIcon}>💸</Text>
-          <Text style={styles.actionText}>Adicionar Despesa</Text>
+          <Text style={styles.actionText}>{t('transactionsNavigator.addExpense')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -49,7 +49,7 @@ const TransactionsListScreen = ({navigation}) => {
           onPress={() => navigation.navigate('AddOffer')}
         >
           <Text style={styles.actionIcon}>🙏</Text>
-          <Text style={styles.actionText}>Registrar Oferta</Text>
+          <Text style={styles.actionText}>{t('transactionsNavigator.registerOffer')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -57,7 +57,7 @@ const TransactionsListScreen = ({navigation}) => {
           onPress={() => navigation.navigate('TitheCalculator')}
         >
           <Text style={styles.actionIcon}>✝️</Text>
-          <Text style={styles.actionText}>Calculadora de Dízimo</Text>
+          <Text style={styles.actionText}>{t('transactionsNavigator.titheCalculator')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -65,7 +65,7 @@ const TransactionsListScreen = ({navigation}) => {
           onPress={() => navigation.navigate('InvestmentsList')}
         >
           <Text style={styles.actionIcon}>📈</Text>
-          <Text style={styles.actionText}>Meus Investimentos</Text>
+          <Text style={styles.actionText}>{t('transactionsNavigator.myInvestments')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -132,49 +132,49 @@ const TransactionsNavigator = () => {
       <Stack.Screen
         name="TransactionsList"
         component={TransactionsListScreen}
-        options={{ title: 'Transações' }}
+        options={{ title: t('transactionsNavigator.titleTransactions') }}
       />
 
       <Stack.Screen
         name="AddIncome"
         component={AddIncomeScreen}
-        options={{ title: 'Adicionar Receita' }}
+        options={{ title: t('transactionsNavigator.addIncome') }}
       />
 
       <Stack.Screen
         name="AddExpense"
         component={AddExpenseScreen}
-        options={{ title: 'Adicionar Despesa' }}
+        options={{ title: t('transactionsNavigator.addExpense') }}
       />
 
       <Stack.Screen
         name="AddOffer"
         component={AddOfferScreen}
-        options={{ title: 'Adicionar Oferta' }}
+        options={{ title: t('transactionsNavigator.addOffer') }}
       />
 
       <Stack.Screen
         name="TitheCalculator"
         component={TitheCalculatorScreen}
-        options={{ title: 'Calculadora de Dízimo' }}
+        options={{ title: t('transactionsNavigator.titheCalculator') }}
       />
 
       <Stack.Screen
         name="InvestmentsList"
         component={InvestmentsListScreen}
-        options={{ title: 'Investimentos' }}
+        options={{ title: t('transactionsNavigator.investmentsList') }}
       />
 
       <Stack.Screen
         name="AddInvestment"
         component={AddInvestmentScreen}
-        options={{ title: 'Adicionar Investimento' }}
+        options={{ title: t('transactionsNavigator.addInvestment') }}
       />
 
       <Stack.Screen
         name="TransactionDetail"
         component={TransactionDetailScreen}
-        options={{ title: 'Detalhes da Transação' }}
+        options={{ title: t('transactionsNavigator.transactionDetail') }}
       />
     </Stack.Navigator>
   );

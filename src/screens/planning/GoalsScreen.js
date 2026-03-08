@@ -19,6 +19,7 @@ import useAuthStore from '../../store/authStore';
 import useGoalsStore from '../../store/goalsStore';
 import useSettingsStore from '../../store/settingsStore';
 import { t } from '../../i18n';
+import usePremiumStore from '../../store/premiumStore';
 
 const GoalsScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -42,7 +43,22 @@ const GoalsScreen = ({navigation}) => {
     setRefreshing(false);
   };
 
+  const { isPremium } = usePremiumStore();
+
   const handleAddGoal = () => {
+    // limite para usuários gratuitos
+    if (!isPremium && goals.length >= 3) {
+      Alert.alert(
+        t('premium.limitTitle'),
+        t('premium.goalsLimit', { limit: 3 }),
+        [
+          { text: t('common.ok') },
+          { text: t('premium.upgrade'), onPress: () => navigation.navigate('UpgradePremium') },
+        ]
+      );
+      return;
+    }
+
     navigation.navigate('AddGoal');
   };
 
@@ -71,8 +87,8 @@ const GoalsScreen = ({navigation}) => {
   };
 
   const calculateProgress = goal => {
-    const current = goal.currentAmount || 0;
-    const target = goal.targetAmount || 1;
+    const current = Number(goal.currentAmount || 0);
+    const target = Number(goal.targetAmount || 1);
     return Math.min((current / target) * 100, 100);
   };
 
@@ -128,7 +144,7 @@ const GoalsScreen = ({navigation}) => {
             {activeGoals.map(goal => {
               const progress = calculateProgress(goal);
               const daysRemaining = getDaysRemaining(goal.deadline);
-              const current = goal.currentAmount || 0;
+              const current = Number(goal.currentAmount || 0);
 
               return (
                 <TouchableOpacity
@@ -185,7 +201,7 @@ const GoalsScreen = ({navigation}) => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('goals.completedWithEmoji')}</Text>
             {completedGoals.map(goal => {
-              const current = goal.currentAmount || 0;
+              const current = Number(goal.currentAmount || 0);
 
               return (
                 <TouchableOpacity

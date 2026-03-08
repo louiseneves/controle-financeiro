@@ -6,6 +6,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 import HistoryScreen from '../screens/reports/HistoryScreen';
 import ReportsScreen from '../screens/reports/ReportsScreen';
@@ -35,19 +36,19 @@ const ReportsNavigator = () => {
       <Stack.Screen
         name="ReportsMain"
         component={ReportsScreen}
-        options={{ title: 'Relatórios' }}
+        options={{ title: t('reportsNavigator.reports') }}
       />
 
       <Stack.Screen
         name="History"
         component={HistoryScreen}
-        options={{ title: 'Histórico' }}
+        options={{ title: t('reportsNavigator.history') }}
       />
 
       <Stack.Screen
         name="AdvancedReports"
         component={AdvancedReportsScreen}
-        options={{ title: 'Relatórios Avançados' }}
+        options={{ title: t('reportsNavigator.advancedReports') }}
       />
     </Stack.Navigator>
   );

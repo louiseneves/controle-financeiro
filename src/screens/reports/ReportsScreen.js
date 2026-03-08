@@ -17,6 +17,8 @@ import {BarChart, PieChart} from 'react-native-gifted-charts';
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
 import useSettingsStore from '../../store/settingsStore';
+import { EXPENSE_CATEGORIES } from '../../utils';
+import {t} from '../../i18n';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -77,19 +79,19 @@ const ReportsScreen = ({navigation}) => {
   // Calcular totais
   const income = periodTransactions
     .filter(t => t.type === 'receita')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const expense = periodTransactions
     .filter(t => t.type === 'despesa')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const investment = periodTransactions
     .filter(t => t.type === 'investimento')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const offer = periodTransactions
     .filter(t => t.type === 'oferta')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const balance = income - expense - investment - offer;
 
@@ -103,7 +105,7 @@ const ReportsScreen = ({navigation}) => {
         if (!grouped[t.category]) {
           grouped[t.category] = 0;
         }
-        grouped[t.category] += t.amount;
+        grouped[t.category] += Number(t.amount || 0);
       });
 
     return Object.entries(grouped)
@@ -122,6 +124,11 @@ const ReportsScreen = ({navigation}) => {
   const data = expensesByCategory();
   return Array.isArray(data) ? data : [];
 }, [periodTransactions, expense]);
+
+  // ✅ Obter nome da categoria
+  const getCategoryName = (categoryId) => {
+    return EXPENSE_CATEGORIES.find(c => c.id === categoryId)?.name || categoryId;
+  };
 
 
   // Dados para gráfico de pizza (top 5 categorias)
@@ -165,9 +172,9 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
 
 
   const periods = [
-    {id: 'month', label: 'Este Mês'},
-    {id: '3months', label: 'Últimos 3 Meses'},
-    {id: 'year', label: 'Este Ano'},
+    {id: 'month', label: t('reports.periods.month')},
+    {id: '3months', label: t('reports.periods.threeMonths')},
+    {id: 'year', label: t('reports.periods.year')},
   ];
 
   return (
@@ -183,7 +190,7 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
         onPress={() => navigation.navigate('History')}
         activeOpacity={0.7}>
         <Text style={styles.historyButtonIcon}>📋</Text>
-        <Text style={styles.historyButtonText}>Ver Histórico Completo</Text>
+        <Text style={styles.historyButtonText}>{t('reports.historyButton')}</Text>
         <Text style={styles.historyButtonArrow}>›</Text>
       </TouchableOpacity>
 
@@ -193,7 +200,7 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
         onPress={() => navigation.navigate('AdvancedReports')}
         activeOpacity={0.7}>
         <Text style={styles.historyButtonIcon}>⭐</Text>
-        <Text style={[styles.historyButtonText, {color: colors.warning}]}>Relatórios Avançados Premium</Text>
+        <Text style={[styles.historyButtonText, {color: colors.warning}]}>{t('reports.advancedReports')}</Text>
         <Text style={[styles.historyButtonArrow, {color: colors.warning}]}>›</Text>
       </TouchableOpacity>
       {/* Seletor de período */}
@@ -221,14 +228,14 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
       {/* Cards de resumo */}
       <View style={styles.summaryCards}>
         <View style={[styles.summaryCard, {backgroundColor: colors.success + '20'}]}>
-          <Text style={styles.summaryCardLabel}>Receitas</Text>
+          <Text style={styles.summaryCardLabel}>{t('reports.summary.income')}</Text>
           <Text style={[styles.summaryCardValue, {color: colors.success}]}>
             {formatCurrency(income)}
           </Text>
         </View>
 
         <View style={[styles.summaryCard, {backgroundColor: colors.error + '20'}]}>
-          <Text style={styles.summaryCardLabel}>Despesas</Text>
+          <Text style={styles.summaryCardLabel}>{t('reports.summary.expense')}</Text>
           <Text style={[styles.summaryCardValue, {color: colors.error}]}>
             {formatCurrency(expense)}
           </Text>
@@ -237,15 +244,15 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
 
       <View style={styles.summaryCards}>
         <View style={[styles.summaryCard, {backgroundColor: colors.investment + '20'}]}>
-          <Text style={styles.summaryCardLabel}>Investimentos</Text>
-          <Text style={[styles.summaryCardValue, {color: colors.investment}]}>
+          <Text style={styles.summaryCardLabel}>{t('reports.summary.investment')}</Text>
+          <Text style={[styles.summaryCardValue, {color: colors.investment}]}> 
             {formatCurrency(investment)}
           </Text>
         </View>
 
         <View style={[styles.summaryCard, {backgroundColor: colors.offer + '20'}]}>
-          <Text style={styles.summaryCardLabel}>Ofertas</Text>
-          <Text style={[styles.summaryCardValue, {color: colors.offer}]}>
+          <Text style={styles.summaryCardLabel}>{t('reports.summary.offer')}</Text>
+          <Text style={[styles.summaryCardValue, {color: colors.offer}]}> 
             {formatCurrency(offer)}
           </Text>
         </View>
@@ -256,13 +263,13 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
         styles.balanceCard,
         {backgroundColor: balance >= 0 ? colors.success : colors.error}
       ]}>
-        <Text style={styles.balanceLabel}>Saldo do Período</Text>
+        <Text style={styles.balanceLabel}>{t('reports.summary.balance')}</Text>
         <Text style={styles.balanceValue}>{formatCurrency(balance)}</Text>
       </View>
 
       {/* Gráfico de Barras */}
       <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Visão Geral</Text>
+        <Text style={styles.chartTitle}>{t('reports.charts.overview')}</Text>
         {barData.some(d => d.amount > 0) ? (
           <BarChart
   data={barData.map(item => ({
@@ -304,7 +311,7 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
 
         ) : (
           <View style={styles.emptyChart}>
-            <Text style={styles.emptyChartText}>Sem dados para exibir</Text>
+            <Text style={styles.emptyChartText}>{t('reports.emptyChart')}</Text>
           </View>
         )}
       </View>
@@ -312,7 +319,7 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
       {/* Gráfico de Pizza - Despesas por Categoria */}
       {categoryData.length > 0 && (
         <View style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Despesas por Categoria</Text>
+          <Text style={styles.chartTitle}>{t('reports.charts.expensesByCategory')}</Text>
           
           {pieData.length > 0 ? (
             <>
@@ -320,7 +327,8 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
   data={pieData.map(item => ({
     value: item.y,
     color: item.color,
-    text: `${((item.y / expense) * 100).toFixed(0)}%`,
+    // ✅ Proteger contra divisão por zero
+    text: `${expense > 0 ? ((item.y / expense) * 100).toFixed(0) : '0'}%`,
   }))}
                 donut
                 radius={90}
@@ -343,7 +351,7 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
       ]}
     />
     <View style={styles.legendContent}>
-      <Text style={styles.legendLabel}>{item.category}</Text>
+      <Text style={styles.legendLabel}>{getCategoryName(item.category)}</Text>
       <Text style={styles.legendValue}>
         {formatCurrency(item.amount)} ({item.percentage.toFixed(0)}%)
       </Text>
@@ -355,7 +363,7 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
             </>
           ) : (
             <View style={styles.emptyChart}>
-              <Text style={styles.emptyChartText}>Sem despesas para categorizar</Text>
+              <Text style={styles.emptyChartText}>{t('reports.charts.noData')}</Text>
             </View>
           )}
         </View>
@@ -364,14 +372,14 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
       {/* Lista de categorias */}
       {categoryData.length > 0 && (
         <View style={styles.categoryList}>
-          <Text style={styles.sectionTitle}>Todas as Categorias</Text>
+          <Text style={styles.sectionTitle}>{t('reports.charts.allCategories')}</Text>
           {categoryData.map((item, index) => (
             <View key={item.category} style={styles.categoryItem}>
               <View style={styles.categoryRank}>
                 <Text style={styles.categoryRankText}>#{index + 1}</Text>
               </View>
               <View style={styles.categoryInfo}>
-                <Text style={styles.categoryName}>{item.category}</Text>
+                <Text style={styles.categoryName}>{getCategoryName(item.category)}</Text>
                 <View style={styles.categoryBar}>
                   <View
                     style={[
@@ -398,9 +406,9 @@ const pieData = categoryData.slice(0, 5).map((item, index) => ({
       {periodTransactions.length === 0 && (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📊</Text>
-          <Text style={styles.emptyText}>Sem transações neste período</Text>
+          <Text style={styles.emptyText}>{t('reports.empty.noTransactions')}</Text>
           <Text style={styles.emptySubtext}>
-            Adicione transações para visualizar relatórios
+            {t('reports.empty.hint')}
           </Text>
         </View>
       )}
@@ -425,11 +433,6 @@ const createStyles = (colors) =>
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
-    shadowColor: colors.shadow,
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   historyButtonIcon: {
     fontSize: 24,

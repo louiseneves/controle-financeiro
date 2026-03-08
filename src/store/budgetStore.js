@@ -45,7 +45,7 @@ const useBudgetStore = create((set, get) => ({
 
   // ==================== ADD ====================
   addBudget: async (budgetData, userId) => {
-    if (!userId) {
+    if (!budgetData?.userId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
 
@@ -193,7 +193,7 @@ const useBudgetStore = create((set, get) => ({
 
       if (!budget.amount || budget.amount <= 0) return;
 
-      const percentage = (spent / budget.amount) * 100;
+      const percentage = (spent / Number(budget.amount)) * 100;
 
       NotificationService.scheduleBudgetWarning(
         budget.category,

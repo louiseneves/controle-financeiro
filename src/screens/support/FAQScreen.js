@@ -9,25 +9,26 @@ import {
   TextInput,
 } from 'react-native';
 import useSupportStore from '../../store/supportStore';
+import {t} from '../../i18n';
 
 const FAQScreen = () => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { faqs, loadFAQs } = useSupportStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Todas');
+  const [selectedCategory, setSelectedCategory] = useState(t('faqScreen.categories.all'));
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     loadFAQs();
-  }, []);
+  }, [loadFAQs]);
 
   // Categorias únicas
-  const categories = ['Todas', ...new Set(faqs.map(faq => faq.category))];
+  const categories = [t('faqScreen.categories.all'), ...new Set(faqs.map(faq => faq.category))];
 
   // Filtrar FAQs
   const filteredFAQs = faqs.filter(faq => {
-    const matchesCategory = selectedCategory === 'Todas' || faq.category === selectedCategory;
+    const matchesCategory = selectedCategory === t('faqScreen.categories.all') || faq.category === selectedCategory;
     const matchesSearch = 
       faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
@@ -42,9 +43,9 @@ const FAQScreen = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Perguntas Frequentes</Text>
+        <Text style={styles.headerTitle}>{t('faqScreen.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Encontre respostas rápidas
+          {t('faqScreen.subtitle')}
         </Text>
       </View>
 
@@ -52,7 +53,7 @@ const FAQScreen = () => {
       <View style={styles.searchSection}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar pergunta..."
+          placeholder={t('faqScreen.searchPlaceholder')}
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholderTextColor={colors.placeholder}
@@ -90,9 +91,9 @@ const FAQScreen = () => {
         {filteredFAQs.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>🔍</Text>
-            <Text style={styles.emptyText}>Nenhuma pergunta encontrada</Text>
+            <Text style={styles.emptyText}>{t('faqScreen.empty.title')}</Text>
             <Text style={styles.emptySubtext}>
-              Tente buscar com outras palavras
+              {t('faqScreen.empty.subtitle')}
             </Text>
           </View>
         ) : (
@@ -127,10 +128,10 @@ const FAQScreen = () => {
         {/* Rodapé */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Não encontrou o que procura?
+            {t('faqScreen.footer.title')}
           </Text>
           <Text style={styles.footerSubtext}>
-            Entre em contato através do formulário de suporte
+            {t('faqScreen.footer.subtitle')}
           </Text>
         </View>
       </ScrollView>

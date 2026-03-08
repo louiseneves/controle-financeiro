@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 // Telas
 import SupportScreen from '../screens/support/SupportScreen';
@@ -40,31 +41,31 @@ const SupportNavigator = () => {
       <Stack.Screen
         name="FAQ"
         component={FAQScreen}
-        options={{ title: 'Perguntas Frequentes' }}
+        options={{ title: t('supportNavigator.faq') }}
       />
 
       <Stack.Screen
         name="CreateTicket"
         component={CreateTicketScreen}
-        options={{ title: 'Novo Ticket' }}
+        options={{ title: t('supportNavigator.newTicket') }}
       />
 
       <Stack.Screen
         name="TicketDetails"
         component={TicketDetailsScreen}
-        options={{ title: 'Detalhes do Ticket' }}
+        options={{ title: t('supportNavigator.ticketDetails') }}
       />
 
       <Stack.Screen
         name="TicketList"
         component={TicketListScreen}
-        options={{ title: 'Meus Tickets' }}
+        options={{ title: t('supportNavigator.myTickets') }}
       />
 
       <Stack.Screen
         name="Tutorials"
         component={TutorialsScreen}
-        options={{ title: 'Tutoriais' }}
+        options={{ title: t('supportNavigator.tutorials') }}
       />
     </Stack.Navigator>
   );

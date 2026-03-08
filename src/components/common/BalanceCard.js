@@ -2,37 +2,29 @@
  * Card de Saldo
  */
 
-import React,{useMemo} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import useSettingsStore from '../../store/settingsStore';
-import { useTheme } from '../../context/ThemeContext';
-import {t} from '../../i18n';
+import React, { useMemo } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import useSettingsStore from "../../store/settingsStore";
+import { useTheme } from "../../context/ThemeContext";
+import { t } from "../../i18n";
 
 const BalanceCard = ({ balance, income, expense }) => {
   const { colors, dark } = useTheme();
-  const formatCurrency = useSettingsStore(state => state.formatCurrency);
-    const styles = useMemo(() => createStyles(colors, dark), [colors, dark]);
+  const formatCurrency = useSettingsStore((state) => state.formatCurrency);
+  const styles = useMemo(() => createStyles(colors, dark), [colors, dark]);
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{t('balance.title')}</Text>
+      <Text style={styles.label}>{t("balance.title")}</Text>
       <Text style={styles.amount}>{formatCurrency(balance)}</Text>
-      
+
       <View style={styles.details}>
         <View style={styles.detailItem}>
           <View
-            style={[
-              styles.indicator,
-              { backgroundColor: colors.successDark }
-            ]}
+            style={[styles.indicator, { backgroundColor: colors.income }]}
           />
           <View>
-            <Text style={styles.detailLabel}>{t('balance.income')}</Text>
-            <Text
-              style={[
-                styles.detailValue,
-                { color: colors.successDark }
-              ]}
-            >
+            <Text style={styles.detailLabel}>{t("balance.income")}</Text>
+            <Text style={[styles.detailValue, { color: colors.income }]}>
               {formatCurrency(income)}
             </Text>
           </View>
@@ -42,33 +34,24 @@ const BalanceCard = ({ balance, income, expense }) => {
 
         <View style={styles.detailItem}>
           <View
-            style={[
-              styles.indicator,
-              { backgroundColor: colors.errorDark }
-            ]}
+            style={[styles.indicator, { backgroundColor: colors.expense }]}
           />
           <View>
-            <Text style={styles.detailLabel}>{t('balance.expense')}</Text>
-            <Text
-              style={[
-                styles.detailValue,
-                { color: colors.errorDark }
-              ]}
-            >
+            <Text style={styles.detailLabel}>{t("balance.expense")}</Text>
+            <Text style={[styles.detailValue, { color: colors.expense }]}>
               {formatCurrency(expense)}
             </Text>
           </View>
         </View>
-
       </View>
     </View>
   );
 };
 
-const createStyles = (colors,dark) =>
+const createStyles = (colors, dark) =>
   StyleSheet.create({
     container: {
-      backgroundColor: colors.primary,
+      backgroundColor: colors.balanceCard,
       borderRadius: 16,
       padding: 24,
       marginBottom: 20,
@@ -87,21 +70,21 @@ const createStyles = (colors,dark) =>
 
     amount: {
       fontSize: 36,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: colors.onPrimary,
       marginBottom: 20,
     },
 
     details: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-around",
+      alignItems: "center",
     },
 
     detailItem: {
       flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       gap: 8,
     },
 
@@ -119,7 +102,7 @@ const createStyles = (colors,dark) =>
 
     detailValue: {
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
 
     divider: {
@@ -130,6 +113,5 @@ const createStyles = (colors,dark) =>
       marginHorizontal: 16,
     },
   });
-
 
 export default BalanceCard;

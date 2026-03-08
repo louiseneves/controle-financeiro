@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import useSettingsStore from '../../store/settingsStore';
+import {t} from '../../i18n';
 
 const AboutScreen = () => {
   const { colors } = useTheme();
@@ -34,68 +35,51 @@ const AboutScreen = () => {
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.primary }]}>
-        <Text style={styles.headerTitle}>Sobre o App</Text>
-        <Text style={styles.headerSubtitle}>v1.0.0</Text>
+        <Text style={styles.headerTitle}>{t('about.header.title')}</Text>
+        <Text style={styles.headerSubtitle}>{t('about.header.version')}</Text>
       </View>
 
       {/* Logo/Ícone */}
       <View style={[styles.logoSection, { backgroundColor: colors.card }]}>
         <Image source={require('../../assets/icons/logo.png')} style={styles.logoIcon} />
         <Text style={[styles.appName, { color: colors.text }]}>
-          Controle Financeiro
+          {t('about.app.name')}
         </Text>
         <Text style={[styles.appTagline, { color: colors.textSecondary }]}>
-          Organize suas finanças com inteligência
+          {t('about.app.tagline')}
         </Text>
       </View>
 
       {/* Descrição */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          📖 Sobre
+          {t('about.sections.about')}
         </Text>
         <Text style={[styles.description, { color: colors.textSecondary }]}>
-          O Controle Financeiro é um aplicativo completo para gestão de suas
-          finanças pessoais. Com ele você pode controlar receitas, despesas,
-          investimentos, definir metas, criar orçamentos e muito mais.
+          {t('about.description')}
         </Text>
       </View>
 
       {/* Funcionalidades */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          ✨ Funcionalidades
+          {t('about.sections.features')}
         </Text>
         <View style={styles.featuresList}>
-          {[
-            'Controle de receitas e despesas',
-            'Gestão de investimentos',
-            'Calculadora de dízimo e ofertas',
-            'Metas financeiras',
-            'Orçamento mensal',
-            'Relatórios detalhados',
-            'Backup em nuvem',
-            'Sistema Premium',
-            'Suporte completo',
-            'Modo escuro',
-            'Múltiplas moedas',
-          ].map((feature, index) => (
-            <View key={index} style={styles.featureItem}>
-              <Text style={[styles.featureBullet, { color: colors.primary }]}>
-                •
-              </Text>
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>
-                {feature}
-              </Text>
-            </View>
-          ))}
+          {t('about.features', { returnObjects: true }).map((feature, index) => (
+  <View key={index} style={styles.featureItem}>
+    <Text style={[styles.featureBullet, { color: colors.primary }]}>•</Text>
+    <Text style={styles.featureText}>{feature}</Text>
+  </View>
+))}
+
         </View>
       </View>
 
       {/* Bibliotecas */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          📚 Bibliotecas de Código Aberto
+          {t('about.sections.libraries')}
         </Text>
         {libraries.map((lib, index) => (
           <View
@@ -117,20 +101,20 @@ const AboutScreen = () => {
       {/* Desenvolvedor */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          👨‍💻 Desenvolvedor
+           {t('about.sections.developer')}
         </Text>
         <Text style={[styles.developer, { color: colors.textSecondary }]}>
-          Desenvolvido com ❤️ por Louise
+          {t('about.developer.madeBy')}
         </Text>
         <Text style={[styles.developer, { color: colors.textSecondary }]}>
-          © 2026 Todos os direitos reservados
+          {t('about.developer.rights')}
         </Text>
       </View>
 
       {/* Links */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          🔗 Links Úteis
+           {t('about.sections.links')}
         </Text>
         
         <TouchableOpacity
@@ -138,7 +122,7 @@ const AboutScreen = () => {
           onPress={() => openLink('https://controlefinanceiro.com/privacy')}
         >
           <Text style={[styles.linkText, { color: colors.primary }]}>
-            Política de Privacidade
+            {t('about.links.privacy')}
           </Text>
         </TouchableOpacity>
 
@@ -147,7 +131,7 @@ const AboutScreen = () => {
           onPress={() => openLink('https://controlefinanceiro.com/terms')}
         >
           <Text style={[styles.linkText, { color: colors.primary }]}>
-            Termos de Uso
+            {t('about.links.terms')}
           </Text>
         </TouchableOpacity>
 
@@ -156,7 +140,7 @@ const AboutScreen = () => {
           onPress={() => openLink('https://github.com/louiseneves/controle-financeiro')}
         >
           <Text style={[styles.linkText, { color: colors.primary }]}>
-            Código Fonte (GitHub)
+            {t('about.links.source')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -164,10 +148,10 @@ const AboutScreen = () => {
       {/* Rodapé */}
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-          Feito com React Native 🚀
+          {t('about.footer.madeWith')}
         </Text>
         <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-          Build 2024.01.001
+          {t('about.footer.build')}
         </Text>
       </View>
     </ScrollView>

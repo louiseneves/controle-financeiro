@@ -44,7 +44,7 @@ const useGoalsStore = create((set, get) => ({
 
   // ==================== ADD ====================
   addGoal: async (goalData, userId) => {
-    if (!userId) {
+    if (!goalData?.userId) {
       return { success: false, error: 'Usuário não autenticado' };
     }
 
@@ -126,8 +126,9 @@ const useGoalsStore = create((set, get) => ({
         settings.notifications.goals &&
         goal.targetAmount > 0
       ) {
+        const targetAmount = Number(goal.targetAmount || 0);
         const percentage =
-          (newCurrentAmount / goal.targetAmount) * 100;
+          (newCurrentAmount / targetAmount) * 100;
 
         NotificationService.scheduleGoalAchievementNotification(
           goal.name,

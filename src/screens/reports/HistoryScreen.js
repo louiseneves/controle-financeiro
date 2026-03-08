@@ -18,6 +18,7 @@ import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
 import TransactionItem from '../../components/common/TransactionItem';
 import useSettingsStore from '../../store/settingsStore';
+import {t} from '../../i18n';
 
 const HistoryScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -59,7 +60,7 @@ const HistoryScreen = ({navigation}) => {
       filtered = filtered.filter(
         t =>
           t.description.toLowerCase().includes(search) ||
-          t.category.toLowerCase().includes(search),
+          (t.category || '').toLowerCase().includes(search),
       );
     }
 
@@ -67,13 +68,14 @@ const HistoryScreen = ({navigation}) => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'date_desc':
-          return new Date(b.date) - new Date(a.date);
+          // ✅ Validar datas antes de comparar
+          return new Date(b.date || 0) - new Date(a.date || 0);
         case 'date_asc':
-          return new Date(a.date) - new Date(b.date);
+          return new Date(a.date || 0) - new Date(b.date || 0);
         case 'amount_desc':
-          return b.amount - a.amount;
+          return Number(b.amount || 0) - Number(a.amount || 0);
         case 'amount_asc':
-          return a.amount - b.amount;
+          return Number(a.amount || 0) - Number(b.amount || 0);
         default:
           return 0;
       }
@@ -88,19 +90,19 @@ const HistoryScreen = ({navigation}) => {
   const calculateTotals = () => {
     const income = filteredTransactions
       .filter(t => t.type === 'receita')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const expense = filteredTransactions
       .filter(t => t.type === 'despesa')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const investment = filteredTransactions
       .filter(t => t.type === 'investimento')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const offer = filteredTransactions
       .filter(t => t.type === 'oferta')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     return {income, expense, investment, offer};
   };
@@ -108,11 +110,11 @@ const HistoryScreen = ({navigation}) => {
   const totals = calculateTotals();
 
   const typeFilters = [
-    {id: 'all', label: 'Todas', icon: '📋'},
-    {id: 'receita', label: 'Receitas', icon: '💰', color: colors.success},
-    {id: 'despesa', label: 'Despesas', icon: '💸', color: colors.error},
-    {id: 'investimento', label: 'Investimentos', icon: '📈', color: colors.investment},
-    {id: 'oferta', label: 'Ofertas', icon: '🙏', color: colors.offer},
+    {id: 'all', label: t('history.filters.all'), icon: '📋'},
+    {id: 'receita', label: t('history.filters.receita'), icon: '💰', color: colors.success},
+    {id: 'despesa', label: t('history.filters.despesa'), icon: '💸', color: colors.error},
+    {id: 'investimento', label: t('history.filters.investimento'), icon: '📈', color: colors.investment},
+    {id: 'oferta', label: t('history.filters.oferta'), icon: '🙏', color: colors.offer},
   ];
 
   return (
@@ -122,10 +124,11 @@ const HistoryScreen = ({navigation}) => {
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar por descrição ou categoria..."
+          placeholder={t('history.searchPlaceholder')}
           value={searchText}
           onChangeText={setSearchText}
-          placeholderTextColor={COLORS.gray400}
+          // ✅ Usar cor do tema em vez de cor fixa
+          placeholderTextColor={colors.placeholder}
         />
         {searchText.length > 0 && (
           <TouchableOpacity onPress={() => setSearchText('')}>
@@ -167,7 +170,7 @@ const HistoryScreen = ({navigation}) => {
 
       {/* Ordenação */}
       <View style={styles.sortContainer}>
-        <Text style={styles.sortLabel}>Ordenar:</Text>
+        <Text style={styles.sortLabel}>{t('history.sort.label')}</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -183,7 +186,7 @@ const HistoryScreen = ({navigation}) => {
                 styles.sortButtonText,
                 sortBy === 'date_desc' && styles.sortButtonTextActive,
               ]}>
-              Mais recentes
+              {t('history.sort.dateDesc')}
             </Text>
           </TouchableOpacity>
 
@@ -198,7 +201,7 @@ const HistoryScreen = ({navigation}) => {
                 styles.sortButtonText,
                 sortBy === 'date_asc' && styles.sortButtonTextActive,
               ]}>
-              Mais antigas
+              {t('history.sort.dateAsc')}
             </Text>
           </TouchableOpacity>
 
@@ -213,7 +216,7 @@ const HistoryScreen = ({navigation}) => {
                 styles.sortButtonText,
                 sortBy === 'amount_desc' && styles.sortButtonTextActive,
               ]}>
-              Maior valor
+              {t('history.sort.amountDesc')}
             </Text>
           </TouchableOpacity>
 
@@ -228,7 +231,7 @@ const HistoryScreen = ({navigation}) => {
                 styles.sortButtonText,
                 sortBy === 'amount_asc' && styles.sortButtonTextActive,
               ]}>
-              Menor valor
+              {t('history.sort.amountAsc')}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -238,10 +241,14 @@ const HistoryScreen = ({navigation}) => {
       {selectedType !== 'all' && (
         <View style={styles.summaryBar}>
           <Text style={styles.summaryText}>
-            {filteredTransactions.length} transaç{filteredTransactions.length === 1 ? 'ão' : 'ões'}
+            {filteredTransactions.length === 0
+              ? t('history.empty.notFound')
+              : filteredTransactions.length === 1
+              ? t('history.summary.transactions_one', {count: 1})
+              : t('history.summary.transactions_other', {count: filteredTransactions.length})}
           </Text>
           <Text style={styles.summaryAmount}>
-            Total: {formatCurrency(
+            {t('history.summary.total')} {formatCurrency(
               selectedType === 'receita' ? totals.income :
               selectedType === 'despesa' ? totals.expense :
               selectedType === 'investimento' ? totals.investment :
@@ -276,13 +283,13 @@ const HistoryScreen = ({navigation}) => {
             <Text style={styles.emptyIcon}>📭</Text>
             <Text style={styles.emptyText}>
               {searchText
-                ? 'Nenhuma transação encontrada'
-                : 'Nenhuma transação nesta categoria'}
+                ? t('history.empty.notFound', {term: searchText})
+                : t('history.empty.noCategory')}
             </Text>
             <Text style={styles.emptySubtext}>
               {searchText
-                ? 'Tente buscar por outro termo'
-                : 'Adicione transações para vê-las aqui'}
+                ? t('history.empty.tryAnother', {term: searchText})
+                : t('history.empty.addTransactions')}
             </Text>
           </View>
         )}

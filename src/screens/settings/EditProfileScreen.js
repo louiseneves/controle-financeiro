@@ -18,7 +18,8 @@ import {Button, Input} from '../../components/ui';
 import { getInitials} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import {updateProfile} from 'firebase/auth';
-import {auth} from '../../services/firebase/config';
+import { auth } from '../../services/firebase/config';
+import {t} from '../../i18n';
 
 const EditProfileScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -46,12 +47,12 @@ const EditProfileScreen = ({navigation}) => {
     setNameError('');
 
     if (!name) {
-      setNameError('Nome é obrigatório');
+      setNameError(t('editProfile.validation.nameRequired'));
       return false;
     }
 
     if (name.length < 3) {
-      setNameError('Nome deve ter no mínimo 3 caracteres');
+      setNameError(t('editProfile.validation.nameMinLength'));
       return false;
     }
 
@@ -80,12 +81,12 @@ const EditProfileScreen = ({navigation}) => {
         },
       }));
 
-      Alert.alert('Sucesso! ✅', 'Perfil atualizado com sucesso!', [
-        {text: 'OK', onPress: () => navigation.goBack()},
+      Alert.alert(t('editProfile.alerts.successTitle'), t('editProfile.alerts.successMessage'), [
+        {text: t('editProfile.alerts.ok'), onPress: () => navigation.goBack()},
       ]);
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
-      Alert.alert('Erro', 'Não foi possível atualizar o perfil');
+      Alert.alert(t('editProfile.alerts.errorTitle'), t('editProfile.alerts.errorMessage'));
     } finally {
       setLoading(false);
     }
@@ -94,12 +95,12 @@ const EditProfileScreen = ({navigation}) => {
   const handleCancel = () => {
     if (hasChanges) {
       Alert.alert(
-        'Descartar alterações?',
-        'Você tem alterações não salvas. Deseja descartá-las?',
+        t('editProfile.alerts.discardTitle'),
+        t('editProfile.alerts.discardMessage'),
         [
-          {text: 'Continuar editando', style: 'cancel'},
+          {text: t('editProfile.alerts.keepEditing'), style: 'cancel'},
           {
-            text: 'Descartar',
+            text: t('editProfile.alerts.discard'),
             style: 'destructive',
             onPress: () => navigation.goBack(),
           },
@@ -130,26 +131,26 @@ const EditProfileScreen = ({navigation}) => {
           <TouchableOpacity
             style={styles.changePhotoButton}
             onPress={() =>
-              Alert.alert('Info', 'Funcionalidade em desenvolvimento')
+              Alert.alert(t('editProfile.alerts.infoTitle'), t('editProfile.alerts.infoMessage'))
             }>
-            <Text style={styles.changePhotoText}>Alterar foto</Text>
+            <Text style={styles.changePhotoText}>{t('editProfile.avatar.changePhoto')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Form */}
         <View style={styles.form}>
           <Input
-            label="Nome Completo"
+            label={t('editProfile.form.fullName')}
             value={name}
             onChangeText={setName}
             error={nameError}
           />
 
-          <Input label="Email" value={email} editable={false} />
+          <Input label={t('editProfile.form.email')} value={email} editable={false} />
 
           <View style={styles.infoBox}>
             <Text style={styles.infoText}>
-              O email não pode ser alterado.
+              {t('editProfile.form.emailInfo')}
             </Text>
           </View>
         </View>
@@ -157,12 +158,12 @@ const EditProfileScreen = ({navigation}) => {
         {/* Actions */}
         <View style={styles.actions}>
           <Button
-            title="Salvar Alterações"
+            title={t('editProfile.actions.save')}
             onPress={handleSave}
             loading={loading}
             disabled={!hasChanges}
           />
-          <Button title="Cancelar" variant="outline" onPress={handleCancel} />
+          <Button title={t('editProfile.actions.cancel')} variant="outline" onPress={handleCancel} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

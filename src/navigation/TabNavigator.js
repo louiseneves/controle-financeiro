@@ -8,6 +8,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
+import { Text } from 'react-native';
 
 import HomeScreen from '../screens/home/HomeScreen';
 import TransactionsNavigator from './TransactionsNavigator';
@@ -19,6 +21,7 @@ const Tab = createBottomTabNavigator();
 const TabNavigator = () => {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  
 
   return (
     <Tab.Navigator
@@ -59,7 +62,7 @@ const TabNavigator = () => {
         name="HomeTab"
         component={HomeScreen}
         options={{
-          title: 'Início',
+          title: t('tabNavigator.home'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="home" size={size} color={color} />
@@ -71,21 +74,12 @@ const TabNavigator = () => {
   name="TransactionsTab"
   component={TransactionsNavigator}
   options={{
-    title: 'Transações',
+    title: t('tabNavigator.transactions'),
     headerShown: false,
     tabBarIcon: ({ color, size }) => (
-      <FontAwesome name="exchange" size={size} color={color} />
+     <FontAwesome name="exchange" size={size} color={color} />
     ),
   }}
-  listeners={({ navigation }) => ({
-    tabPress: e => {
-      e.preventDefault();
-
-      navigation.navigate('TransactionsTab', {
-        screen: 'TransactionsList',
-      });
-    },
-  })}
 />
 
 
@@ -93,7 +87,7 @@ const TabNavigator = () => {
         name="ReportsTab"
         component={ReportsNavigator}
         options={{
-          title: 'Relatórios',
+          title: t('tabNavigator.reports'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="bar-chart" size={size} color={color} />
@@ -105,7 +99,7 @@ const TabNavigator = () => {
         name="ProfileTab"
         component={SettingsNavigator}
         options={{
-          title: 'Perfil',
+          title: t('tabNavigator.profile'),
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <FontAwesome name="user" size={size} color={color} />

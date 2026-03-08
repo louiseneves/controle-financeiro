@@ -20,6 +20,7 @@ import useTransactionStore from '../../store/transactionStore';
 import useAuthStore from '../../store/authStore';
 import { LineChart } from 'react-native-gifted-charts';
 import useSettingsStore from '../../store/settingsStore';
+import {t} from '../../i18n';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -44,22 +45,22 @@ const AdvancedReportsScreen = ({navigation}) => {
       <View style={styles.container}>
         <View style={styles.lockedContainer}>
           <Text style={styles.lockedIcon}>🔒</Text>
-          <Text style={styles.lockedTitle}>Recurso Premium</Text>
+          <Text style={styles.lockedTitle}>{t('advancedReports.premium.title')}</Text>
           <Text style={styles.lockedText}>
-            Os relatórios avançados estão disponíveis apenas para assinantes Premium.
+            {t('advancedReports.premium.description')}
           </Text>
           
           <View style={styles.premiumFeatures}>
-            <Text style={styles.premiumFeaturesTitle}>Com Premium você terá:</Text>
-            <Text style={styles.premiumFeature}>📊 Relatórios anuais completos</Text>
-            <Text style={styles.premiumFeature}>🔄 Comparativo entre períodos</Text>
-            <Text style={styles.premiumFeature}>📈 Projeções futuras</Text>
-            <Text style={styles.premiumFeature}>📄 Exportação em PDF</Text>
-            <Text style={styles.premiumFeature}>📑 Exportação em Excel</Text>
+            <Text style={styles.premiumFeaturesTitle}>{t('advancedReports.premium.benefitsTitle')}</Text>
+            <Text style={styles.premiumFeature}>📊 {t('advancedReports.premium.benefits.yearly')}</Text>
+            <Text style={styles.premiumFeature}>🔄 {t('advancedReports.premium.benefits.comparison')}</Text>
+            <Text style={styles.premiumFeature}>📈 {t('advancedReports.premium.benefits.projection')}</Text>
+            <Text style={styles.premiumFeature}>📄 {t('advancedReports.premium.benefits.pdf')}</Text>
+            <Text style={styles.premiumFeature}>📑 {t('advancedReports.premium.benefits.excel')}</Text>
           </View>
 
           <Button
-            title="Assinar Premium"
+            title={t('advancedReports.premium.subscribe')}
             onPress={() => navigation.navigate('ProfileTab', {screen: 'Premium'})}
             style={styles.upgradeButton}
           />
@@ -82,11 +83,11 @@ const AdvancedReportsScreen = ({navigation}) => {
 
       const income = monthTransactions
         .filter(t => t.type === 'receita')
-        .reduce((sum, t) => sum + t.amount, 0);
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
       const expense = monthTransactions
         .filter(t => t.type === 'despesa')
-        .reduce((sum, t) => sum + t.amount, 0);
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
       monthlyData.push({
         month: month + 1,
@@ -124,17 +125,17 @@ const AdvancedReportsScreen = ({navigation}) => {
   const totalYearBalance = totalYearIncome - totalYearExpense;
 
   const handleExportPDF = () => {
-    Alert.alert('Exportar PDF', 'Funcionalidade de exportação em PDF (em desenvolvimento)');
+    Alert.alert(t('advancedReports.export.alerts.pdfTitle'), t('advancedReports.export.alerts.pdfMessage'));
   };
 
   const handleExportExcel = () => {
-    Alert.alert('Exportar Excel', 'Funcionalidade de exportação em Excel (em desenvolvimento)');
+    Alert.alert(t('advancedReports.export.alerts.excelTitle'), t('advancedReports.export.alerts.excelMessage'));
   };
 
   const views = [
-    {id: 'yearly', label: 'Anual'},
-    {id: 'comparison', label: 'Comparativo'},
-    {id: 'projection', label: 'Projeção'},
+    {id: 'yearly', label: t('advancedReports.views.yearly')},
+    {id: 'comparison', label: t('advancedReports.views.comparison')},
+    {id: 'projection', label: t('advancedReports.views.projection')},
   ];
 
   const incomeLineData = yearlyData.map(item => ({
@@ -150,7 +151,7 @@ const expenseLineData = yearlyData.map(item => ({
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header Premium */}
       <View style={styles.premiumBadge}>
-        <Text style={styles.premiumText}>⭐ PREMIUM</Text>
+        <Text style={styles.premiumText}> {t('advancedReports.badge')}</Text>
       </View>
 
       {/* Seletor de visualização */}
@@ -179,18 +180,18 @@ const expenseLineData = yearlyData.map(item => ({
         <>
           {/* Resumo Anual */}
           <View style={styles.summaryCard}>
-            <Text style={styles.cardTitle}>Resumo do Ano</Text>
+            <Text style={styles.cardTitle}>{t('advancedReports.yearly.summary')}</Text>
             
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Receitas</Text>
+                <Text style={styles.summaryLabel}>{t('advancedReports.yearly.income')}</Text>
                 <Text style={[styles.summaryValue, {color: colors.success}]}>
                   {formatCurrency(totalYearIncome)}
                 </Text>
               </View>
 
               <View style={styles.summaryItem}>
-                <Text style={styles.summaryLabel}>Despesas</Text>
+                <Text style={styles.summaryLabel}>{t('advancedReports.yearly.expense')}</Text>
                 <Text style={[styles.summaryValue, {color: colors.error}]}>
                   {formatCurrency(totalYearExpense)}
                 </Text>
@@ -198,7 +199,7 @@ const expenseLineData = yearlyData.map(item => ({
             </View>
 
             <View style={styles.balanceRow}>
-              <Text style={styles.balanceLabel}>Saldo Anual</Text>
+              <Text style={styles.balanceLabel}>{t('advancedReports.yearly.balance')}</Text>
               <Text
                 style={[
                   styles.balanceValue,
@@ -211,7 +212,7 @@ const expenseLineData = yearlyData.map(item => ({
 
           {/* Gráfico de Linha */}
 <View style={styles.chartCard}>
-  <Text style={styles.cardTitle}>Evolução Mensal</Text>
+  <Text style={styles.cardTitle}>{t('advancedReports.yearly.evolution')}</Text>
 
   <LineChart
     data={incomeLineData}
@@ -247,12 +248,12 @@ const expenseLineData = yearlyData.map(item => ({
   <View style={styles.legend}>
     <View style={styles.legendItem}>
       <View style={[styles.legendDot, {backgroundColor: colors.success}]} />
-      <Text style={styles.legendLabel}>Receitas</Text>
+      <Text style={styles.legendLabel}>{t('advancedReports.yearly.income')}</Text>
     </View>
 
     <View style={styles.legendItem}>
       <View style={[styles.legendDot, {backgroundColor: colors.error}]} />
-      <Text style={styles.legendLabel}>Despesas</Text>
+      <Text style={styles.legendLabel}>{t('advancedReports.yearly.expense')}</Text>
     </View>
   </View>
 </View>
@@ -262,7 +263,7 @@ const expenseLineData = yearlyData.map(item => ({
 
       {selectedView === 'comparison' && (
         <View style={styles.comparisonCard}>
-          <Text style={styles.cardTitle}>Comparativo Mensal</Text>
+          <Text style={styles.cardTitle}>{t('advancedReports.comparison.title')}</Text>
           
           {yearlyData.map((month, index) => (
             <View key={index} style={styles.comparisonRow}>
@@ -306,24 +307,24 @@ const expenseLineData = yearlyData.map(item => ({
       {selectedView === 'projection' && (
         <>
           <View style={styles.projectionCard}>
-            <Text style={styles.cardTitle}>Projeção Próximo Mês</Text>
+            <Text style={styles.cardTitle}>{t('advancedReports.projection.title')}</Text>
             
             <View style={styles.projectionItem}>
-              <Text style={styles.projectionLabel}>Receitas Previstas</Text>
+              <Text style={styles.projectionLabel}>{t('advancedReports.projection.income')}</Text>
               <Text style={[styles.projectionValue, {color: colors.success}]}>
                 {formatCurrency(projection.nextMonthIncome)}
               </Text>
             </View>
 
             <View style={styles.projectionItem}>
-              <Text style={styles.projectionLabel}>Despesas Previstas</Text>
+              <Text style={styles.projectionLabel}>{t('advancedReports.projection.expense')}</Text>
               <Text style={[styles.projectionValue, {color: colors.error}]}>
                 {formatCurrency(projection.nextMonthExpense)}
               </Text>
             </View>
 
             <View style={styles.projectionHighlight}>
-              <Text style={styles.projectionHighlightLabel}>Saldo Previsto</Text>
+              <Text style={styles.projectionHighlightLabel}>{t('advancedReports.projection.balance')}</Text>
               <Text
                 style={[
                   styles.projectionHighlightValue,
@@ -337,8 +338,7 @@ const expenseLineData = yearlyData.map(item => ({
           <View style={styles.infoBox}>
             <Text style={styles.infoIcon}>💡</Text>
             <Text style={styles.infoText}>
-              Projeção baseada na média dos últimos 3 meses. Mantenha seus registros
-              atualizados para previsões mais precisas.
+              {t('advancedReports.projection.info')}
             </Text>
           </View>
         </>
@@ -346,17 +346,17 @@ const expenseLineData = yearlyData.map(item => ({
 
       {/* Botões de Exportação */}
       <View style={styles.exportSection}>
-        <Text style={styles.sectionTitle}>Exportar Relatório</Text>
+        <Text style={styles.sectionTitle}>{t('advancedReports.export.title')}</Text>
         
         <View style={styles.exportButtons}>
           <TouchableOpacity style={styles.exportButton} onPress={handleExportPDF}>
             <Text style={styles.exportIcon}>📄</Text>
-            <Text style={styles.exportText}>PDF</Text>
+            <Text style={styles.exportText}>{t('advancedReports.export.pdf')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.exportButton} onPress={handleExportExcel}>
             <Text style={styles.exportIcon}>📑</Text>
-            <Text style={styles.exportText}>Excel</Text>
+            <Text style={styles.exportText}>{t('advancedReports.export.excel')}</Text>
           </TouchableOpacity>
         </View>
       </View>

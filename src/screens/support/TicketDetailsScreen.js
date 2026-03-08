@@ -12,12 +12,13 @@ import {
   Platform,
 } from 'react-native';
 import useSupportStore from '../../store/supportStore';
+import {t} from '../../i18n';
 
 const TicketDetailsScreen = ({ route, navigation }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { ticketId } = route.params;
-  const { tickets, addMessage, rateTicket, closeTicket } = useSupportStore();
+  const { ticketId } = route.params || {};
+  const { tickets, addMessage, rateTicket, closeTicket, subscribeToTicket } = useSupportStore();
   
   const [message, setMessage] = useState('');
   const [showRating, setShowRating] = useState(false);
@@ -27,9 +28,31 @@ const TicketDetailsScreen = ({ route, navigation }) => {
 
   const ticket = tickets.find(t => t.id === ticketId);
 
+  // quando o administrador responder, atualiza automaticamente via listener
+  useEffect(() => {
+    if (!ticketId) return;
+    const unsub = subscribeToTicket(ticketId, updated => {
+      useSupportStore.setState(state => ({
+        tickets: state.tickets.map(t =>
+          t.id === ticketId ? { ...t, ...updated } : t
+        ),
+      }));
+    });
+    return () => unsub && unsub();
+  }, [ticketId, subscribeToTicket]);
+
+  // ✅ Proteção contra ticket não encontrado
+  if (!ticket) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{t('ticketDetails.notFound')}</Text>
+      </View>
+    );
+  }
+
   useEffect(() => {
     if (!ticket) {
-      Alert.alert('Erro', 'Ticket não encontrado', [
+      Alert.alert(t('ticketDetailsScreen.errors.notFoundTitle'), t('ticketDetailsScreen.errors.notFoundMessage'), [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     }
@@ -48,18 +71,18 @@ const TicketDetailsScreen = ({ route, navigation }) => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
     } else {
-      Alert.alert('Erro', 'Não foi possível enviar a mensagem');
+      Alert.alert(t('ticketDetailsScreen.errors.notFoundTitle'), t('ticketDetailsScreen.errors.sendMessage'));
     }
   };
 
   const handleCloseTicket = () => {
     Alert.alert(
-      'Fechar Ticket',
-      'Deseja realmente fechar este ticket? Você poderá abrir um novo se precisar.',
+      t('ticketDetailsScreen.closeTicket.title'),
+      t('ticketDetailsScreen.closeTicket.message'),
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: t('ticketDetailsScreen.closeTicket.cancel'), style: 'cancel' },
         {
-          text: 'Fechar',
+          text: t('ticketDetailsScreen.closeTicket.confirm'),
           style: 'destructive',
           onPress: async () => {
             const result = await closeTicket(ticketId);
@@ -74,7 +97,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
 
   const handleSubmitRating = async () => {
     if (rating === 0) {
-      Alert.alert('Atenção', 'Por favor, selecione uma avaliação');
+      Alert.alert(t('ticketDetailsScreen.rating.alertTitle'), t('ticketDetailsScreen.rating.alertMessage'));
       return;
     }
 
@@ -82,24 +105,24 @@ const TicketDetailsScreen = ({ route, navigation }) => {
     
     if (result.success) {
       Alert.alert(
-        'Obrigado! ⭐',
-        'Sua avaliação foi registrada com sucesso.',
+         t('ticketDetailsScreen.rating.successTitle'),
+        t('ticketDetailsScreen.rating.successMessage'),
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     }
   };
 
-  const getStatusInfo = (status) => {
+  
     const statusMap = {
-      open: { label: 'Aberto', color: colors.success, icon: '🟢' },
-      in_progress: { label: 'Em Andamento', color: colors.warning, icon: '🟡' },
-      resolved: { label: 'Resolvido', color: colors.primary, icon: '🔵' },
-      closed: { label: 'Fechado', color: '#9E9E9E', icon: '⚪' },
+      open: { label: t('ticketDetailsScreen.status.open'), color: colors.success, icon: '🟢' },
+      in_progress: { label: t('ticketDetailsScreen.status.inProgress'), color: colors.warning, icon: '🟡' },
+      resolved: { label: t('ticketDetailsScreen.status.resolved'), color: colors.primary, icon: '🔵' },
+      closed: { label: t('ticketDetailsScreen.status.closed'), color: '#9E9E9E', icon: '⚪' },
     };
-    return statusMap[status] || statusMap.open;
-  };
 
-  const statusInfo = getStatusInfo(ticket.status);
+ 
+
+  const statusInfo = statusMap[ticket.status] || statusMap.open;
   const canSendMessage = ticket.status !== 'closed';
 
   return (
@@ -130,7 +153,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             style={styles.closeButton}
             onPress={handleCloseTicket}
           >
-            <Text style={styles.closeButtonText}>Fechar Ticket</Text>
+            <Text style={styles.closeButtonText}>{t('ticketDetailsScreen.closeTicket.title')}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -168,14 +191,14 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             onPress={() => setShowRating(true)}
           >
             <Text style={styles.ratingPromptText}>
-              ⭐ Avalie nosso atendimento
+              {t('ticketDetailsScreen.rating.prompt')}
             </Text>
           </TouchableOpacity>
         )}
 
         {showRating && (
           <View style={styles.ratingContainer}>
-            <Text style={styles.ratingTitle}>Como foi nosso atendimento?</Text>
+            <Text style={styles.ratingTitle}>{t('ticketDetailsScreen.rating.title')}</Text>
             
             <View style={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map(star => (
@@ -192,7 +215,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
 
             <TextInput
               style={styles.feedbackInput}
-              placeholder="Comentário (opcional)"
+              placeholder={t('ticketDetailsScreen.rating.placeholder')}
               value={ratingFeedback}
               onChangeText={setRatingFeedback}
               multiline
@@ -204,7 +227,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
               style={styles.submitRatingButton}
               onPress={handleSubmitRating}
             >
-              <Text style={styles.submitRatingText}>Enviar Avaliação</Text>
+              <Text style={styles.submitRatingText}>{t('ticketDetailsScreen.rating.submit')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -212,7 +235,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
         {ticket.rating && (
           <View style={styles.ratedContainer}>
             <Text style={styles.ratedText}>
-              Você avaliou: {Array(ticket.rating).fill('⭐').join('')}
+              {t('ticketDetailsScreen.rating.rated')} {Array(ticket.rating).fill('⭐').join('')}
             </Text>
             {ticket.ratingFeedback && (
               <Text style={styles.ratedFeedback}>"{ticket.ratingFeedback}"</Text>
@@ -226,7 +249,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.messageInput}
-            placeholder="Digite sua mensagem..."
+            placeholder={t('ticketDetailsScreen.input.messagePlaceholder')}
             value={message}
             onChangeText={setMessage}
             multiline
@@ -238,7 +261,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             onPress={handleSendMessage}
             disabled={!message.trim()}
           >
-            <Text style={styles.sendButtonText}>Enviar</Text>
+            <Text style={styles.sendButtonText}>{t('ticketDetailsScreen.actions.send')}</Text>
           </TouchableOpacity>
         </View>
       )}

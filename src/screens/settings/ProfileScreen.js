@@ -18,6 +18,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {Button} from '../../components/ui';
 import {COLORS, getInitials} from '../../utils';
 import useAuthStore from '../../store/authStore';
+import {t} from '../../i18n';
 
 const ProfileScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -30,12 +31,12 @@ const ProfileScreen = ({navigation}) => {
 
   const handleLogout = () => {
     Alert.alert(
-      'Sair da Conta',
-      'Tem certeza que deseja sair?',
+      t('profile.alerts.logoutTitle'),
+      t('profile.alerts.logoutMessage'),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('profile.alerts.cancel'), style: 'cancel'},
         {
-          text: 'Sair',
+          text: t('profile.alerts.confirm'),
           style: 'destructive',
           onPress: async () => {
             const result = await logout();
@@ -52,13 +53,13 @@ const ProfileScreen = ({navigation}) => {
   const menuOptions = [
     {
       id: 'edit',
-      title: 'Editar Perfil',
+      title: t('profile.menu.editProfile'),
       icon: <Entypo name="edit" size={24} color="black" />,
       onPress: handleEditProfile,
     },
     {
       id: 'goals',
-      title: 'Metas Financeiras',
+      title: t('profile.menu.goals'),
       icon: <MaterialCommunityIcons name="bullseye-arrow" size={24} color="black" />,
       onPress: () => navigation.navigate('Planning', {
         screen: 'Goals',
@@ -66,7 +67,7 @@ const ProfileScreen = ({navigation}) => {
     },
     {
       id: 'budget',
-      title: 'Orçamento Mensal',
+      title: t('profile.menu.budget'),
       icon: <MaterialIcons name="pie-chart" size={24} color="black" />,
       onPress: () => navigation.navigate('Planning', {
   screen: 'Budget',
@@ -74,26 +75,26 @@ const ProfileScreen = ({navigation}) => {
     },
     {
       id: 'settings',
-      title: 'Configurações',
+      title: t('profile.menu.settings'),
       icon: <MaterialIcons name="settings" size={24} color="black" />,
       onPress: () => navigation.navigate('Settings'),
     },
     {
       id: 'backup',
-      title: 'Backup de Dados',
+      title: t('profile.menu.backup'),
       icon: <MaterialIcons name="backup" size={24} color="black" />,
       onPress: () => navigation.navigate('Backup'),
     },
     {
       id: 'premium',
-      title: 'Upgrade Premium',
+      title: t('profile.menu.premium'),
       icon: <MaterialIcons name="star" size={24} color="#FFD700" />,
       onPress: () => navigation.navigate('Premium'),
       highlight: true,
     },
     {
       id: 'support',
-      title: 'Suporte',
+      title: t('profile.menu.support'),
       icon: <MaterialIcons name="headset-mic" size={24} color="black" />,
       onPress: () => navigation.navigate('Support'),
     },
@@ -105,7 +106,7 @@ const ProfileScreen = ({navigation}) => {
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
           {user?.photoURL ? (
-            <Text>Foto do usuário</Text>
+            <Text>{t('profile.userPhoto')}</Text>
           ) : (
             <View style={styles.avatarPlaceholder}>
               <Text style={styles.avatarText}>
@@ -121,34 +122,34 @@ const ProfileScreen = ({navigation}) => {
         </View>
 
         <Text style={styles.userName}>
-          {user?.displayName || 'Usuário'}
+          {user?.displayName || t('profile.header.defaultUser')}
         </Text>
         <Text style={styles.userEmail}>{user?.email}</Text>
       </View>
 
       {/* Informações do usuário */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Informações da Conta</Text>
+        <Text style={styles.sectionTitle}>{t('profile.accountInfo.title')}</Text>
         
         <View style={styles.infoCard}>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Nome</Text>
+            <Text style={styles.infoLabel}>{t('profile.accountInfo.name')}</Text>
             <Text style={styles.infoValue}>
-              {user?.displayName || 'Não informado'}
+              {user?.displayName || t('profile.accountInfo.notInformed')}
             </Text>
           </View>
           
           <View style={styles.infoDivider} />
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Email</Text>
+            <Text style={styles.infoLabel}>{t('profile.accountInfo.email')}</Text>
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
           
           <View style={styles.infoDivider} />
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>ID do Usuário</Text>
+            <Text style={styles.infoLabel}>{t('profile.accountInfo.userId')}</Text>
             <Text style={styles.infoValue} numberOfLines={1}>
               {user?.uid}
             </Text>
@@ -158,7 +159,7 @@ const ProfileScreen = ({navigation}) => {
 
       {/* Menu de opções */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Menu</Text>
+        <Text style={styles.sectionTitle}>{t('profile.menu.title')}</Text>
         
         {menuOptions.map((option, index) => (
           <TouchableOpacity
@@ -184,14 +185,14 @@ const ProfileScreen = ({navigation}) => {
 
       {/* Botão Sair */}
       <Button
-        title="Sair da Conta"
+        title={t('profile.actions.logout')}
         onPress={handleLogout}
         variant="error"
         style={styles.logoutButton}
       />
 
       {/* Versão do app */}
-      <Text style={styles.versionText}>Versão 1.0.0</Text>
+      <Text style={styles.versionText}>{t('profile.version', { version: '1.0.0' })}</Text>
     </ScrollView>
   );
 };

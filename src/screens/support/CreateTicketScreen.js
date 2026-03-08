@@ -11,53 +11,73 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import useSupportStore from '../../store/supportStore';
+import {t} from '../../i18n';
+import usePremiumStore from '../../store/premiumStore';
 
 const CreateTicketScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { createTicket, loading } = useSupportStore();
+  const { isPremium } = usePremiumStore();
   
   const [formData, setFormData] = useState({
     subject: '',
-    category: 'Geral',
+    category: 'general',
     priority: 'medium',
     description: '',
   });
 
   const categories = [
-    'Geral',
-    'Conta',
-    'Transações',
-    'Backup',
-    'Premium',
-    'Metas',
-    'Orçamento',
-    'Dízimo',
-    'Relatórios',
-    'Outro',
-  ];
+    t('supportCreateTicket.categories.general'),
+    t('supportCreateTicket.categories.account'),
+    t('supportCreateTicket.categories.transactions'),
+    t('supportCreateTicket.categories.backup'),
+    t('supportCreateTicket.categories.premium'),
+    t('supportCreateTicket.categories.goals'),
+    t('supportCreateTicket.categories.budget'),
+    t('supportCreateTicket.categories.tithe'),
+    t('supportCreateTicket.categories.reports'),
+    t('supportCreateTicket.categories.other'),
+];
+
 
   const priorities = [
-    { value: 'low', label: 'Baixa', color: colors.success },
-    { value: 'medium', label: 'Média', color: colors.warning },
-    { value: 'high', label: 'Alta', color: colors.error },
+    { value: 'low', label: t('supportCreateTicket.priorities.low'), color: colors.success },
+    { value: 'medium', label: t('supportCreateTicket.priorities.medium'), color: colors.warning },
+    { value: 'high', label: t('supportCreateTicket.priorities.high'), color: colors.error },
   ];
 
   const handleSubmit = async () => {
     // Validações
     if (!formData.subject.trim()) {
-      Alert.alert('Erro', 'Por favor, informe o assunto');
+      Alert.alert(t('supportCreateTicket.alerts.error'), t('supportCreateTicket.alerts.subjectRequired'));
       return;
     }
 
     if (!formData.description.trim()) {
-      Alert.alert('Erro', 'Por favor, descreva seu problema ou dúvida');
+      Alert.alert(t('supportCreateTicket.alerts.error'), t('supportCreateTicket.alerts.descriptionRequired'));
       return;
     }
 
     if (formData.description.length < 20) {
-      Alert.alert('Erro', 'A descrição deve ter pelo menos 20 caracteres');
+      Alert.alert(t('supportCreateTicket.alerts.error'), t('supportCreateTicket.alerts.descriptionMin'));
       return;
+    }
+
+    // limite de tickets para não-premium
+    if (!isPremium) {
+      const store = useSupportStore.getState();
+      if (store.tickets.filter(t => t.status !== 'closed').length >= 3) {
+        Alert.alert(
+          t('premium.limitTitle'),
+          t('premium.supportLimit'),
+          [
+            { text: t('common.ok') },
+            { text: t('premium.upgrade'), onPress: () => navigation.navigate('UpgradePremium') },
+          ]
+        );
+        return;
+      }
     }
 
     // Criar ticket
@@ -65,23 +85,23 @@ const CreateTicketScreen = ({ navigation }) => {
 
     if (result.success) {
       Alert.alert(
-        'Ticket Criado! ✅',
-        'Recebemos sua solicitação. Nossa equipe responderá em breve.',
+        t('supportCreateTicket.alerts.successTitle'),
+        t('supportCreateTicket.alerts.successMessage'),
         [
           {
-            text: 'Ver Ticket',
+            text: t('supportCreateTicket.actions.viewTicket'),
             onPress: () => {
               navigation.replace('TicketDetails', { ticketId: result.ticket.id });
             },
           },
           {
-            text: 'OK',
+            text: t('supportCreateTicket.actions.ok'),
             onPress: () => navigation.goBack(),
           },
         ]
       );
     } else {
-      Alert.alert('Erro', 'Não foi possível criar o ticket. Tente novamente.');
+      Alert.alert(t('supportCreateTicket.alerts.error'), t('supportCreateTicket.alerts.createError'));
     }
   };
 
@@ -89,19 +109,19 @@ const CreateTicketScreen = ({ navigation }) => {
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Enviar Ticket</Text>
+        <Text style={styles.headerTitle}>{t('supportCreateTicket.header.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          Descreva seu problema ou dúvida
+          {t('supportCreateTicket.header.subtitle')}
         </Text>
       </View>
 
       <View style={styles.form}>
         {/* Assunto */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Assunto *</Text>
+          <Text style={styles.label}>{t('supportCreateTicket.form.subject')}</Text>
           <TextInput
             style={styles.input}
-            placeholder="Ex: Problema ao adicionar receita"
+            placeholder={t('supportCreateTicket.form.subjectPlaceholder')}
             value={formData.subject}
             onChangeText={(text) => setFormData({ ...formData, subject: text })}
             placeholderTextColor={colors.placeholder}
@@ -110,7 +130,7 @@ const CreateTicketScreen = ({ navigation }) => {
 
         {/* Categoria */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Categoria *</Text>
+          <Text style={styles.label}>{t('supportCreateTicket.form.category')}</Text>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -138,7 +158,7 @@ const CreateTicketScreen = ({ navigation }) => {
 
         {/* Prioridade */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Prioridade</Text>
+          <Text style={styles.label}>{t('supportCreateTicket.form.priority')}</Text>
           <View style={styles.priorityContainer}>
             {priorities.map(priority => (
               <TouchableOpacity
@@ -165,10 +185,10 @@ const CreateTicketScreen = ({ navigation }) => {
 
         {/* Descrição */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Descrição *</Text>
+          <Text style={styles.label}>{t('supportCreateTicket.form.description')}</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
-            placeholder="Descreva detalhadamente seu problema ou dúvida..."
+            placeholder={t('supportCreateTicket.form.descriptionPlaceholder')}
             value={formData.description}
             onChangeText={(text) => setFormData({ ...formData, description: text })}
             multiline
@@ -177,18 +197,15 @@ const CreateTicketScreen = ({ navigation }) => {
             placeholderTextColor={colors.placeholder}
           />
           <Text style={styles.charCount}>
-            {formData.description.length} caracteres (mínimo 20)
+            {t('supportCreateTicket.form.charCount', { count: formData.description.length })}
           </Text>
         </View>
 
         {/* Dicas */}
         <View style={styles.tipsContainer}>
-          <Text style={styles.tipsTitle}>💡 Dicas para um bom ticket:</Text>
+          <Text style={styles.tipsTitle}>{t('supportCreateTicket.tips.title')}</Text>
           <Text style={styles.tipsText}>
-            • Seja específico sobre o problema{'\n'}
-            • Informe quando o erro ocorreu{'\n'}
-            • Descreva os passos para reproduzir{'\n'}
-            • Inclua mensagens de erro, se houver
+            {t('supportCreateTicket.tips.items')}
           </Text>
         </View>
 
@@ -201,7 +218,7 @@ const CreateTicketScreen = ({ navigation }) => {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.submitButtonText}>Enviar Ticket</Text>
+            <Text style={styles.submitButtonText}>{t('supportCreateTicket.actions.submit')}</Text>
           )}
         </TouchableOpacity>
       </View>

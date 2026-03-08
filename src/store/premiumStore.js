@@ -119,6 +119,10 @@ const usePremiumStore = create((set, get) => ({
       'projections',
       'comparison',
       'unlimited_goals',
+      'support_tickets',
+      'multiple_budgets',
+      'extra_backups',
+      'planning_items',
     ];
 
     if (premiumFeatures.includes(feature)) {

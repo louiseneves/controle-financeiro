@@ -49,7 +49,7 @@ const relativeTimeTexts = {
   },
 };
 
-const getCurrentLocale = () => {
+export const getCurrentLocale = () => {
   const settings = useSettingsStore.getState();
   return settings.language || 'pt-BR';
 };
@@ -386,7 +386,9 @@ export const parseISODateOnly = (dateString) => {
 
   if (!year || !month || !day) return null;
 
-  return new Date(year, month - 1, day);
+  // Criar data sem timezone (local time at midnight)
+  const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+  return date;
 };
 
 export const isoToBR = (isoDate) => {
@@ -408,7 +410,7 @@ export const brToISO = (brDate) => {
 };
 
 export const getCurrencyPlaceholder = () => {
-  const { locale } = getCurrentLocale();
+  const locale = getCurrentLocale();
   const settings = useSettingsStore.getState();
   const currency = settings.currency || 'BRL';
 
@@ -418,19 +420,18 @@ export const getCurrencyPlaceholder = () => {
     minimumFractionDigits: 2,
   });
 
-  // Formata zero → "R$ 0,00" | "$0.00" | "€0,00"
   const formatted = formatter.format(0);
 
-  // Remove símbolo da moeda e espaços
   return formatted
     .replace(/[^\d.,]/g, '')
     .trim();
 };
 
 export const getCurrencySymbol = () => {
+  const locale = getCurrentLocale();
   const settings = useSettingsStore.getState();
   const currency = settings.currency || 'BRL';
-  const {locale} = getCurrentLocale();
+
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
@@ -442,6 +443,31 @@ export const getCurrencySymbol = () => {
     return '';
   }
 };
+
+export const parseCurrencyInput = (value) => {
+  if (!value) return 0;
+
+  const settings = useSettingsStore.getState();
+  const currency = settings.currency || 'BRL';
+
+  // Remove tudo que não for número, ponto ou vírgula
+  let sanitized = value.replace(/[^\d.,]/g, '');
+
+  const commaDecimalCurrencies = ['BRL', 'EUR', 'ARS', 'CLP', 'PYG', 'UYU'];
+ 
+  if (commaDecimalCurrencies.includes(currency)) {
+    // 1.234,56 → 1234.56
+    sanitized = sanitized.replace(/\./g, '').replace(',', '.');
+  } else {
+    // 1,234.56 → 1234.56
+    sanitized = sanitized.replace(/,/g, '');
+  }
+
+  const number = Number(sanitized);
+  return isNaN(number) ? 0 : number;
+};
+
+
 
 
 export default {
@@ -466,4 +492,6 @@ export default {
   isoToBR,
   getCurrencyPlaceholder,
   getCurrencySymbol,
+  parseCurrencyInput,
+  getCurrentLocale,
 };

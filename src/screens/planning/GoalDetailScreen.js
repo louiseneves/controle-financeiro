@@ -21,15 +21,25 @@ const GoalDetailScreen = ({navigation, route}) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const formatCurrency = useSettingsStore(state => state.formatCurrency);
-  const {goal} = route.params;
+  const {goal} = route.params || {};
+  
+  // Proteção contra goal undefined
+  if (!goal) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{t('goalDetail.notFound')}</Text>
+      </View>
+    );
+  }
   const {addToGoal, deleteGoal} = useGoalsStore();
   
   const [addAmount, setAddAmount] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const currentAmount = goal.currentAmount || 0;
-  const progress = Math.min((currentAmount / goal.targetAmount) * 100, 100);
-  const remaining = Math.max(goal.targetAmount - currentAmount, 0);
+  const currentAmount = Number(goal.currentAmount || 0);
+  const targetAmount = Number(goal.targetAmount || 0);
+  const progress = targetAmount > 0 ? Math.min((currentAmount / targetAmount) * 100, 100) : 0;
+  const remaining = Math.max(targetAmount - currentAmount, 0);
 
   const getDaysRemaining = () => {
     const today = new Date();
@@ -377,6 +387,13 @@ const createStyles = (colors) =>
   },
   deleteButton: {
     marginTop: 8,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.error,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
   },
 });
 

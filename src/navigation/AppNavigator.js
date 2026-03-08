@@ -15,7 +15,6 @@ import {COLORS} from '../utils';
 const AppNavigator = () => {
   const {user, loading, initializeAuth} = useAuthStore();
   const {loadPremiumStatus} = usePremiumStore();
-  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     // Inicializar listener de autenticação
@@ -24,18 +23,13 @@ const AppNavigator = () => {
     // Carregar status premium
     loadPremiumStatus();
 
-    // Marcar como pronto após inicialização
-    setTimeout(() => {
-      setIsReady(true);
-    }, 1000);
-
     return () => {
       if (unsubscribe) unsubscribe();
     };
   }, []);
 
-  // Mostrar loading enquanto verifica autenticação
-  if (loading || !isReady) {
+  // ✅ Mostrar loading enquanto verifica autenticação (sem setTimeout desnecessário)
+  if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={COLORS.primary} />

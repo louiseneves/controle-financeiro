@@ -21,6 +21,7 @@ import {
 import useAuthStore from '../../store/authStore';
 import useTransactionStore from '../../store/transactionStore';
 import useSettingsStore from '../../store/settingsStore';
+import { t } from '../../i18n';
 
 const TitheCalculatorScreen = ({navigation}) => {
   const { colors } = useTheme();
@@ -37,21 +38,22 @@ const TitheCalculatorScreen = ({navigation}) => {
   const monthTransactions = getCurrentMonthTransactions();
   const monthIncome = monthTransactions
     .filter(t => t.type === 'receita')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const monthTithe = calculateTithe(monthIncome);
 
   // Calcular dízimo pago
   const paidTithe = monthTransactions
     .filter(t => t.type === 'oferta' && t.category === 'dizimo')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const remaining = Math.max(0, monthTithe - paidTithe);
 
   // Histórico de dízimos
   const titheHistory = monthTransactions
     .filter(t => t.type === 'oferta' && t.category === 'dizimo')
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+    // ✅ Validar datas antes de comparar no sort
+    .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   // Registrar dízimo
   const handleRegisterTithe = async (amount, description) => {
@@ -70,7 +72,7 @@ const TitheCalculatorScreen = ({navigation}) => {
       const result = await addTransaction(transactionData);
 
       if (result.success) {
-        Alert.alert('Sucesso! ✅', 'Dízimo registrado com sucesso!', [
+        Alert.alert(t('tithe.successTitle'), t('tithe.successMessage'), [
           {
             text: 'OK',
             onPress: () => {
@@ -80,11 +82,11 @@ const TitheCalculatorScreen = ({navigation}) => {
           },
         ]);
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao registrar dízimo');
+        Alert.alert(t('tithe.errorTitle'), result.error || t('tithe.errorGeneric'));
       }
     } catch (error) {
-      console.error('Erro ao registrar dízimo:', error);
-      Alert.alert('Erro', 'Não foi possível registrar o dízimo');
+      console.error(t('tithe.errorGeneric'), error);
+      Alert.alert(t('tithe.errorTitle'), t('tithe.errorSave'));
     } finally {
       setLoading(false);
     }
@@ -93,23 +95,23 @@ const TitheCalculatorScreen = ({navigation}) => {
   // Registrar dízimo do mês
   const handleRegisterMonthTithe = () => {
     if (monthTithe === 0) {
-      Alert.alert('Aviso', 'Você não tem receitas registradas neste mês.');
+      Alert.alert(t('tithe.warningNoIncomeTitle'), t('tithe.warningNoIncomeMessage'));
       return;
     }
 
     const amountToRegister = remaining > 0 ? remaining : monthTithe;
 
     Alert.alert(
-      'Registrar Dízimo',
-      `Registrar ${formatCurrency(amountToRegister)} como dízimo de ${formatMonthYear(new Date())}?`,
+      t('tithe.confirmTitle'),
+      t('tithe.confirmMessage', { amount: formatCurrency(amountToRegister), monthYear: formatMonthYear(new Date()) }),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('tithe.cancelButton'), style: 'cancel'},
         {
-          text: 'Registrar',
+          text: t('tithe.confirmButton'),
           onPress: () =>
             handleRegisterTithe(
               amountToRegister,
-              `Dízimo ${formatMonthYear(new Date())}`,
+              t('tithe.confirmDescription', { monthYear: formatMonthYear(new Date()) }),
             ),
         },
       ],
@@ -121,18 +123,18 @@ const TitheCalculatorScreen = ({navigation}) => {
     const amount = parseFloat(customAmount);
 
     if (!amount || amount <= 0) {
-      Alert.alert('Erro', 'Digite um valor válido');
+      Alert.alert(t('tithe.errorTitle'), t('tithe.errorInvalidAmount'));
       return;
     }
 
     Alert.alert(
-      'Registrar Dízimo',
-      `Registrar ${formatCurrency(amount)} como dízimo?`,
+      t('tithe.confirmTitle'),
+      t('tithe.confirmCustomMessage', { amount: formatCurrency(amount) }),
       [
-        {text: 'Cancelar', style: 'cancel'},
+        {text: t('tithe.cancelButton'), style: 'cancel'},
         {
-          text: 'Registrar',
-          onPress: () => handleRegisterTithe(amount, `Dízimo personalizado`),
+          text: t('tithe.confirmButton'),
+          onPress: () => handleRegisterTithe(amount, t('tithe.confirmCustomDescription')),
         },
       ],
     );
@@ -143,9 +145,9 @@ const TitheCalculatorScreen = ({navigation}) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerIcon}>✝️</Text>
-        <Text style={styles.headerTitle}>Calculadora de Dízimo</Text>
+        <Text style={styles.headerTitle}>{t('tithe.header')}</Text>
         <Text style={styles.headerSubtitle}>
-          Malaquias 3:10 - "Trazei todos os dízimos"
+          {t('tithe.verse')}
         </Text>
       </View>
 
@@ -163,7 +165,7 @@ const TitheCalculatorScreen = ({navigation}) => {
               styles.modeButtonText,
               selectedMode === 'month' && styles.modeButtonTextActive,
             ]}>
-            Dízimo do Mês
+            {t('tithe.modeMonth')}
           </Text>
         </TouchableOpacity>
 
@@ -179,7 +181,7 @@ const TitheCalculatorScreen = ({navigation}) => {
               styles.modeButtonText,
               selectedMode === 'custom' && styles.modeButtonTextActive,
             ]}>
-            Valor Personalizado
+            {t('tithe.modeCustom')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -189,10 +191,10 @@ const TitheCalculatorScreen = ({navigation}) => {
         <>
           {/* Card de cálculo */}
           <View style={styles.calculationCard}>
-            <Text style={styles.cardTitle}>Cálculo Automático</Text>
+            <Text style={styles.cardTitle}>{t('tithe.calculationAuto')}</Text>
             
             <View style={styles.calculationRow}>
-              <Text style={styles.calculationLabel}>Receitas do mês:</Text>
+              <Text style={styles.calculationLabel}>{t('tithe.monthIncome')}</Text>
               <Text style={styles.calculationValue}>
                 {formatCurrency(monthIncome)}
               </Text>
@@ -201,7 +203,7 @@ const TitheCalculatorScreen = ({navigation}) => {
             <View style={styles.divider} />
 
             <View style={styles.calculationRow}>
-              <Text style={styles.calculationLabel}>Dízimo (10%):</Text>
+              <Text style={styles.calculationLabel}>{t('tithe.tithePercent')}</Text>
               <Text style={[styles.calculationValue, {color: colors.tithe}]}>
                 {formatCurrency(monthTithe)}
               </Text>
@@ -210,7 +212,7 @@ const TitheCalculatorScreen = ({navigation}) => {
             <View style={styles.divider} />
 
             <View style={styles.calculationRow}>
-              <Text style={styles.calculationLabel}>Devolvido:</Text>
+              <Text style={styles.calculationLabel}>{t('tithe.returned')}</Text>
               <Text style={[styles.calculationValue, {color: colors.success}]}>
                 {formatCurrency(paidTithe)}
               </Text>
@@ -220,7 +222,7 @@ const TitheCalculatorScreen = ({navigation}) => {
 
             <View style={styles.calculationRow}>
               <Text style={[styles.calculationLabel, {fontWeight: 'bold'}]}>
-                Restante:
+                {t('tithe.remaining')}
               </Text>
               <Text
                 style={[
@@ -237,7 +239,7 @@ const TitheCalculatorScreen = ({navigation}) => {
 
             {remaining === 0 && monthTithe > 0 && (
               <View style={styles.paidBadge}>
-                <Text style={styles.paidText}>✓ Dízimo devolvido!</Text>
+                <Text style={styles.paidText}>{t('tithe.returnedBadge')}</Text>
               </View>
             )}
           </View>
@@ -245,7 +247,7 @@ const TitheCalculatorScreen = ({navigation}) => {
           {/* Botão registrar */}
           {remaining > 0 && (
             <Button
-              title={`Registrar ${formatCurrency(remaining)}`}
+              title={t('tithe.registerAmount', { amount: formatCurrency(remaining) })}
               onPress={handleRegisterMonthTithe}
               loading={loading}
               style={styles.registerButton}
@@ -256,8 +258,7 @@ const TitheCalculatorScreen = ({navigation}) => {
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>📝</Text>
               <Text style={styles.emptyText}>
-                Adicione suas receitas do mês para calcular o dízimo
-                automaticamente
+                {t('tithe.emptyState')}
               </Text>
             </View>
           )}
@@ -266,13 +267,13 @@ const TitheCalculatorScreen = ({navigation}) => {
         // Modo: Valor Personalizado
         <>
           <View style={styles.customCard}>
-            <Text style={styles.cardTitle}>Calcular Valor Personalizado</Text>
+            <Text style={styles.cardTitle}>{t('tithe.customCard')}</Text>
             <Text style={styles.cardSubtitle}>
-              Digite o valor da receita para calcular 10%
+              {t('tithe.customCardSubtitle')}
             </Text>
 
             <Input
-              label="Valor da Receita"
+              label={t('tithe.incomeLabel')}
               value={customAmount}
               onChangeText={setCustomAmount}
               placeholder="0,00"
@@ -282,7 +283,7 @@ const TitheCalculatorScreen = ({navigation}) => {
 
             {customAmount && parseFloat(customAmount) > 0 && (
               <View style={styles.resultCard}>
-                <Text style={styles.resultLabel}>Dízimo (10%):</Text>
+                <Text style={styles.resultLabel}>{t('tithe.tithePercent')}</Text>
                 <Text style={styles.resultValue}>
                   {formatCurrency(calculateTithe(parseFloat(customAmount)))}
                 </Text>
@@ -290,7 +291,7 @@ const TitheCalculatorScreen = ({navigation}) => {
             )}
 
             <Button
-              title="Registrar Dízimo"
+              title={t('tithe.registerButton')}
               onPress={handleRegisterCustomTithe}
               loading={loading}
               disabled={!customAmount || parseFloat(customAmount) <= 0}
@@ -303,7 +304,7 @@ const TitheCalculatorScreen = ({navigation}) => {
       {/* Histórico */}
       {titheHistory.length > 0 && (
         <View style={styles.historySection}>
-          <Text style={styles.sectionTitle}>Histórico de Dízimos</Text>
+          <Text style={styles.sectionTitle}>{t('tithe.historyTitle')}</Text>
           {titheHistory.map((tithe, index) => (
             <View key={tithe.id || index} style={styles.historyItem}>
               <View>
@@ -518,7 +519,7 @@ const createStyles = (colors) =>
   historyAmount: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.tithe,
+    color: colors.transaction?.tithe || colors.primary,
   },
 });
 

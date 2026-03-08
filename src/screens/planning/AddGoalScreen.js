@@ -15,7 +15,6 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Button, Input} from '../../components/ui';
-import {parseISODateOnly} from '../../utils';
 import useAuthStore from '../../store/authStore';
 import useGoalsStore from '../../store/goalsStore';
 import { isoToBR } from '../../utils/helpers/formatters';
@@ -64,18 +63,18 @@ const [deadlineISO, setDeadlineISO] = useState('');
     }
 
     if (!deadlineISO) {
-  setDeadlineError(t('addGoal.errors.deadlineInvalid'));
-  isValid = false;
-} else {
-  const deadlineDate = new Date(deadlineISO);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+      setDeadlineError(t('addGoal.errors.deadlineInvalid'));
+      isValid = false;
+    } else {
+      const deadlineDate = new Date(`${deadlineISO}T00:00:00`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-  if (deadlineDate < today) {
-    setDeadlineError(t('addGoal.errors.deadlineFuture'));
-    isValid = false;
-  }
-}
+      if (deadlineDate < today) {
+        setDeadlineError(t('addGoal.errors.deadlineFuture'));
+        isValid = false;
+      }
+    }
 
 
     return isValid;
@@ -169,9 +168,11 @@ const [deadlineISO, setDeadlineISO] = useState('');
   onChangeText={value => {
     setDeadlineBR(value);
 
-    const iso = parseISODateOnly(value);
-    if (iso) {
-      setDeadlineISO(iso.toISOString());
+    // Converter de DD/MM/YYYY para YYYY-MM-DD
+    const [day, month, year] = value.split('/');
+    if (day && month && year) {
+      const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      setDeadlineISO(iso);
     }
   }}
   placeholder={t('addGoal.placeholders.date')}

@@ -21,7 +21,7 @@ export const calculateTithe = amount => {
 export const calculateTotalTithe = incomes => {
   if (!incomes || incomes.length === 0) return 0;
   
-  const totalIncome = incomes.reduce((sum, income) => sum + (income.amount || 0), 0);
+  const totalIncome = incomes.reduce((sum, income) => sum + Number(income.amount || 0), 0);
   return calculateTithe(totalIncome);
 };
 
@@ -55,7 +55,7 @@ export const checkTitheStatus = (offers, expectedTithe) => {
   // Somar apenas ofertas do tipo "dízimo"
   const paidTithe = offers
     .filter(offer => offer.category === 'dizimo' || offer.type === 'dizimo')
-    .reduce((sum, offer) => sum + (offer.amount || 0), 0);
+    .reduce((sum, offer) => sum + Number(offer.amount || 0), 0);
 
   const remaining = expectedTithe - paidTithe;
   const percentage = expectedTithe > 0 ? (paidTithe / expectedTithe) * 100 : 0;
@@ -108,7 +108,7 @@ export const getTitheHistory = offers => {
     offer => offer.category === 'dizimo' || offer.type === 'dizimo',
   );
 
-  const total = tithes.reduce((sum, tithe) => sum + (tithe.amount || 0), 0);
+  const total = tithes.reduce((sum, tithe) => sum + Number(tithe.amount || 0), 0);
   const count = tithes.length;
   const average = count > 0 ? total / count : 0;
 

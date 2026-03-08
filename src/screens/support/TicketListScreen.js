@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import useSupportStore from '../../store/supportStore';
+import { t } from '../../i18n';
 
 const TicketListScreen = ({ route, navigation }) => {
   const { colors } = useTheme();
@@ -19,7 +20,7 @@ const TicketListScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     loadTickets();
-  }, []);
+  }, [loadTickets]);
 
   const filters = [
     { value: 'all', label: 'Todos', icon: '📋' },
@@ -37,10 +38,10 @@ const TicketListScreen = ({ route, navigation }) => {
 
   const getStatusInfo = (status) => {
     const statusMap = {
-      open: { label: 'Aberto', color: colors.success },
-      in_progress: { label: 'Em Andamento', color: colors.warning },
-      resolved: { label: 'Resolvido', color: colors.primary },
-      closed: { label: 'Fechado', color: '#9E9E9E' },
+      open: { label: t('ticketListScreen.status.open'), color: colors.success },
+      in_progress: { label: t('ticketListScreen.status.in_progress'), color: colors.warning },
+      resolved: { label: t('ticketListScreen.status.resolved'), color: colors.primary },
+      closed: { label: t('ticketListScreen.status.closed'), color: '#9E9E9E' },
     };
     return statusMap[status] || statusMap.open;
   };
@@ -51,17 +52,17 @@ const TicketListScreen = ({ route, navigation }) => {
     const diffTime = Math.abs(now - date);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Ontem';
-    if (diffDays < 7) return `${diffDays} dias atrás`;
+    if (diffDays === 0) return t('ticketListScreen.date.today');
+    if (diffDays === 1) return t('ticketListScreen.date.yesterday');
+    if (diffDays < 7) return t('ticketListScreen.date.daysAgo', { count: diffDays });
     
     return date.toLocaleDateString('pt-BR');
   };
 
   const renderTicket = ({ item }) => {
     const statusInfo = getStatusInfo(item.status);
-    const lastMessage = item.messages[item.messages.length - 1];
-    const unreadCount = item.messages.filter(m => m.sender === 'support').length;
+    const lastMessage = item.messages && item.messages.length > 0 ? item.messages[item.messages.length - 1] : null;
+    const unreadCount = item.messages ? item.messages.filter(m => !m.read && m.sender === 'support').length : 0;
 
     return (
       <TouchableOpacity
@@ -87,7 +88,7 @@ const TicketListScreen = ({ route, navigation }) => {
         </View>
 
         <Text style={styles.lastMessage} numberOfLines={2}>
-          {lastMessage.text}
+          {lastMessage?.text || t('ticketListScreen.noMessages')}
         </Text>
 
         <View style={styles.ticketFooter}>
@@ -112,9 +113,9 @@ const TicketListScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Meus Tickets</Text>
+        <Text style={styles.headerTitle}>{t('ticketListScreen.header.title')}</Text>
         <Text style={styles.headerSubtitle}>
-          {filteredTickets.length} {filteredTickets.length === 1 ? 'ticket' : 'tickets'}
+         {t('ticketListScreen.header.subtitle', { count: filteredTickets.length })}
         </Text>
       </View>
 
@@ -134,7 +135,7 @@ const TicketListScreen = ({ route, navigation }) => {
               styles.filterText,
               selectedFilter === filter.value && styles.filterTextActive
             ]}>
-              {filter.label}
+              {t(`ticketListScreen.filters.${filter.value}`)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -144,16 +145,16 @@ const TicketListScreen = ({ route, navigation }) => {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2196F3" />
-          <Text style={styles.loadingText}>Carregando tickets...</Text>
+          <Text style={styles.loadingText}>{t('ticketListScreen.loading.text')}</Text>
         </View>
       ) : filteredTickets.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📭</Text>
-          <Text style={styles.emptyText}>Nenhum ticket encontrado</Text>
+          <Text style={styles.emptyText}>{t('ticketListScreen.empty.title')}</Text>
           <Text style={styles.emptySubtext}>
             {selectedFilter === 'all' 
-              ? 'Crie seu primeiro ticket de suporte'
-              : `Nenhum ticket ${filters.find(f => f.value === selectedFilter)?.label.toLowerCase()}`
+              ? t('ticketListScreen.empty.allSubtitle')
+              : t('ticketListScreen.empty.filteredSubtitle', { filter: filters.find(f => f.value === selectedFilter)?.label.toLowerCase() })
             }
           </Text>
           {selectedFilter === 'all' && (
@@ -161,7 +162,7 @@ const TicketListScreen = ({ route, navigation }) => {
               style={styles.createButton}
               onPress={() => navigation.navigate('CreateTicket')}
             >
-              <Text style={styles.createButtonText}>Criar Ticket</Text>
+              <Text style={styles.createButtonText}>{t('ticketListScreen.actions.create')}</Text>
             </TouchableOpacity>
           )}
         </View>
