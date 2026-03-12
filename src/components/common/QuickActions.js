@@ -16,21 +16,19 @@ const QuickActions = ({ onPress }) => {
     {
       id: "receita",
       title: t("quickActions.income"),
-      icon: <MaterialIcons name="add" size={24} color={colors.onPrimary} />,
+      icon: <MaterialIcons name="add" size={24} color={colors.text} />,
       color: colors.success,
     },
     {
       id: "despesa",
       title: t("quickActions.expense"),
-      icon: <MaterialIcons name="remove" size={24} color={colors.onPrimary} />,
+      icon: <MaterialIcons name="remove" size={24} color={colors.text} />,
       color: colors.error,
     },
     {
       id: "investimento",
       title: t("quickActions.investment"),
-      icon: (
-        <MaterialIcons name="trending-up" size={24} color={colors.onPrimary} />
-      ),
+      icon: <MaterialIcons name="trending-up" size={24} color={colors.text} />,
       color: colors.investment,
     },
     {
@@ -40,7 +38,7 @@ const QuickActions = ({ onPress }) => {
         <MaterialCommunityIcons
           name="hands-pray"
           size={24}
-          color={colors.onPrimary}
+          color={colors.text}
         />
       ),
       color: colors.offer,

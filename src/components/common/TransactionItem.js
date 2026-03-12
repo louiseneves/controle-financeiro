@@ -40,30 +40,20 @@ const TransactionItem = ({ transaction, onPress }) => {
   const getTypeIcon = (type) => {
     switch (type) {
       case "receita":
-        return <MaterialIcons name="add" size={24} color={colors.onPrimary} />;
+        return <MaterialIcons name="add" size={24} color={colors.text} />;
       case "despesa":
-        return (
-          <MaterialIcons name="remove" size={24} color={colors.onPrimary} />
-        );
+        return <MaterialIcons name="remove" size={24} color={colors.text} />;
       case "investimento":
         return (
-          <MaterialIcons
-            name="trending-up"
-            size={24}
-            color={colors.onPrimary}
-          />
+          <MaterialIcons name="trending-up" size={24} color={colors.text} />
         );
       case "oferta":
         return (
-          <MaterialIcons name="hands-pray" size={24} color={colors.onPrimary} />
+          <MaterialIcons name="hands-pray" size={24} color={colors.text} />
         );
       default:
         return (
-          <MaterialIcons
-            name="currency-usd"
-            size={24}
-            color={colors.onPrimary}
-          />
+          <MaterialIcons name="currency-usd" size={24} color={colors.text} />
         );
     }
   };
@@ -145,7 +135,10 @@ const createStyles = (colors) =>
       padding: 12,
       marginBottom: 8,
       shadowColor: COLORS.black,
-      shadowOffset: { width: 0, height: 1 },
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
       shadowOpacity: 0.05,
       shadowRadius: 2,
       elevation: 2,

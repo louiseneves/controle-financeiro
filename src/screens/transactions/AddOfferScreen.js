@@ -150,7 +150,15 @@ const AddOfferScreen = ({ navigation }) => {
             onChangeText={setDescription}
             placeholder={t("addOffer.form.description.placeholder")}
             error={descriptionError}
-            leftIcon={<Text style={styles.iconText}>📝</Text>}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="file-document-edit-outline"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           <Input
@@ -160,7 +168,15 @@ const AddOfferScreen = ({ navigation }) => {
             placeholder={t("addOffer.form.amount.placeholder")}
             keyboardType="numeric"
             error={amountError}
-            leftIcon={<Text style={styles.iconText}>💰</Text>}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="currency-usd"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           <Input
@@ -168,7 +184,15 @@ const AddOfferScreen = ({ navigation }) => {
             value={churchName}
             onChangeText={setChurchName}
             placeholder={t("addOffer.form.churchName.placeholder")}
-            leftIcon={<Text style={styles.iconText}>⛪</Text>}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="church"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           <Input
@@ -176,7 +200,15 @@ const AddOfferScreen = ({ navigation }) => {
             value={isoToBR(date)}
             onChangeText={(text) => setDate(brToISO(text))}
             placeholder={t("addOffer.form.date.placeholder")}
-            leftIcon={<Text style={styles.iconText}>📅</Text>}
+            leftIcon={
+              <Text style={styles.iconText}>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
+            }
           />
 
           {/* Tipo de Oferta */}
@@ -218,7 +250,13 @@ const AddOfferScreen = ({ navigation }) => {
           {/* Info sobre dízimo */}
           {category === "dizimo" && (
             <View style={styles.infoBox}>
-              <Text style={styles.infoIcon}>ℹ️</Text>
+              <Text style={styles.infoIcon}>
+                <MaterialCommunityIcons
+                  name="information-outline"
+                  size={24}
+                  color={colors.textSecondary}
+                />
+              </Text>
               <Text style={styles.infoText}>{t("addOffer.info.tithe")}</Text>
             </View>
           )}
