@@ -154,11 +154,7 @@ const TitheCalculatorScreen = ({ navigation }) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerIcon}>
-          <MaterialCommunityIcons
-            name="hands-pray"
-            size={48}
-            color={colors.textSecondary}
-          />
+          <MaterialCommunityIcons name="cross" size={48} color={colors.tithe} />
         </Text>
         <Text style={styles.headerTitle}>{t("tithe.header")}</Text>
         <Text style={styles.headerSubtitle}>{t("tithe.verse")}</Text>

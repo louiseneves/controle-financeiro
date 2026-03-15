@@ -2,8 +2,8 @@
  * Tela de Adicionar Meta
  */
 
-import React, {useState,useMemo} from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useState, useMemo } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import {
   View,
   Text,
@@ -13,57 +13,78 @@ import {
   Platform,
   Alert,
   TouchableOpacity,
-} from 'react-native';
-import {Button, Input} from '../../components/ui';
-import useAuthStore from '../../store/authStore';
-import useGoalsStore from '../../store/goalsStore';
-import { isoToBR } from '../../utils/helpers/formatters';
-import { t } from '../../i18n';
+} from "react-native";
+import { Button, Input } from "../../components/ui";
+import useAuthStore from "../../store/authStore";
+import useGoalsStore from "../../store/goalsStore";
+import { isoToBR } from "../../utils/helpers/formatters";
+import { t } from "../../i18n";
+import {
+  MaterialCommunityIcons,
+  Feather,
+  FontAwesome6,
+} from "@expo/vector-icons";
 
-const AddGoalScreen = ({navigation}) => {
+const AddGoalScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const {user} = useAuthStore();
-  const {addGoal} = useGoalsStore();
+  const { user } = useAuthStore();
+  const { addGoal } = useGoalsStore();
 
-  const [title, setTitle] = useState('');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [currentAmount, setCurrentAmount] = useState('');
-  const [deadlineBR, setDeadlineBR] = useState('');
-const [deadlineISO, setDeadlineISO] = useState('');
+  const [title, setTitle] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [currentAmount, setCurrentAmount] = useState("");
+  const [deadlineBR, setDeadlineBR] = useState("");
+  const [deadlineISO, setDeadlineISO] = useState("");
 
-  const [selectedIcon, setSelectedIcon] = useState('🎯');
+  const [selectedIcon, setSelectedIcon] = useState(
+    <Feather name="target" size={24} color={colors.text} />,
+  );
 
-  const [titleError, setTitleError] = useState('');
-  const [targetAmountError, setTargetAmountError] = useState('');
-  const [deadlineError, setDeadlineError] = useState('');
+  const [titleError, setTitleError] = useState("");
+  const [targetAmountError, setTargetAmountError] = useState("");
+  const [deadlineError, setDeadlineError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const icons = [
-    '🎯', '🏠', '🚗', '✈️', '💍', '🎓',
-    '💰', '🏖️', '🎮', '📱', '💻', '🎸',
+    <Feather name="target" size={24} color={colors.text} />,
+    <Feather name="home" size={24} color={colors.text} />,
+    <MaterialCommunityIcons name="car" size={24} color={colors.text} />,
+    <MaterialCommunityIcons name="airplane" size={24} color={colors.text} />,
+    <MaterialCommunityIcons name="ring" size={24} color={colors.text} />,
+    <FontAwesome6 name="graduation-cap" size={24} color={colors.text} />,
+    <MaterialCommunityIcons
+      name="currency-usd"
+      size={24}
+      color={colors.text}
+    />,
+    <MaterialCommunityIcons name="beach" size={24} color={colors.text} />,
+    <MaterialCommunityIcons name="gamepad" size={24} color={colors.text} />,
+    <MaterialCommunityIcons name="cellphone" size={24} color={colors.text} />,
+    <MaterialCommunityIcons name="laptop" size={24} color={colors.text} />,
+    <FontAwesome6 name="guitar" size={24} color={colors.text} />,
   ];
 
   // Validar campos
   const validateFields = () => {
     let isValid = true;
 
-    setTitleError('');
-    setTargetAmountError('');
-    setDeadlineError('');
+    setTitleError("");
+    setTargetAmountError("");
+    setDeadlineError("");
 
     if (!title.trim()) {
-      setTitleError(t('addGoal.errors.titleRequired'));
+      setTitleError(t("addGoal.errors.titleRequired"));
       isValid = false;
     }
 
     if (!targetAmount || parseFloat(targetAmount) <= 0) {
-      setTargetAmountError(t('addGoal.errors.targetAmountInvalid'));
+      setTargetAmountError(t("addGoal.errors.targetAmountInvalid"));
       isValid = false;
     }
 
     if (!deadlineISO) {
-      setDeadlineError(t('addGoal.errors.deadlineInvalid'));
+      setDeadlineError(t("addGoal.errors.deadlineInvalid"));
       isValid = false;
     } else {
       const deadlineDate = new Date(`${deadlineISO}T00:00:00`);
@@ -71,11 +92,10 @@ const [deadlineISO, setDeadlineISO] = useState('');
       today.setHours(0, 0, 0, 0);
 
       if (deadlineDate < today) {
-        setDeadlineError(t('addGoal.errors.deadlineFuture'));
+        setDeadlineError(t("addGoal.errors.deadlineFuture"));
         isValid = false;
       }
     }
-
 
     return isValid;
   };
@@ -99,18 +119,21 @@ const [deadlineISO, setDeadlineISO] = useState('');
       const result = await addGoal(goalData);
 
       if (result.success) {
-        Alert.alert(t('addGoal.successTitle'), t('addGoal.success'), [
+        Alert.alert(t("addGoal.successTitle"), t("addGoal.success"), [
           {
-            text: 'OK',
+            text: "OK",
             onPress: () => navigation.goBack(),
           },
         ]);
       } else {
-        Alert.alert(t('addGoal.errorTitle'), result.error || t('addGoal.errorGeneric'));
+        Alert.alert(
+          t("addGoal.errorTitle"),
+          result.error || t("addGoal.errorGeneric"),
+        );
       }
     } catch (error) {
-      console.error('Erro ao salvar meta:', error);
-      Alert.alert(t('addGoal.errorTitle'), t('addGoal.errorGeneric'));
+      console.error("Erro ao salvar meta:", error);
+      Alert.alert(t("addGoal.errorTitle"), t("addGoal.errorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -118,74 +141,97 @@ const [deadlineISO, setDeadlineISO] = useState('');
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
       <ScrollView
         contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerIcon}>{selectedIcon}</Text>
-          <Text style={styles.headerTitle}>{t('addGoal.title')}</Text>
-          <Text style={styles.headerSubtitle}>
-            {t('addGoal.subtitle')}
-          </Text>
+          <Text style={styles.headerTitle}>{t("addGoal.title")}</Text>
+          <Text style={styles.headerSubtitle}>{t("addGoal.subtitle")}</Text>
         </View>
 
         {/* Formulário */}
         <View style={styles.form}>
           <Input
-            label={t('addGoal.fields.title')}
+            label={t("addGoal.fields.title")}
             value={title}
             onChangeText={setTitle}
-            placeholder={t('addGoal.placeholders.title')}
+            placeholder={t("addGoal.placeholders.title")}
             error={titleError}
-            leftIcon={<Text style={styles.iconText}>📝</Text>}
+            leftIcon={
+              <MaterialCommunityIcons
+                name="file-document-edit-outline"
+                size={24}
+                color={colors.text}
+              />
+            }
           />
 
           <Input
-            label={t('addGoal.fields.targetAmount')}
+            label={t("addGoal.fields.targetAmount")}
             value={targetAmount}
             onChangeText={setTargetAmount}
             placeholder="0,00"
             keyboardType="numeric"
             error={targetAmountError}
-            leftIcon={<Text style={styles.iconText}>💰</Text>}
+            leftIcon={
+              <MaterialCommunityIcons
+                name="currency-usd"
+                size={24}
+                color={colors.text}
+              />
+            }
           />
 
           <Input
-            label={t('addGoal.fields.initialAmount')}
+            label={t("addGoal.fields.initialAmount")}
             value={currentAmount}
             onChangeText={setCurrentAmount}
             placeholder="0,00"
             keyboardType="numeric"
-            leftIcon={<Text style={styles.iconText}>💵</Text>}
+            leftIcon={
+              <MaterialCommunityIcons
+                name="cash"
+                size={24}
+                color={colors.text}
+              />
+            }
           />
 
           <Input
-  label={t('addGoal.fields.deadline')}
-  value={deadlineBR}
-  onChangeText={value => {
-    setDeadlineBR(value);
+            label={t("addGoal.fields.deadline")}
+            value={deadlineBR}
+            onChangeText={(value) => {
+              setDeadlineBR(value);
 
-    // Converter de DD/MM/YYYY para YYYY-MM-DD
-    const [day, month, year] = value.split('/');
-    if (day && month && year) {
-      const iso = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      setDeadlineISO(iso);
-    }
-  }}
-  placeholder={t('addGoal.placeholders.date')}
-  error={deadlineError}
-  leftIcon={<Text style={styles.iconText}>📅</Text>}
-/>
-
+              // Converter de DD/MM/YYYY para YYYY-MM-DD
+              const [day, month, year] = value.split("/");
+              if (day && month && year) {
+                const iso = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+                setDeadlineISO(iso);
+              }
+            }}
+            placeholder={t("addGoal.placeholders.date")}
+            error={deadlineError}
+            leftIcon={
+              <MaterialCommunityIcons
+                name="calendar"
+                size={24}
+                color={colors.textSecondary}
+              />
+            }
+          />
 
           {/* Seletor de Ícone */}
           <View style={styles.iconSection}>
-            <Text style={styles.label}>{t('addGoal.fields.icon')}</Text>
+            <Text style={styles.label}>{t("addGoal.fields.icon")}</Text>
             <View style={styles.iconGrid}>
-              {icons.map(icon => (
+              {icons.map((icon) => (
                 <TouchableOpacity
                   key={icon}
                   style={[
@@ -193,7 +239,8 @@ const [deadlineISO, setDeadlineISO] = useState('');
                     selectedIcon === icon && styles.iconButtonSelected,
                   ]}
                   onPress={() => setSelectedIcon(icon)}
-                  activeOpacity={0.7}>
+                  activeOpacity={0.7}
+                >
                   <Text style={styles.iconButtonText}>{icon}</Text>
                 </TouchableOpacity>
               ))}
@@ -203,12 +250,12 @@ const [deadlineISO, setDeadlineISO] = useState('');
           {/* Preview */}
           {targetAmount && parseFloat(targetAmount) > 0 && (
             <View style={styles.previewCard}>
-              <Text style={styles.previewLabel}>{t('addGoal.preview')}</Text>
+              <Text style={styles.previewLabel}>{t("addGoal.preview")}</Text>
               <View style={styles.preview}>
                 <Text style={styles.previewIcon}>{selectedIcon}</Text>
                 <View style={styles.previewInfo}>
                   <Text style={styles.previewTitle}>
-                    {title || t('addGoal.previewDefault')}
+                    {title || t("addGoal.previewDefault")}
                   </Text>
                   <Text style={styles.previewAmount}>
                     R$ {parseFloat(targetAmount).toFixed(2)}
@@ -222,14 +269,14 @@ const [deadlineISO, setDeadlineISO] = useState('');
         {/* Botões */}
         <View style={styles.actions}>
           <Button
-            title={t('addGoal.actions.create')}
+            title={t("addGoal.actions.create")}
             onPress={handleSave}
             loading={loading}
             style={styles.saveButton}
           />
 
           <Button
-            title={t('cancel')}
+            title={t("cancel")}
             onPress={() => navigation.goBack()}
             variant="outline"
           />
@@ -241,110 +288,110 @@ const [deadlineISO, setDeadlineISO] = useState('');
 
 const createStyles = (colors) =>
   StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  headerIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  form: {
-    marginBottom: 24,
-  },
-  iconText: {
-    fontSize: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  iconSection: {
-    marginBottom: 16,
-  },
-  iconGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  iconButton: {
-    width: 60,
-    height: 60,
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  iconButtonSelected: {
-    borderColor: colors.primary,
-    borderWidth: 3,
-    backgroundColor: colors.primary + '10',
-  },
-  iconButtonText: {
-    fontSize: 32,
-  },
-  previewCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 8,
-  },
-  previewLabel: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 12,
-  },
-  preview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  previewIcon: {
-    fontSize: 40,
-    marginRight: 16,
-  },
-  previewInfo: {
-    flex: 1,
-  },
-  previewTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  previewAmount: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  actions: {
-    gap: 12,
-  },
-  saveButton: {
-    marginBottom: 12,
-  },
-});
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      padding: 20,
+      paddingBottom: 40,
+    },
+    header: {
+      alignItems: "center",
+      marginBottom: 32,
+    },
+    headerIcon: {
+      fontSize: 64,
+      marginBottom: 16,
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: "bold",
+      color: colors.text,
+      marginBottom: 8,
+    },
+    headerSubtitle: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: "center",
+    },
+    form: {
+      marginBottom: 24,
+    },
+    iconText: {
+      fontSize: 20,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 12,
+    },
+    iconSection: {
+      marginBottom: 16,
+    },
+    iconGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 10,
+    },
+    iconButton: {
+      width: 60,
+      height: 60,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    iconButtonSelected: {
+      borderColor: colors.primary,
+      borderWidth: 3,
+      backgroundColor: colors.primary + "10",
+    },
+    iconButtonText: {
+      fontSize: 32,
+    },
+    previewCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginTop: 8,
+    },
+    previewLabel: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    preview: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    previewIcon: {
+      fontSize: 40,
+      marginRight: 16,
+    },
+    previewInfo: {
+      flex: 1,
+    },
+    previewTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 4,
+    },
+    previewAmount: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: colors.primary,
+    },
+    actions: {
+      gap: 12,
+    },
+    saveButton: {
+      marginBottom: 12,
+    },
+  });
 
 export default AddGoalScreen;

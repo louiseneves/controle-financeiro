@@ -105,7 +105,10 @@ const InvestmentsListScreen = ({ navigation }) => {
                 {t("investmentsList.estimatedReturn")}
               </Text>
               <Text
-                style={[styles.summaryItemValue, { color: colors.success }]}
+                style={[
+                  styles.summaryItemValue,
+                  { color: colors.incomeOnInvestment },
+                ]}
               >
                 {formatCurrency(totalEstimatedProfit)}
               </Text>

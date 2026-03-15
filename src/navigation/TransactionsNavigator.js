@@ -3,69 +3,107 @@
  * Stack de navegação para telas de transações
  */
 
-import React, { useMemo } from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import AddIncomeScreen from '../screens/transactions/AddIncomeScreen';
-import AddExpenseScreen from '../screens/transactions/AddExpenseScreen';
-import AddOfferScreen from '../screens/transactions/AddOfferScreen';
-import AddInvestmentScreen from '../screens/transactions/AddInvestmentScreen';
-import InvestmentsListScreen from '../screens/transactions/InvestmentsListScreen';
-import TitheCalculatorScreen from '../screens/transactions/TitheCalculatorScreen';
-import TransactionDetailScreen from '../screens/transactions/TransactionDetailScreen';
-import { useTheme } from '../context/ThemeContext';
-import { t } from '../i18n';
+import React, { useMemo } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import AddIncomeScreen from "../screens/transactions/AddIncomeScreen";
+import AddExpenseScreen from "../screens/transactions/AddExpenseScreen";
+import AddOfferScreen from "../screens/transactions/AddOfferScreen";
+import AddInvestmentScreen from "../screens/transactions/AddInvestmentScreen";
+import InvestmentsListScreen from "../screens/transactions/InvestmentsListScreen";
+import TitheCalculatorScreen from "../screens/transactions/TitheCalculatorScreen";
+import TransactionDetailScreen from "../screens/transactions/TransactionDetailScreen";
+import { useTheme } from "../context/ThemeContext";
+import { t } from "../i18n";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 const Stack = createNativeStackNavigator();
 
 // Tela temporária de Transações
-const TransactionsListScreen = ({navigation}) => {
+const TransactionsListScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t('transactionsNavigator.title')}</Text>
-      <Text style={styles.subtitle}>{t('transactionsNavigator.subtitle')}</Text>
+      <Text style={styles.title}>{t("transactionsNavigator.title")}</Text>
+      <Text style={styles.subtitle}>{t("transactionsNavigator.subtitle")}</Text>
 
       <View style={styles.actions}>
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.success + '30' }]}
-          onPress={() => navigation.navigate('AddIncome')}
+          style={[
+            styles.actionButton,
+            { backgroundColor: colors.success + "30" },
+          ]}
+          onPress={() => navigation.navigate("AddIncome")}
         >
-          <Text style={styles.actionIcon}>💰</Text>
-          <Text style={styles.actionText}>{t('transactionsNavigator.addIncome')}</Text>
+          <MaterialCommunityIcons
+            name="plus"
+            size={32}
+            color={colors.success}
+          />
+          <Text style={styles.actionText}>
+            {t("transactionsNavigator.addIncome")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.error + '30' }]}
-          onPress={() => navigation.navigate('AddExpense')}
+          style={[
+            styles.actionButton,
+            { backgroundColor: colors.error + "30" },
+          ]}
+          onPress={() => navigation.navigate("AddExpense")}
         >
-          <Text style={styles.actionIcon}>💸</Text>
-          <Text style={styles.actionText}>{t('transactionsNavigator.addExpense')}</Text>
+          <MaterialCommunityIcons name="minus" size={32} color={colors.error} />
+          <Text style={styles.actionText}>
+            {t("transactionsNavigator.addExpense")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.offer + '30' }]}
-          onPress={() => navigation.navigate('AddOffer')}
+          style={[
+            styles.actionButton,
+            { backgroundColor: colors.offer + "30" },
+          ]}
+          onPress={() => navigation.navigate("AddOffer")}
         >
-          <Text style={styles.actionIcon}>🙏</Text>
-          <Text style={styles.actionText}>{t('transactionsNavigator.registerOffer')}</Text>
+          <MaterialCommunityIcons
+            name="hands-pray"
+            size={32}
+            color={colors.offer}
+          />
+          <Text style={styles.actionText}>
+            {t("transactionsNavigator.registerOffer")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.tithe + '30' }]}
-          onPress={() => navigation.navigate('TitheCalculator')}
+          style={[
+            styles.actionButton,
+            { backgroundColor: colors.tithe + "30" },
+          ]}
+          onPress={() => navigation.navigate("TitheCalculator")}
         >
-          <Text style={styles.actionIcon}>✝️</Text>
-          <Text style={styles.actionText}>{t('transactionsNavigator.titheCalculator')}</Text>
+          <MaterialCommunityIcons name="cross" size={32} color={colors.tithe} />
+          <Text style={styles.actionText}>
+            {t("transactionsNavigator.titheCalculator")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.investment + '30' }]}
-          onPress={() => navigation.navigate('InvestmentsList')}
+          style={[
+            styles.actionButton,
+            { backgroundColor: colors.investment + "30" },
+          ]}
+          onPress={() => navigation.navigate("InvestmentsList")}
         >
-          <Text style={styles.actionIcon}>📈</Text>
-          <Text style={styles.actionText}>{t('transactionsNavigator.myInvestments')}</Text>
+          <MaterialCommunityIcons
+            name="chart-line"
+            size={32}
+            color={colors.investment}
+          />
+          <Text style={styles.actionText}>
+            {t("transactionsNavigator.myInvestments")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -81,7 +119,7 @@ const createStyles = (colors) =>
     },
     title: {
       fontSize: 28,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: colors.text,
       marginBottom: 8,
     },
@@ -94,8 +132,8 @@ const createStyles = (colors) =>
       gap: 16,
     },
     actionButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       padding: 20,
       borderRadius: 16,
       gap: 16,
@@ -105,7 +143,7 @@ const createStyles = (colors) =>
     },
     actionText: {
       fontSize: 18,
-      fontWeight: '600',
+      fontWeight: "600",
       color: colors.text,
     },
   });
@@ -121,7 +159,7 @@ const TransactionsNavigator = () => {
         },
         headerTintColor: colors.text,
         headerTitleStyle: {
-          fontWeight: '600',
+          fontWeight: "600",
         },
         headerShadowVisible: false,
         contentStyle: {
@@ -132,49 +170,49 @@ const TransactionsNavigator = () => {
       <Stack.Screen
         name="TransactionsList"
         component={TransactionsListScreen}
-        options={{ title: t('transactionsNavigator.titleTransactions') }}
+        options={{ title: t("transactionsNavigator.titleTransactions") }}
       />
 
       <Stack.Screen
         name="AddIncome"
         component={AddIncomeScreen}
-        options={{ title: t('transactionsNavigator.addIncome') }}
+        options={{ title: t("transactionsNavigator.addIncome") }}
       />
 
       <Stack.Screen
         name="AddExpense"
         component={AddExpenseScreen}
-        options={{ title: t('transactionsNavigator.addExpense') }}
+        options={{ title: t("transactionsNavigator.addExpense") }}
       />
 
       <Stack.Screen
         name="AddOffer"
         component={AddOfferScreen}
-        options={{ title: t('transactionsNavigator.addOffer') }}
+        options={{ title: t("transactionsNavigator.addOffer") }}
       />
 
       <Stack.Screen
         name="TitheCalculator"
         component={TitheCalculatorScreen}
-        options={{ title: t('transactionsNavigator.titheCalculator') }}
+        options={{ title: t("transactionsNavigator.titheCalculator") }}
       />
 
       <Stack.Screen
         name="InvestmentsList"
         component={InvestmentsListScreen}
-        options={{ title: t('transactionsNavigator.investmentsList') }}
+        options={{ title: t("transactionsNavigator.investmentsList") }}
       />
 
       <Stack.Screen
         name="AddInvestment"
         component={AddInvestmentScreen}
-        options={{ title: t('transactionsNavigator.addInvestment') }}
+        options={{ title: t("transactionsNavigator.addInvestment") }}
       />
 
       <Stack.Screen
         name="TransactionDetail"
         component={TransactionDetailScreen}
-        options={{ title: t('transactionsNavigator.transactionDetail') }}
+        options={{ title: t("transactionsNavigator.transactionDetail") }}
       />
     </Stack.Navigator>
   );

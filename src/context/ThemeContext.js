@@ -48,6 +48,7 @@ export const ThemeProvider = ({ children }) => {
           offer: "#F59E0B",
           tithe: "#6366F1",
 
+          incomeOnInvestment: "#34D399",
           // Backgrounds
           background: "#0F172A", // Slate 900
           backgroundSecondary: "#1E293B", // Slate 800
@@ -120,7 +121,7 @@ export const ThemeProvider = ({ children }) => {
           investment: "#8B5CF6",
           offer: "#F59E0B",
           tithe: "#6366F1",
-
+          incomeOnInvestment: "#10B981",
           // Backgrounds
           background: "#F8FAFC", // Slate 50
           backgroundSecondary: "#F1F5F9", // Slate 100

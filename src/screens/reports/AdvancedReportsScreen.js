@@ -89,7 +89,7 @@ const AdvancedReportsScreen = ({ navigation }) => {
             </Text>
             <Text style={styles.premiumFeature}>
               <MaterialCommunityIcons
-                name="file-pdf"
+                name="file-pdf-box"
                 size={24}
                 color={colors.textSecondary}
               />
@@ -451,7 +451,7 @@ const AdvancedReportsScreen = ({ navigation }) => {
           >
             <Text style={styles.exportIcon}>
               <MaterialCommunityIcons
-                name="file-pdf"
+                name="file-pdf-box"
                 size={24}
                 color={colors.textSecondary}
               />

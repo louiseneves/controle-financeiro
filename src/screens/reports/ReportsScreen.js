@@ -362,7 +362,9 @@ const ReportsScreen = ({ navigation }) => {
           />
         ) : (
           <View style={styles.emptyChart}>
-            <Text style={styles.emptyChartText}>{t("reports.emptyChart")}</Text>
+            <Text style={styles.emptyChartText}>
+              {t("reports.charts.noData")}
+            </Text>
           </View>
         )}
       </View>

@@ -19,7 +19,7 @@ import useTransactionStore from "../../store/transactionStore";
 import TransactionItem from "../../components/common/TransactionItem";
 import useSettingsStore from "../../store/settingsStore";
 import { t } from "../../i18n";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const HistoryScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -127,7 +127,7 @@ const HistoryScreen = ({ navigation }) => {
       label: t("history.filters.receita"),
       icon: (
         <MaterialCommunityIcons
-          name="add"
+          name="plus"
           size={24}
           color={colors.textSecondary}
         />
@@ -177,11 +177,7 @@ const HistoryScreen = ({ navigation }) => {
       {/* Barra de busca */}
       <View style={styles.searchBar}>
         <Text style={styles.searchIcon}>
-          <MaterialCommunityIcons
-            name="search"
-            size={24}
-            color={colors.textSecondary}
-          />
+          <MaterialIcons name="search" size={24} color={colors.textSecondary} />
         </Text>
         <TextInput
           style={styles.searchInput}
@@ -360,7 +356,13 @@ const HistoryScreen = ({ navigation }) => {
           ))
         ) : (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>📭</Text>
+            <Text style={styles.emptyIcon}>
+              <MaterialCommunityIcons
+                name="mailbox-open"
+                size={24}
+                color={colors.textSecondary}
+              />
+            </Text>
             <Text style={styles.emptyText}>
               {searchText
                 ? t("history.empty.notFound", { term: searchText })

@@ -137,7 +137,13 @@ const AddOfferScreen = ({ navigation }) => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>🙏</Text>
+          <Text style={styles.headerIcon}>
+            <MaterialCommunityIcons
+              name="hands-pray"
+              size={32}
+              color={colors.offer}
+            />
+          </Text>
           <Text style={styles.headerTitle}>{t("addOffer.title")}</Text>
           <Text style={styles.headerSubtitle}>{t("addOffer.subtitle")}</Text>
         </View>
