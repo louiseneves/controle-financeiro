@@ -211,7 +211,7 @@ const BackupScreen = ({ navigation }) => {
                 <MaterialCommunityIcons
                   name="cloud"
                   size={24}
-                  color={colors.text}
+                  color={colors.onPrimary}
                 />
               </Text>
               <View style={styles.actionButtonText}>
@@ -234,7 +234,7 @@ const BackupScreen = ({ navigation }) => {
             <MaterialCommunityIcons
               name="cloud-download"
               size={24}
-              color={colors.text}
+              color={colors.onPrimary}
             />
           </Text>
           <View style={styles.actionButtonText}>
@@ -336,7 +336,7 @@ const BackupScreen = ({ navigation }) => {
           <MaterialCommunityIcons
             name="information-box"
             size={20}
-            color={colors.text}
+            color={colors.warning}
           />
           {t("backup.info.title")}
         </Text>

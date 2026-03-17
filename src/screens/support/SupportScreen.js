@@ -269,7 +269,11 @@ const SupportScreen = ({ navigation }) => {
       {/* Contato Rápido */}
       <View style={styles.contactSection}>
         <Text style={styles.contactTitle}>
-          <MaterialCommunityIcons name="phone" size={20} color={colors.text} />
+          <MaterialCommunityIcons
+            name="phone"
+            size={20}
+            color={colors.success}
+          />
           {t("supportScreen.contact.title")}
         </Text>
         <Text style={styles.contactText}>
@@ -313,7 +317,7 @@ const SupportScreen = ({ navigation }) => {
           <MaterialCommunityIcons
             name="information-box"
             size={20}
-            color={colors.text}
+            color={colors.warning}
           />
           {t("supportScreen.info.title")}
         </Text>
