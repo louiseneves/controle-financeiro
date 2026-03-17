@@ -152,6 +152,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
       if (result.success) {
         Alert.alert(
           t("transactionDetail.successTitle"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={24}
+            color={colors.text}
+          />,
           t("transactionDetail.updateSuccess"),
           [
             {
@@ -198,6 +203,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               if (result.success) {
                 Alert.alert(
                   t("transactionDetail.successTitle"),
+                  <MaterialCommunityIcons
+                    name="checkbox-marked"
+                    size={24}
+                    color={colors.text}
+                  />,
                   t("transactionDetail.deleteSuccess"),
                   [
                     {

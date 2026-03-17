@@ -62,7 +62,7 @@ const SupportScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("FAQ")}
         >
           <Text style={styles.optionIcon}>
-            <MaterialIcons name="help" size={24} color={colors.onPrimary} />
+            <MaterialIcons name="help" size={24} color={colors.text} />
           </Text>
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>
@@ -86,7 +86,7 @@ const SupportScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("CreateTicket")}
         >
           <Text style={styles.optionIcon}>
-            <MaterialIcons name="mail" size={24} color={colors.onPrimary} />
+            <MaterialIcons name="mail" size={24} color={colors.text} />
           </Text>
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>
@@ -110,11 +110,7 @@ const SupportScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("Tutorials")}
         >
           <Text style={styles.optionIcon}>
-            <MaterialIcons
-              name="bookmarks"
-              size={24}
-              color={colors.onPrimary}
-            />
+            <MaterialIcons name="bookmarks" size={24} color={colors.text} />
           </Text>
           <View style={styles.optionContent}>
             <Text style={styles.optionTitle}>
@@ -273,6 +269,7 @@ const SupportScreen = ({ navigation }) => {
       {/* Contato Rápido */}
       <View style={styles.contactSection}>
         <Text style={styles.contactTitle}>
+          <MaterialCommunityIcons name="phone" size={20} color={colors.text} />
           {t("supportScreen.contact.title")}
         </Text>
         <Text style={styles.contactText}>
@@ -312,7 +309,14 @@ const SupportScreen = ({ navigation }) => {
 
       {/* Informações Adicionais */}
       <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}>{t("supportScreen.info.title")}</Text>
+        <Text style={styles.infoTitle}>
+          <MaterialCommunityIcons
+            name="information-box"
+            size={20}
+            color={colors.text}
+          />
+          {t("supportScreen.info.title")}
+        </Text>
         <Text style={styles.infoText}>{t("supportScreen.info.text")}</Text>
       </View>
     </ScrollView>

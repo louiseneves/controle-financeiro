@@ -132,6 +132,11 @@ const CreateBudgetScreen = ({ navigation, route }) => {
       if (result.success) {
         Alert.alert(
           t("budget.alerts.successTitle"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={24}
+            color={colors.text}
+          />,
           isEditing ? t("budget.alerts.updated") : t("budget.alerts.created"),
           [
             {

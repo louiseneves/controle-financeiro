@@ -34,7 +34,16 @@ const TitheCard = ({ income, paidTithe, onPress }) => {
           />
           <Text style={styles.title}>{t("titheCard.title")}</Text>
         </View>
-        {isPaid && <Text style={styles.badge}>{t("titheCard.paidBadge")}</Text>}
+        {isPaid && (
+          <Text style={styles.badge}>
+            <MaterialCommunityIcons
+              name="check"
+              size={16}
+              color={colors.card}
+            />
+            {t("titheCard.paidBadge")}
+          </Text>
+        )}
       </View>
 
       <View style={styles.content}>

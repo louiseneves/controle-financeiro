@@ -196,7 +196,12 @@ const TutorialsScreen = () => {
         {/* Rodapé */}
         <View style={styles.footer}>
           <Text style={styles.footerTitle}>
-            {t("tutorialsScreen.footer.title")}
+            {t("tutorialsScreen.footer.title")}{" "}
+            <MaterialCommunityIcons
+              name="lightbulb-question"
+              size={18}
+              color="#1976D2"
+            />
           </Text>
           <Text style={styles.footerText}>
             {t("tutorialsScreen.footer.text")}

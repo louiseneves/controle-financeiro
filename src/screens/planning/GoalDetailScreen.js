@@ -125,6 +125,11 @@ const GoalDetailScreen = ({ navigation, route }) => {
         {progress >= 100 ? (
           <View style={styles.completedBadge}>
             <Text style={styles.completedText}>
+              <MaterialCommunityIcons
+                name="check"
+                size={16}
+                color={colors.card}
+              />
               {t("goalDetail.completed")}
             </Text>
           </View>

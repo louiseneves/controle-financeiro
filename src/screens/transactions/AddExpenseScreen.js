@@ -25,6 +25,7 @@ import {
 } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const AddExpenseScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -106,6 +107,11 @@ const AddExpenseScreen = ({ navigation }) => {
       if (result.success) {
         Alert.alert(
           t("addExpense.alerts.success.title"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={20}
+            color={colors.success}
+          />,
           t("addExpense.alerts.success.message"),
           [{ text: "OK", onPress: () => navigation.goBack() }],
         );
@@ -206,7 +212,7 @@ const AddExpenseScreen = ({ navigation }) => {
                   onPress={() => setCategory(cat.id)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                  <MaterialIcons name={cat.icon} size={40} color={cat.color} />
                   <Text
                     style={[
                       styles.categoryName,

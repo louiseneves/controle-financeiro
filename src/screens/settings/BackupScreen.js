@@ -332,7 +332,14 @@ const BackupScreen = ({ navigation }) => {
 
       {/* Informações */}
       <View style={styles.infoSection}>
-        <Text style={styles.infoTitle}> {t("backup.info.title")}</Text>
+        <Text style={styles.infoTitle}>
+          <MaterialCommunityIcons
+            name="information-box"
+            size={20}
+            color={colors.text}
+          />
+          {t("backup.info.title")}
+        </Text>
         <Text style={styles.infoText}>{t("backup.info.text")}</Text>
       </View>
     </ScrollView>

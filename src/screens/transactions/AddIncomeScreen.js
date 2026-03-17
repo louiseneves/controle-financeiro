@@ -21,6 +21,7 @@ import useTransactionStore from "../../store/transactionStore";
 import { isoToBR, brToISO } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const AddIncomeScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -220,7 +221,7 @@ const AddIncomeScreen = ({ navigation }) => {
                   ]}
                   onPress={() => setCategory(cat.id)}
                 >
-                  <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                  <MaterialIcons name={cat.icon} size={40} color={cat.color} />
                   <Text
                     style={[
                       styles.categoryName,

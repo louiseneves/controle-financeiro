@@ -16,7 +16,11 @@ import { Button } from "../../components/ui";
 import { COLORS, formatCurrency } from "../../utils";
 import usePremiumStore from "../../store/premiumStore";
 import { t } from "../../i18n";
-import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import {
+  MaterialCommunityIcons,
+  Feather,
+  MaterialIcons,
+} from "@expo/vector-icons";
 
 const PremiumScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -161,6 +165,7 @@ const PremiumScreen = ({ navigation }) => {
             if (result.success) {
               Alert.alert(
                 t("premium.alerts.welcomeTitle"),
+                <MaterialIcons name="celebration" color={colors.text} />,
                 t("premium.alerts.welcomeMessage"),
                 [
                   {

@@ -20,7 +20,11 @@ import useGoalsStore from "../../store/goalsStore";
 import useSettingsStore from "../../store/settingsStore";
 import { t } from "../../i18n";
 import usePremiumStore from "../../store/premiumStore";
-import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import {
+  MaterialCommunityIcons,
+  Feather,
+  MaterialIcons,
+} from "@expo/vector-icons";
 
 const GoalsScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -226,6 +230,7 @@ const GoalsScreen = ({ navigation }) => {
         {completedGoals.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
+              <MaterialIcons name="celebration" size={24} color={colors.text} />{" "}
               {t("goals.completedWithEmoji")}
             </Text>
             {completedGoals.map((goal) => {

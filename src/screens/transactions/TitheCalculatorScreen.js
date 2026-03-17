@@ -69,15 +69,24 @@ const TitheCalculatorScreen = ({ navigation }) => {
       const result = await addTransaction(transactionData);
 
       if (result.success) {
-        Alert.alert(t("tithe.successTitle"), t("tithe.successMessage"), [
-          {
-            text: "OK",
-            onPress: () => {
-              setCustomAmount("");
-              navigation.goBack();
+        Alert.alert(
+          t("tithe.successTitle"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={24}
+            color={colors.text}
+          />,
+          t("tithe.successMessage"),
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setCustomAmount("");
+                navigation.goBack();
+              },
             },
-          },
-        ]);
+          ],
+        );
       } else {
         Alert.alert(
           t("tithe.errorTitle"),

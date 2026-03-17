@@ -116,6 +116,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
     if (result.success) {
       Alert.alert(
         t("ticketDetailsScreen.rating.successTitle"),
+        <MaterialCommunityIcons name="star" size={24} color={colors.text} />,
         t("ticketDetailsScreen.rating.successMessage"),
         [{ text: "OK", onPress: () => navigation.goBack() }],
       );
