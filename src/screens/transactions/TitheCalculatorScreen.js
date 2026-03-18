@@ -268,7 +268,14 @@ const TitheCalculatorScreen = ({ navigation }) => {
 
             {remaining === 0 && monthTithe > 0 && (
               <View style={styles.paidBadge}>
-                <Text style={styles.paidText}>{t("tithe.returnedBadge")}</Text>
+                <Text style={styles.paidText}>
+                  <MaterialCommunityIcons
+                    name="check"
+                    size={24}
+                    color={colors.success}
+                  />
+                  {t("tithe.returnedBadge")}
+                </Text>
               </View>
             )}
           </View>

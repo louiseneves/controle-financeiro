@@ -208,7 +208,10 @@ const AdvancedReportsScreen = ({ navigation }) => {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header Premium */}
       <View style={styles.premiumBadge}>
-        <Text style={styles.premiumText}> {t("advancedReports.badge")}</Text>
+        <Text style={styles.premiumText}>
+          <MaterialIcons name="star" size={20} color={colors.warning} />{" "}
+          {t("advancedReports.badge")}
+        </Text>
       </View>
 
       {/* Seletor de visualização */}

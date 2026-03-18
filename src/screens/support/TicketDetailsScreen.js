@@ -231,6 +231,11 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             onPress={() => setShowRating(true)}
           >
             <Text style={styles.ratingPromptText}>
+              <MaterialCommunityIcons
+                name="star"
+                size={20}
+                color={colors.warning}
+              />
               {t("ticketDetailsScreen.rating.prompt")}
             </Text>
           </TouchableOpacity>

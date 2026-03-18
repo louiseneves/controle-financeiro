@@ -218,9 +218,13 @@ const PremiumScreen = ({ navigation }) => {
         contentContainerStyle={styles.content}
       >
         <View style={styles.premiumHeader}>
-          <Text style={styles.premiumBadge}>{t("premium.badge")}</Text>
-          <Text style={styles.premiumTitle}>
-            {t("premium.premiumStatus.title")}
+          <Text style={styles.premiumBadge}>
+            <MaterialCommunityIcons
+              name="star"
+              size={20}
+              color={colors.warning}
+            />
+            {t("premium.badge")}
           </Text>
           <Text style={styles.premiumSubtitle}>
             {t("premium.premiumStatus.subtitle")}
@@ -280,7 +284,14 @@ const PremiumScreen = ({ navigation }) => {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerBadge}> {t("premium.badge")}</Text>
+        <Text style={styles.headerBadge}>
+          <MaterialCommunityIcons
+            name="star"
+            size={20}
+            color={colors.warning}
+          />
+          {t("premium.badge")}
+        </Text>
         <Text style={styles.headerTitle}>{t("premium.header.title")}</Text>
         <Text style={styles.headerSubtitle}>
           {t("premium.header.subtitle")}
@@ -325,7 +336,11 @@ const PremiumScreen = ({ navigation }) => {
             {selectedPlan === plan.id && (
               <View style={styles.selectedIndicator}>
                 <Text style={styles.selectedText}>
-                  {" "}
+                  <MaterialCommunityIcons
+                    name="check"
+                    size={16}
+                    color={colors.card}
+                  />
                   {t("premium.plans.selected")}
                 </Text>
               </View>

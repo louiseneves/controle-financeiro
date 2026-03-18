@@ -110,6 +110,11 @@ const AddIncomeScreen = ({ navigation }) => {
       if (result?.success) {
         Alert.alert(
           t("addIncome.success.title"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={24}
+            color={colors.success}
+          />,
           t("addIncome.success.message"),
           [{ text: "OK", onPress: () => navigation.goBack() }],
         );

@@ -47,7 +47,12 @@ const TutorialsScreen = () => {
               activeOpacity={0.7}
             >
               <View style={styles.categoryHeaderLeft}>
-                <Text style={styles.categoryIcon}>{category.icon}</Text>
+                <MaterialIcons
+                  name={category.icon}
+                  size={32}
+                  color={colors.text}
+                  style={styles.categoryIcon}
+                />
                 <View>
                   <Text style={styles.categoryTitle}>{category.category}</Text>
                   <Text style={styles.categoryCount}>

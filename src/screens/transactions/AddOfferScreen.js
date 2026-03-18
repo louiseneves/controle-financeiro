@@ -105,6 +105,11 @@ const AddOfferScreen = ({ navigation }) => {
       if (result.success) {
         Alert.alert(
           t("addOffer.success.title"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={24}
+            color={colors.success}
+          />,
           t("addOffer.success.message"),
           [
             {

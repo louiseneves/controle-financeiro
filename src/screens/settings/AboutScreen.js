@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import useSettingsStore from "../../store/settingsStore";
 import { t } from "../../i18n";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const AboutScreen = () => {
   const { colors } = useTheme();
@@ -58,6 +59,11 @@ const AboutScreen = () => {
       {/* Descrição */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <MaterialCommunityIcons
+            name="book-open"
+            size={20}
+            color={colors.text}
+          />{" "}
           {t("about.sections.about")}
         </Text>
         <Text style={[styles.description, { color: colors.textSecondary }]}>
@@ -68,6 +74,11 @@ const AboutScreen = () => {
       {/* Funcionalidades */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <MaterialCommunityIcons
+            name="star-four-points-outline"
+            size={20}
+            color={colors.text}
+          />
           {t("about.sections.features")}
         </Text>
         <View style={styles.featuresList}>
@@ -87,6 +98,11 @@ const AboutScreen = () => {
       {/* Bibliotecas */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <MaterialCommunityIcons
+            name="bookmark-multiple-outline"
+            size={20}
+            color={colors.text}
+          />
           {t("about.sections.libraries")}
         </Text>
         {libraries.map((lib, index) => (
@@ -111,19 +127,45 @@ const AboutScreen = () => {
       {/* Desenvolvedor */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <MaterialCommunityIcons
+            name="laptop-account"
+            size={20}
+            color={colors.text}
+          />
           {t("about.sections.developer")}
         </Text>
-        <Text style={[styles.developer, { color: colors.textSecondary }]}>
-          {t("about.developer.madeBy")}
-        </Text>
-        <Text style={[styles.developer, { color: colors.textSecondary }]}>
-          {t("about.developer.rights")}
-        </Text>
+        <View style={styles.developerSection}>
+          {/* "Desenvolvido com ❤️ por Louise" */}
+          <View style={styles.madeByRow}>
+            <Text style={[styles.text, { color: colors.textSecondary }]}>
+              {t("about.developer.madeByPrefix")}
+            </Text>
+
+            <MaterialCommunityIcons
+              name="heart"
+              size={16}
+              color={colors.error} // Vermelho
+            />
+
+            <Text style={[styles.text, { color: colors.textSecondary }]}>
+              {t("about.developer.madeByAuthor")}
+            </Text>
+          </View>
+
+          <Text style={[styles.rights, { color: colors.textTertiary }]}>
+            {t("about.developer.rights")}
+          </Text>
+        </View>
       </View>
 
       {/* Links */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <MaterialCommunityIcons
+            name="link-variant"
+            size={20}
+            color={colors.text}
+          />
           {t("about.sections.links")}
         </Text>
 
@@ -160,7 +202,12 @@ const AboutScreen = () => {
       {/* Rodapé */}
       <View style={styles.footer}>
         <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-          {t("about.footer.madeWith")}
+          {t("about.footer.madeWith")}{" "}
+          <MaterialCommunityIcons
+            name="rocket-launch"
+            size={14}
+            color={colors.primary}
+          />
         </Text>
         <Text style={[styles.footerText, { color: colors.textSecondary }]}>
           {t("about.footer.build")}
@@ -218,6 +265,23 @@ const createStyles = (colors) =>
       fontSize: 18,
       fontWeight: "bold",
       marginBottom: 15,
+    },
+    developerSection: {
+      alignItems: "center",
+      marginVertical: 24,
+    },
+    madeByRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4, // ← Espaçamento entre elementos
+      marginBottom: 8,
+    },
+    text: {
+      fontSize: 14,
+      fontWeight: "500",
+    },
+    rights: {
+      fontSize: 12,
     },
     description: {
       fontSize: 15,

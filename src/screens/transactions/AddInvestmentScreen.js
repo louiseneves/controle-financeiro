@@ -108,6 +108,11 @@ const AddInvestmentScreen = ({ navigation }) => {
       if (result.success) {
         Alert.alert(
           t("addInvestment.success.title"),
+          <MaterialCommunityIcons
+            name="checkbox-marked"
+            size={24}
+            color={colors.success}
+          />,
           t("addInvestment.success.message"),
           [
             {

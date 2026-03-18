@@ -318,7 +318,7 @@ export const translations = {
         subscribe: "Assinar Premium",
       },
 
-      badge: "⭐ PREMIUM",
+      badge: "PREMIUM",
 
       views: {
         yearly: "Anual",
@@ -435,11 +435,11 @@ export const translations = {
       },
 
       sections: {
-        about: "📖 Sobre",
-        features: "✨ Funcionalidades",
-        libraries: "📚 Bibliotecas de Código Aberto",
-        developer: "👨‍💻 Desenvolvedor",
-        links: "🔗 Links Úteis",
+        about: "Sobre",
+        features: "Funcionalidades",
+        libraries: "Bibliotecas de Código Aberto",
+        developer: "Desenvolvedor",
+        links: "Links Úteis",
       },
 
       description:
@@ -460,7 +460,8 @@ export const translations = {
       ],
 
       developer: {
-        madeBy: "Desenvolvido com ❤️ por Louise",
+        madeByPrefix: "Desenvolvido com",
+        madeByAuthor: "por Louise",
         rights: "© 2026 Todos os direitos reservados",
       },
 
@@ -471,7 +472,7 @@ export const translations = {
       },
 
       footer: {
-        madeWith: "Feito com React Native 🚀",
+        madeWith: "Feito com React Native",
         build: "Build 2024.01.001",
       },
     },
@@ -635,7 +636,7 @@ export const translations = {
       },
     },
     premium: {
-      badge: "⭐ PREMIUM",
+      badge: "PREMIUM",
 
       header: {
         title: "Desbloqueie Todo o Potencial",
@@ -648,7 +649,7 @@ export const translations = {
         yearly: "Anual",
         month: "mês",
         year: "ano",
-        selected: "✓ Selecionado",
+        selected: "Selecionado",
         discount: "25% de desconto",
       },
 
@@ -783,15 +784,15 @@ export const translations = {
       title: "Configurações",
       subtitle: "Personalize seu aplicativo",
 
-      appearance: "🎨 Aparência",
+      appearance: "Aparência",
       darkMode: "Modo Escuro",
       darkModeDesc: "Tema escuro para economizar bateria",
 
-      regionCurrency: "🌍 Região e Moeda",
+      regionCurrency: "Região e Moeda",
       currency: "Moeda",
       language: "Idioma",
 
-      notifications: "🔔 Notificações",
+      notifications: "Notificações",
       notificationsEnabled: "Notificações Ativadas",
       notificationsEnabledDesc: "Ativar/desativar todas as notificações",
 
@@ -810,7 +811,7 @@ export const translations = {
       notificationTime: "Horário das Notificações",
       notificationTimeDesc: "Definir horário padrão",
 
-      others: "⚙️ Outros",
+      others: "Outros",
       about: "Sobre o App",
       aboutDesc: "Versão, licenças e créditos",
 
@@ -833,7 +834,11 @@ export const translations = {
       success: "Sucesso",
       resetSuccess: "Configurações restauradas!",
 
-      footer: "Controle Financeiro v1.0.0\nDesenvolvido com ❤️ em React Native",
+      footer: {
+        appName: "Controle Financeiro v1.0.0",
+        madeWithPrefix: "Desenvolvido com",
+        madeWithSuffix: "em React Native",
+      },
     },
     supportCreateTicket: {
       header: {
@@ -995,7 +1000,7 @@ export const translations = {
       },
 
       rating: {
-        prompt: "⭐ Avalie nosso atendimento",
+        prompt: "Avalie nosso atendimento",
         title: "Como foi nosso atendimento?",
         placeholder: "Comentário (opcional)",
         submit: "Enviar Avaliação",
@@ -1078,7 +1083,7 @@ export const translations = {
         {
           id: "1",
           category: "Primeiros Passos",
-          icon: "🚀",
+          icon: "rocket-launch",
           items: [
             {
               title: "Como criar sua primeira transação",
@@ -1108,7 +1113,7 @@ export const translations = {
         {
           id: "2",
           category: "Funcionalidades Principais",
-          icon: "⚙️",
+          icon: "settings",
           items: [
             {
               title: "Criando metas financeiras",
@@ -1127,7 +1132,7 @@ export const translations = {
         {
           id: "5",
           category: "Premium",
-          icon: "⭐",
+          icon: "star",
           items: [
             {
               title: "Recursos do Premium",
@@ -1237,7 +1242,7 @@ export const translations = {
           message: "Faça login novamente.",
         },
         success: {
-          title: "Sucesso! ✅",
+          title: "Sucesso!",
           message: "Receita adicionada com sucesso!",
         },
         error: {
@@ -1293,7 +1298,7 @@ export const translations = {
           message: "Faça login novamente.",
         },
         success: {
-          title: "Sucesso! ✅",
+          title: "Sucesso!",
           message: "Investimento adicionado com sucesso!",
         },
         error: {
@@ -1349,7 +1354,7 @@ export const translations = {
           message: "Faça login novamente.",
         },
         success: {
-          title: "Sucesso! ✅",
+          title: "Sucesso!",
           message: "Oferta registrada com sucesso!",
         },
         error: {
@@ -1385,7 +1390,7 @@ export const translations = {
       tithePercent: "Dízimo (10%):",
       returned: "Devolvido:",
       remaining: "Restante:",
-      returnedBadge: "✓ Dízimo devolvido!",
+      returnedBadge: "Dízimo devolvido!",
       emptyState:
         "Adicione suas receitas do mês para calcular o dízimo automaticamente",
       customCard: "Calcular Valor Personalizado",
@@ -1970,7 +1975,7 @@ export const translations = {
         subscribe: "Upgrade to Premium",
       },
 
-      badge: "⭐ PREMIUM",
+      badge: "PREMIUM",
 
       views: {
         yearly: "Yearly",
@@ -2085,11 +2090,11 @@ export const translations = {
       },
 
       sections: {
-        about: "📖 About",
-        features: "✨ Features",
-        libraries: "📚 Open Source Libraries",
-        developer: "👨‍💻 Developer",
-        links: "🔗 Useful Links",
+        about: "About",
+        features: "Features",
+        libraries: "Open Source Libraries",
+        developer: "Developer",
+        links: "Useful Links",
       },
 
       description:
@@ -2110,7 +2115,8 @@ export const translations = {
       ],
 
       developer: {
-        madeBy: "Developed with ❤️ by Louise",
+        madeByPrefix: "Developed with",
+        madeByAuthor: "by Louise",
         rights: "© 2026 All rights reserved",
       },
 
@@ -2121,7 +2127,7 @@ export const translations = {
       },
 
       footer: {
-        madeWith: "Made with React Native 🚀",
+        madeWith: "Made with React Native",
         build: "Build 2024.01.001",
       },
     },
@@ -2157,7 +2163,7 @@ export const translations = {
       },
 
       info: {
-        title: "ℹ️ About Backups",
+        title: "About Backups",
         text:
           "• Backups are stored in the cloud\n" +
           "• Include transactions, goals and budgets\n" +
@@ -2285,7 +2291,7 @@ export const translations = {
       },
     },
     premium: {
-      badge: "⭐ PREMIUM",
+      badge: "PREMIUM",
 
       header: {
         title: "Unlock Your Full Potential",
@@ -2298,7 +2304,7 @@ export const translations = {
         yearly: "Yearly",
         month: "month",
         year: "year",
-        selected: "✓ Selected",
+        selected: "Selected",
         discount: "25% off",
       },
 
@@ -2426,15 +2432,15 @@ export const translations = {
       title: "Settings",
       subtitle: "Customize your app",
 
-      appearance: "🎨 Appearance",
+      appearance: "Appearance",
       darkMode: "Dark Mode",
       darkModeDesc: "Dark theme to save battery",
 
-      regionCurrency: "🌍 Region & Currency",
+      regionCurrency: "Region & Currency",
       currency: "Currency",
       language: "Language",
 
-      notifications: "🔔 Notifications",
+      notifications: "Notifications",
       notificationsEnabled: "Notifications Enabled",
       notificationsEnabledDesc: "Enable or disable notifications",
 
@@ -2453,7 +2459,7 @@ export const translations = {
       notificationTime: "Notification Time",
       notificationTimeDesc: "Set default time",
 
-      others: "⚙️ Others",
+      others: "Others",
       about: "About the App",
       aboutDesc: "Version, licenses and credits",
 
@@ -2478,7 +2484,11 @@ export const translations = {
       success: "Success",
       resetSuccess: "Settings restored!",
 
-      footer: "Financial Control v1.0.0\nBuilt with ❤️ in React Native",
+      footer: {
+        appName: "Financial Control v1.0.0",
+        madeWithPrefix: "Built with",
+        madeWithSuffix: "in React Native",
+      },
     },
 
     supportCreateTicket: {
@@ -2518,7 +2528,7 @@ export const translations = {
       },
 
       tips: {
-        title: "💡 Tips for a good ticket:",
+        title: "Tips for a good ticket:",
         items: [
           "• Be specific about the issue",
           "• Tell when the problem happened",
@@ -2606,7 +2616,7 @@ export const translations = {
       },
 
       contact: {
-        title: "📞 Need immediate help?",
+        title: "Need immediate help?",
         description: "Our team is available Monday to Friday, from 9am to 6pm.",
         whatsapp: "WhatsApp",
         email: "Email",
@@ -2615,7 +2625,7 @@ export const translations = {
       },
 
       info: {
-        title: "ℹ️ Information",
+        title: "Information",
         text:
           "• Average response time: 24 hours\n" +
           "• Support available in Portuguese\n" +
@@ -2639,7 +2649,7 @@ export const translations = {
       },
 
       rating: {
-        prompt: "⭐ Rate our support",
+        prompt: "Rate our support",
         title: "How was our support?",
         placeholder: "Comment (optional)",
         submit: "Submit Rating",
@@ -2714,7 +2724,7 @@ export const translations = {
       },
 
       footer: {
-        title: "Still have questions? 🤔",
+        title: "Still have questions?",
         text: "Visit our Help Center (FAQ) or submit a support ticket. We are here to help!",
       },
 
@@ -2722,7 +2732,7 @@ export const translations = {
         {
           id: "1",
           category: "Getting Started",
-          icon: "🚀",
+          icon: "rocket-launch",
           items: [
             {
               title: "How to create your first transaction",
@@ -2752,7 +2762,7 @@ export const translations = {
         {
           id: "2",
           category: "Main Features",
-          icon: "⚙️",
+          icon: "settings",
           items: [
             {
               title: "Creating financial goals",
@@ -2771,7 +2781,7 @@ export const translations = {
         {
           id: "5",
           category: "Premium",
-          icon: "⭐",
+          icon: "star",
           items: [
             {
               title: "Premium features",
@@ -2829,7 +2839,7 @@ export const translations = {
           message: "Please log in again.",
         },
         success: {
-          title: "Success! ✅",
+          title: "Success!",
           message: "Expense added successfully!",
         },
         error: {
@@ -2881,7 +2891,7 @@ export const translations = {
           message: "Please log in again.",
         },
         success: {
-          title: "Success! ✅",
+          title: "Success!",
           message: "Income added successfully!",
         },
         error: {
@@ -2937,7 +2947,7 @@ export const translations = {
           message: "Please log in again.",
         },
         success: {
-          title: "Success! ✅",
+          title: "Success!",
           message: "Investment added successfully!",
         },
         error: {
@@ -2993,7 +3003,7 @@ export const translations = {
           message: "Please log in again.",
         },
         success: {
-          title: "Success! ✅",
+          title: "Success!",
           message: "Offering registered successfully!",
         },
         error: {
@@ -3043,7 +3053,7 @@ export const translations = {
       tithePercent: "Tithe (10%):",
       returned: "Returned:",
       remaining: "Remaining:",
-      returnedBadge: "✓ Tithe returned!",
+      returnedBadge: "Tithe returned!",
       emptyState:
         "Add your monthly income to automatically calculate the tithe",
       customCard: "Calculate Custom Amount",
@@ -3616,7 +3626,7 @@ export const translations = {
         subscribe: "Suscribirse a Premium",
       },
 
-      badge: "⭐ PREMIUM",
+      badge: "PREMIUM",
 
       views: {
         yearly: "Anual",
@@ -3731,11 +3741,11 @@ export const translations = {
       },
 
       sections: {
-        about: "📖 Sobre",
-        features: "✨ Funcionalidades",
-        libraries: "📚 Bibliotecas de Código Abierto",
-        developer: "👨‍💻 Desarrollador",
-        links: "🔗 Enlaces Útiles",
+        about: "Sobre",
+        features: "Funcionalidades",
+        libraries: "Bibliotecas de Código Abierto",
+        developer: "Desarrollador",
+        links: "Enlaces Útiles",
       },
 
       description:
@@ -3756,8 +3766,9 @@ export const translations = {
       ],
 
       developer: {
-        madeBy: "Desarrollado con ❤️ por Louise",
-        rights: "© 2026 Todos los derechos reservados",
+        madeByPrefix: "Developed with",
+        madeByAuthor: "by Louise",
+        rights: "© 2026 All rights reserved",
       },
 
       links: {
@@ -3767,7 +3778,7 @@ export const translations = {
       },
 
       footer: {
-        madeWith: "Hecho con React Native 🚀",
+        madeWith: "Hecho con React Native",
         build: "Build 2024.01.001",
       },
     },
@@ -3803,7 +3814,7 @@ export const translations = {
       },
 
       info: {
-        title: "ℹ️ Sobre las Copias",
+        title: "Sobre las Copias",
         text:
           "• Las copias se guardan en la nube\n" +
           "• Incluyen transacciones, metas y presupuestos\n" +
@@ -3931,7 +3942,7 @@ export const translations = {
       },
     },
     premium: {
-      badge: "⭐ PREMIUM",
+      badge: "PREMIUM",
 
       header: {
         title: "Desbloquea Todo tu Potencial",
@@ -3944,7 +3955,7 @@ export const translations = {
         yearly: "Anual",
         month: "mes",
         year: "año",
-        selected: "✓ Seleccionado",
+        selected: "Seleccionado",
         discount: "25% de descuento",
       },
 
@@ -4072,15 +4083,15 @@ export const translations = {
       title: "Configuración",
       subtitle: "Personaliza tu aplicación",
 
-      appearance: "🎨 Apariencia",
+      appearance: "Apariencia",
       darkMode: "Modo Oscuro",
       darkModeDesc: "Tema oscuro para ahorrar batería",
 
-      regionCurrency: "🌍 Región y Moneda",
+      regionCurrency: "Región y Moneda",
       currency: "Moneda",
       language: "Idioma",
 
-      notifications: "🔔 Notificaciones",
+      notifications: "Notificaciones",
       notificationsEnabled: "Notificaciones Activadas",
       notificationsEnabledDesc: "Activar o desactivar notificaciones",
 
@@ -4099,7 +4110,7 @@ export const translations = {
       notificationTime: "Horario de Notificaciones",
       notificationTimeDesc: "Definir horario predeterminado",
 
-      others: "⚙️ Otros",
+      others: "Otros",
       about: "Sobre la App",
       aboutDesc: "Versión, licencias y créditos",
 
@@ -4125,7 +4136,11 @@ export const translations = {
       success: "Éxito",
       resetSuccess: "¡Configuración restaurada!",
 
-      footer: "Control Financiero v1.0.0\nDesarrollado con ❤️ en React Native",
+      footer: {
+        appName: "Financial Control v1.0.0",
+        madeWithPrefix: "Built with",
+        madeWithSuffix: "in React Native",
+      },
     },
     supportCreateTicket: {
       header: {
@@ -4198,7 +4213,7 @@ export const translations = {
       },
 
       tips: {
-        title: "💡 Consejos para un buen ticket:",
+        title: "Consejos para un buen ticket:",
         items: [
           "• Sé específico sobre el problema",
           "• Indica cuándo ocurrió el error",
@@ -4286,7 +4301,7 @@ export const translations = {
       },
 
       contact: {
-        title: "📞 ¿Necesitas ayuda inmediata?",
+        title: "¿Necesitas ayuda inmediata?",
         description:
           "Nuestro equipo está disponible de lunes a viernes, de 9h a 18h.",
         whatsapp: "WhatsApp",
@@ -4296,7 +4311,7 @@ export const translations = {
       },
 
       info: {
-        title: "ℹ️ Información",
+        title: "Información",
         text:
           "• Tiempo promedio de respuesta: 24 horas\n" +
           "• Soporte disponible en portugués\n" +
@@ -4320,7 +4335,7 @@ export const translations = {
       },
 
       rating: {
-        prompt: "⭐ Evalúa nuestro servicio",
+        prompt: "Evalúa nuestro servicio",
         title: "¿Cómo fue nuestra atención?",
         placeholder: "Comentario (opcional)",
         submit: "Enviar Evaluación",
@@ -4395,7 +4410,7 @@ export const translations = {
       },
 
       footer: {
-        title: "¿Aún tienes dudas? 🤔",
+        title: "¿Aún tienes dudas?",
         text: "Visita nuestro Centro de Ayuda (FAQ) o envía un ticket de soporte. ¡Estamos aquí para ayudarte!",
       },
 
@@ -4403,7 +4418,7 @@ export const translations = {
         {
           id: "1",
           category: "Primeros Pasos",
-          icon: "🚀",
+          icon: "rocket-launch",
           items: [
             {
               title: "Cómo crear tu primera transacción",
@@ -4433,7 +4448,7 @@ export const translations = {
         {
           id: "2",
           category: "Funciones Principales",
-          icon: "⚙️",
+          icon: "settings",
           items: [
             {
               title: "Creando metas financieras",
@@ -4452,7 +4467,7 @@ export const translations = {
         {
           id: "5",
           category: "Premium",
-          icon: "⭐",
+          icon: "star",
           items: [
             {
               title: "Funciones Premium",
@@ -4510,7 +4525,7 @@ export const translations = {
           message: "Inicia sesión nuevamente.",
         },
         success: {
-          title: "¡Éxito! ✅",
+          title: "¡Éxito!",
           message: "Gasto agregado correctamente!",
         },
         error: {
@@ -4562,7 +4577,7 @@ export const translations = {
           message: "Inicia sesión nuevamente.",
         },
         success: {
-          title: "¡Éxito! ✅",
+          title: "¡Éxito!",
           message: "Ingreso agregado correctamente!",
         },
         error: {
@@ -4618,7 +4633,7 @@ export const translations = {
           message: "Inicia sesión nuevamente.",
         },
         success: {
-          title: "¡Éxito! ✅",
+          title: "¡Éxito!",
           message: "¡Inversión agregada correctamente!",
         },
         error: {
@@ -4674,7 +4689,7 @@ export const translations = {
           message: "Inicia sesión nuevamente.",
         },
         success: {
-          title: "¡Éxito! ✅",
+          title: "¡Éxito!",
           message: "¡Ofrenda registrada correctamente!",
         },
         error: {
@@ -4724,7 +4739,7 @@ export const translations = {
       tithePercent: "Diezmo (10%):",
       returned: "Devuelto:",
       remaining: "Restante:",
-      returnedBadge: "✓ ¡Diezmo devuelto!",
+      returnedBadge: "¡Diezmo devuelto!",
       emptyState:
         "Agrega tus ingresos del mes para calcular automáticamente el diezmo",
       customCard: "Calcular Cantidad Personalizada",
