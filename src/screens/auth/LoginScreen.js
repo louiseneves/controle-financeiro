@@ -79,11 +79,6 @@ const LoginScreen = ({ navigation }) => {
           [
             {
               text: "OK",
-              onPress: () =>
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: "HomeTab" }],
-                }),
             },
           ],
           { cancelable: false },

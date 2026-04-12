@@ -17,6 +17,7 @@ import { BarChart, PieChart } from "react-native-gifted-charts";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
+import { convertFromBRL } from "../../services/currency/currencyService";
 import { EXPENSE_CATEGORIES } from "../../utils";
 import { t } from "../../i18n";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -30,7 +31,7 @@ const ReportsScreen = ({ navigation }) => {
   const { transactions, loadTransactions, getCurrentMonthTransactions } =
     useTransactionStore();
   const formatCurrency = useSettingsStore((state) => state.formatCurrency);
-  const convertFromBRL = useSettingsStore((state) => state.convertFromBRL);
+  const { currency } = useSettingsStore();
 
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState("month"); // month, 3months, year
@@ -79,27 +80,35 @@ const ReportsScreen = ({ navigation }) => {
     return Array.isArray(data) ? data : [];
   }, [transactions, selectedPeriod]);
 
-  // Calcular totais
-  const income = periodTransactions
-    .filter((t) => t.type === "receita")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  // Calcular totais com memoização
+  const { income, expense, investment, offer, balance } = useMemo(() => {
+    const inc = periodTransactions
+      .filter((t) => t.type === "receita")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  const expense = periodTransactions
-    .filter((t) => t.type === "despesa")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const exp = periodTransactions
+      .filter((t) => t.type === "despesa")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  const investment = periodTransactions
-    .filter((t) => t.type === "investimento")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const inv = periodTransactions
+      .filter((t) => t.type === "investimento")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  const offer = periodTransactions
-    .filter((t) => t.type === "oferta")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const off = periodTransactions
+      .filter((t) => t.type === "oferta")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  const balance = income - expense - investment - offer;
+    return {
+      income: inc,
+      expense: exp,
+      investment: inv,
+      offer: off,
+      balance: inc - exp - inv - off,
+    };
+  }, [periodTransactions]);
 
-  // Agrupar despesas por categoria
-  const expensesByCategory = () => {
+  // Agrupar despesas por categoria com memoização
+  const expensesByCategory = useMemo(() => {
     const grouped = {};
 
     periodTransactions
@@ -119,11 +128,6 @@ const ReportsScreen = ({ navigation }) => {
           expense > 0 ? Number(((amount / expense) * 100).toFixed(1)) : 0,
       }))
       .sort((a, b) => b.amount - a.amount);
-  };
-
-  const categoryData = useMemo(() => {
-    const data = expensesByCategory();
-    return Array.isArray(data) ? data : [];
   }, [periodTransactions, expense]);
 
   // ✅ Obter nome da categoria
@@ -133,7 +137,8 @@ const ReportsScreen = ({ navigation }) => {
     );
   };
 
-  // Dados para gráfico de pizza (top 5 categorias)
+  // Dados para gráfico de pizza (top 5 categorias - categoriesData é resultado do useMemo acima)
+  const categoryData = expensesByCategory;
   const pieColors = [
     colors.error,
     colors.warning,

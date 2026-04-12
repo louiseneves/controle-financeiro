@@ -1,95 +1,164 @@
 /**
  * Funções de formatação com suporte a internacionalização
+ * IMPORTANTE: Função pura - não acessa stores diretamente
+ * Use formatCurrencyHook em componentes React
  */
 
-import useSettingsStore from '../../store/settingsStore';
+import { useCallback, useMemo } from "react";
+import useSettingsStore from "../../store/settingsStore";
 
 const relativeTimeTexts = {
   pt: {
-    now: 'Agora',
-    minute: 'Há 1 minuto',
-    minutes: n => `Há ${n} minutos`,
-    hour: 'Há 1 hora',
-    hours: n => `Há ${n} horas`,
-    yesterday: 'Ontem',
-    days: n => `Há ${n} dias`,
-    weeks: n => `Há ${n} semanas`,
-    month: 'Há 1 mês',
-    months: n => `Há ${n} meses`,
-    year: 'Há 1 ano',
-    years: n => `Há ${n} anos`,
+    now: "Agora",
+    minute: "Há 1 minuto",
+    minutes: (n) => `Há ${n} minutos`,
+    hour: "Há 1 hora",
+    hours: (n) => `Há ${n} horas`,
+    yesterday: "Ontem",
+    days: (n) => `Há ${n} dias`,
+    weeks: (n) => `Há ${n} semanas`,
+    month: "Há 1 mês",
+    months: (n) => `Há ${n} meses`,
+    year: "Há 1 ano",
+    years: (n) => `Há ${n} anos`,
   },
   en: {
-    now: 'Now',
-    minute: '1 minute ago',
-    minutes: n => `${n} minutes ago`,
-    hour: '1 hour ago',
-    hours: n => `${n} hours ago`,
-    yesterday: 'Yesterday',
-    days: n => `${n} days ago`,
-    weeks: n => `${n} weeks ago`,
-    month: '1 month ago',
-    months: n => `${n} months ago`,
-    year: '1 year ago',
-    years: n => `${n} years ago`,
+    now: "Now",
+    minute: "1 minute ago",
+    minutes: (n) => `${n} minutes ago`,
+    hour: "1 hour ago",
+    hours: (n) => `${n} hours ago`,
+    yesterday: "Yesterday",
+    days: (n) => `${n} days ago`,
+    weeks: (n) => `${n} weeks ago`,
+    month: "1 month ago",
+    months: (n) => `${n} months ago`,
+    year: "1 year ago",
+    years: (n) => `${n} years ago`,
   },
   es: {
-    now: 'Ahora',
-    minute: 'Hace 1 minuto',
-    minutes: n => `Hace ${n} minutos`,
-    hour: 'Hace 1 hora',
-    hours: n => `Hace ${n} horas`,
-    yesterday: 'Ayer',
-    days: n => `Hace ${n} días`,
-    weeks: n => `Hace ${n} semanas`,
-    month: 'Hace 1 mes',
-    months: n => `Hace ${n} meses`,
-    year: 'Hace 1 año',
-    years: n => `Hace ${n} años`,
+    now: "Ahora",
+    minute: "Hace 1 minuto",
+    minutes: (n) => `Hace ${n} minutos`,
+    hour: "Hace 1 hora",
+    hours: (n) => `Hace ${n} horas`,
+    yesterday: "Ayer",
+    days: (n) => `Hace ${n} días`,
+    weeks: (n) => `Hace ${n} semanas`,
+    month: "Hace 1 mes",
+    months: (n) => `Hace ${n} meses`,
+    year: "Hace 1 año",
+    years: (n) => `Hace ${n} años`,
   },
 };
 
 export const getCurrentLocale = () => {
-  const settings = useSettingsStore.getState();
-  return settings.language || 'pt-BR';
+  // FIXME: Função pura - não deve acessar store diretamente
+  // Use useCurrentLocale hook em componentes
+  return "pt-BR"; // fallback padrão
 };
 
+/**
+ * Hook para obter locale atual com reatividade
+ * @returns {string} Código do locale (ex: pt-BR)
+ */
+export const useCurrentLocale = () => {
+  return useSettingsStore((state) => state.language || "pt-BR");
+};
 
 /**
- * Formatar valor para moeda
- * Usa a moeda configurada nas settings
+ * Formatar valor para moeda (FUNÇÃO PURA)
+ * @param {number} value - Valor a formatar
+ * @param {string} currency - Código da moeda (BRL, USD, etc)
+ * @param {string} locale - Locale para formatação
+ * @returns {string} Valor formatado
  */
-export const formatCurrency = (value) => {
-  if (value === null || value === undefined) return 'R$ 0,00';
-  
-  const settings = useSettingsStore.getState();
-  const currency = settings.currency || 'BRL';
-  const num = typeof value === 'number' ? value : parseFloat(value) || 0;
+export const formatCurrencyValue = (
+  value,
+  currency = "BRL",
+  locale = "pt-BR",
+) => {
+  if (value === null || value === undefined) return "R$ 0,00";
+
+  const num = typeof value === "number" ? value : parseFloat(value) || 0;
 
   // Configurações de locale por moeda
   const localeMap = {
-    BRL: 'pt-BR',
-    USD: 'en-US',
-    EUR: 'pt-PT',
-    GBP: 'en-GB',
-    ARS: 'es-AR',
-    CLP: 'es-CL',
-    PYG: 'es-PY',
-    UYU: 'es-UY',
+    BRL: "pt-BR",
+    USD: "en-US",
+    EUR: "pt-PT",
+    GBP: "en-GB",
+    ARS: "es-AR",
+    CLP: "es-CL",
+    PYG: "es-PY",
+    UYU: "es-UY",
   };
 
-  const locale = settings.language || localeMap[currency] || 'pt-BR';
+  const finalLocale =
+    locale && locale in localeMap ? locale : localeMap[currency] || "pt-BR";
 
   try {
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
+    return new Intl.NumberFormat(finalLocale, {
+      style: "currency",
       currency: currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(num);
   } catch (error) {
     // Fallback se der erro
-    return `R$ ${num.toFixed(2).replace('.', ',')}`;
+    return `${currency} ${num.toFixed(2)}`;
+  }
+};
+
+/**
+ * Hook para formatar moeda (RECOMENDADO para componentes)
+ * @returns {Function} Função que formata valores
+ */
+export const useCurrencyFormatter = () => {
+  const currency = useSettingsStore((state) => state.currency);
+  const language = useSettingsStore((state) => state.language);
+
+  return useCallback(
+    (value) => formatCurrencyValue(value, currency, language),
+    [currency, language],
+  );
+};
+
+/**
+ * @deprecated Use formatCurrencyValue ou useCurrencyFormatter ao invés
+ * Formatar valor para moeda - UNSAFE (acessa store diretamente)
+ */
+export const formatCurrency = (value) => {
+  if (value === null || value === undefined) return "R$ 0,00";
+
+  const settings = useSettingsStore.getState();
+  const currency = settings.currency || "BRL";
+  const num = typeof value === "number" ? value : parseFloat(value) || 0;
+
+  // Configurações de locale por moeda
+  const localeMap = {
+    BRL: "pt-BR",
+    USD: "en-US",
+    EUR: "pt-PT",
+    GBP: "en-GB",
+    ARS: "es-AR",
+    CLP: "es-CL",
+    PYG: "es-PY",
+    UYU: "es-UY",
+  };
+
+  const locale = settings.language || localeMap[currency] || "pt-BR";
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  } catch (error) {
+    // Fallback se der erro
+    return `R$ ${num.toFixed(2).replace(".", ",")}`;
   }
 };
 
@@ -97,40 +166,39 @@ export const formatCurrency = (value) => {
  * Formatar data para formato respeita o idioma
  */
 export const formatDate = (date) => {
-  if (!date) return '';
+  if (!date) return "";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(dateObj.getTime())) return '';
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "";
 
   const locale = getCurrentLocale();
 
   return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    month: 'short', // 👈 muda aqui
-    year: 'numeric',
+    day: "2-digit",
+    month: "short", // 👈 muda aqui
+    year: "numeric",
   }).format(dateObj);
 };
-
 
 /**
  * Formatar data com hora (formato brasileiro)
  */
 export const formatDateTime = (date) => {
-  if (!date) return '';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return '';
+  if (!date) return "";
+
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) return "";
 
   const locale = getCurrentLocale();
-  
+
   // Formato brasileiro: DD/MM/AAAA às HH:MM
   return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(dateObj);
 };
 
@@ -138,19 +206,19 @@ export const formatDateTime = (date) => {
  * Formatar data por extenso (português)
  */
 export const formatDateLong = (date) => {
-  if (!date) return '';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return '';
+  if (!date) return "";
+
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) return "";
 
   const locale = getCurrentLocale();
-  
+
   // Formato: 28 de janeiro de 2026
   return new Intl.DateTimeFormat(locale, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   }).format(dateObj);
 };
 
@@ -158,17 +226,17 @@ export const formatDateLong = (date) => {
  * Formatar mês e ano (português)
  */
 export const formatMonthYear = (date) => {
-  if (!date) return '';
+  if (!date) return "";
 
   const locale = getCurrentLocale();
 
   const formatted = new Intl.DateTimeFormat(locale, {
-    month: 'long',
-    year: 'numeric',
+    month: "long",
+    year: "numeric",
   }).format(new Date(date));
 
   // Só capitaliza para PT e ES
-  if (locale.startsWith('pt') || locale.startsWith('es')) {
+  if (locale.startsWith("pt") || locale.startsWith("es")) {
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }
 
@@ -176,23 +244,21 @@ export const formatMonthYear = (date) => {
   return formatted;
 };
 
-
-
 /**
  * Formatar apenas o mês (português)
  */
 export const formatMonth = (date) => {
-  if (!date) return '';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return '';
+  if (!date) return "";
+
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) return "";
 
   const locale = getCurrentLocale();
-  
+
   // Formato: Janeiro
   return new Intl.DateTimeFormat(locale, {
-    month: 'long',
+    month: "long",
   }).format(dateObj);
 };
 
@@ -200,17 +266,17 @@ export const formatMonth = (date) => {
  * Formatar mês abreviado (português)
  */
 export const formatMonthShort = (date) => {
-  if (!date) return '';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return '';
-  
+  if (!date) return "";
+
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) return "";
+
   const locale = getCurrentLocale();
 
   // Formato: Jan
   return new Intl.DateTimeFormat(locale, {
-    month: 'short',
+    month: "short",
   }).format(dateObj);
 };
 
@@ -218,17 +284,17 @@ export const formatMonthShort = (date) => {
  * Formatar dia da semana (português)
  */
 export const formatWeekday = (date) => {
-  if (!date) return '';
-  
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
-  if (isNaN(dateObj.getTime())) return '';
+  if (!date) return "";
+
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) return "";
 
   const locale = getCurrentLocale();
-  
+
   // Formato: Segunda-feira
   return new Intl.DateTimeFormat(locale, {
-    weekday: 'long',
+    weekday: "long",
   }).format(dateObj);
 };
 
@@ -236,10 +302,10 @@ export const formatWeekday = (date) => {
  * Formatar número para porcentagem
  */
 export const formatPercentage = (value, decimals = 1) => {
-  if (value === null || value === undefined) return '0%';
-  
-  const num = typeof value === 'number' ? value : parseFloat(value) || 0;
-  
+  if (value === null || value === undefined) return "0%";
+
+  const num = typeof value === "number" ? value : parseFloat(value) || 0;
+
   return `${num.toFixed(decimals)}%`;
 };
 
@@ -248,10 +314,10 @@ export const formatPercentage = (value, decimals = 1) => {
  * Ex: 1500 -> 1,5 mil | 1500000 -> 1,5 mi
  */
 export const formatNumberCompact = (value) => {
-  if (value === null || value === undefined) return '0';
-  
-  const num = typeof value === 'number' ? value : parseFloat(value) || 0;
-  
+  if (value === null || value === undefined) return "0";
+
+  const num = typeof value === "number" ? value : parseFloat(value) || 0;
+
   if (num >= 1000000000) {
     return `${(num / 1000000000).toFixed(1)} bi`;
   } else if (num >= 1000000) {
@@ -259,7 +325,7 @@ export const formatNumberCompact = (value) => {
   } else if (num >= 1000) {
     return `${(num / 1000).toFixed(1)} mil`;
   }
-  
+
   return num.toFixed(0);
 };
 
@@ -267,9 +333,9 @@ export const formatNumberCompact = (value) => {
  * Truncar texto
  */
 export const truncateText = (text, maxLength = 50) => {
-  if (!text) return '';
+  if (!text) return "";
   if (text.length <= maxLength) return text;
-  
+
   return `${text.substring(0, maxLength)}...`;
 };
 
@@ -277,7 +343,7 @@ export const truncateText = (text, maxLength = 50) => {
  * Capitalizar primeira letra
  */
 export const capitalize = (text) => {
-  if (!text) return '';
+  if (!text) return "";
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
 
@@ -285,26 +351,26 @@ export const capitalize = (text) => {
  * Capitalizar primeira letra de cada palavra
  */
 export const capitalizeWords = (text) => {
-  if (!text) return '';
+  if (!text) return "";
   return text
-    .split(' ')
-    .map(word => capitalize(word))
-    .join(' ');
+    .split(" ")
+    .map((word) => capitalize(word))
+    .join(" ");
 };
 
 /**
  * Obter iniciais do nome
  */
 export const getInitials = (name) => {
-  if (!name) return '';
-  
-  const parts = name.trim().split(' ').filter(Boolean);
-  
-  if (parts.length === 0) return '';
+  if (!name) return "";
+
+  const parts = name.trim().split(" ").filter(Boolean);
+
+  if (parts.length === 0) return "";
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-  
+
   return (
-    parts[0].charAt(0).toUpperCase() + 
+    parts[0].charAt(0).toUpperCase() +
     parts[parts.length - 1].charAt(0).toUpperCase()
   );
 };
@@ -313,10 +379,10 @@ export const getInitials = (name) => {
  * Formatar número de telefone brasileiro
  */
 export const formatPhone = (phone) => {
-  if (!phone) return '';
-  
-  const cleaned = phone.replace(/\D/g, '');
-  
+  if (!phone) return "";
+
+  const cleaned = phone.replace(/\D/g, "");
+
   if (cleaned.length === 11) {
     // Celular: (XX) XXXXX-XXXX
     return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
@@ -324,7 +390,7 @@ export const formatPhone = (phone) => {
     // Fixo: (XX) XXXX-XXXX
     return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
   }
-  
+
   return phone;
 };
 
@@ -332,14 +398,14 @@ export const formatPhone = (phone) => {
  * Formatar CPF
  */
 export const formatCPF = (cpf) => {
-  if (!cpf) return '';
-  
-  const cleaned = cpf.replace(/\D/g, '');
-  
+  if (!cpf) return "";
+
+  const cleaned = cpf.replace(/\D/g, "");
+
   if (cleaned.length === 11) {
     return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9)}`;
   }
-  
+
   return cpf;
 };
 
@@ -347,13 +413,13 @@ export const formatCPF = (cpf) => {
  * Formatar tempo relativo (ex: "há 2 dias")
  */
 export const formatRelativeTime = (date) => {
-  if (!date) return '';
+  if (!date) return "";
 
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  if (isNaN(dateObj.getTime())) return '';
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(dateObj.getTime())) return "";
 
   const settings = useSettingsStore.getState();
-  const language = settings.language || 'pt';
+  const language = settings.language || "pt";
   const t = relativeTimeTexts[language];
 
   const diffMs = new Date() - dateObj;
@@ -378,11 +444,10 @@ export const formatRelativeTime = (date) => {
   return t.years(diffYears);
 };
 
-
 export const parseISODateOnly = (dateString) => {
   if (!dateString) return null;
 
-  const [year, month, day] = dateString.split('-').map(Number);
+  const [year, month, day] = dateString.split("-").map(Number);
 
   if (!year || !month || !day) return null;
 
@@ -392,55 +457,55 @@ export const parseISODateOnly = (dateString) => {
 };
 
 export const isoToBR = (isoDate) => {
-  if (!isoDate) return '';
+  if (!isoDate) return "";
 
-  const [year, month, day] = isoDate.split('-');
-  if (!year || !month || !day) return '';
+  const [year, month, day] = isoDate.split("-");
+  if (!year || !month || !day) return "";
 
   return `${day}/${month}/${year}`;
 };
 
 export const brToISO = (brDate) => {
-  if (!brDate) return '';
+  if (!brDate) return "";
 
-  const [day, month, year] = brDate.split('/');
-  if (!day || !month || !year) return '';
+  const [day, month, year] = brDate.split("/");
+  if (!day || !month || !year) return "";
 
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 };
 
 export const getCurrencyPlaceholder = () => {
   const locale = getCurrentLocale();
   const settings = useSettingsStore.getState();
-  const currency = settings.currency || 'BRL';
+  const currency = settings.currency || "BRL";
 
   const formatter = new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency,
     minimumFractionDigits: 2,
   });
 
   const formatted = formatter.format(0);
 
-  return formatted
-    .replace(/[^\d.,]/g, '')
-    .trim();
+  return formatted.replace(/[^\d.,]/g, "").trim();
 };
 
 export const getCurrencySymbol = () => {
   const locale = getCurrentLocale();
   const settings = useSettingsStore.getState();
-  const currency = settings.currency || 'BRL';
+  const currency = settings.currency || "BRL";
 
   try {
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency,
-    })
-      .formatToParts(0)
-      .find(p => p.type === 'currency')?.value || '';
+    return (
+      new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency,
+      })
+        .formatToParts(0)
+        .find((p) => p.type === "currency")?.value || ""
+    );
   } catch {
-    return '';
+    return "";
   }
 };
 
@@ -448,27 +513,24 @@ export const parseCurrencyInput = (value) => {
   if (!value) return 0;
 
   const settings = useSettingsStore.getState();
-  const currency = settings.currency || 'BRL';
+  const currency = settings.currency || "BRL";
 
   // Remove tudo que não for número, ponto ou vírgula
-  let sanitized = value.replace(/[^\d.,]/g, '');
+  let sanitized = value.replace(/[^\d.,]/g, "");
 
-  const commaDecimalCurrencies = ['BRL', 'EUR', 'ARS', 'CLP', 'PYG', 'UYU'];
- 
+  const commaDecimalCurrencies = ["BRL", "EUR", "ARS", "CLP", "PYG", "UYU"];
+
   if (commaDecimalCurrencies.includes(currency)) {
     // 1.234,56 → 1234.56
-    sanitized = sanitized.replace(/\./g, '').replace(',', '.');
+    sanitized = sanitized.replace(/\./g, "").replace(",", ".");
   } else {
     // 1,234.56 → 1234.56
-    sanitized = sanitized.replace(/,/g, '');
+    sanitized = sanitized.replace(/,/g, "");
   }
 
   const number = Number(sanitized);
   return isNaN(number) ? 0 : number;
 };
-
-
-
 
 export default {
   formatCurrency,

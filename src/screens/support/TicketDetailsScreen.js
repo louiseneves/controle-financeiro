@@ -26,43 +26,57 @@ const TicketDetailsScreen = ({ route, navigation }) => {
   const [showRating, setShowRating] = useState(false);
   const [rating, setRating] = useState(0);
   const [ratingFeedback, setRatingFeedback] = useState("");
+  const [notFoundAlertShown, setNotFoundAlertShown] = useState(false);
   const scrollViewRef = useRef();
 
   const ticket = tickets.find((t) => t.id === ticketId);
 
-  // quando o administrador responder, atualiza automaticamente via listener
+  // Listener para atualizações em tempo real
   useEffect(() => {
     if (!ticketId) return;
-    const unsub = subscribeToTicket(ticketId, (updated) => {
+
+    const unsubscribe = subscribeToTicket(ticketId, (updated) => {
       useSupportStore.setState((state) => ({
         tickets: state.tickets.map((t) =>
           t.id === ticketId ? { ...t, ...updated } : t,
         ),
       }));
     });
-    return () => unsub && unsub();
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, [ticketId, subscribeToTicket]);
 
-  // ✅ Proteção contra ticket não encontrado
-  if (!ticket) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{t("ticketDetails.notFound")}</Text>
-      </View>
-    );
-  }
-
+  // Proteção contra ticket não encontrado (mostra uma única vez)
   useEffect(() => {
-    if (!ticket) {
+    if (!ticket && !notFoundAlertShown) {
+      setNotFoundAlertShown(true);
       Alert.alert(
         t("ticketDetailsScreen.errors.notFoundTitle"),
         t("ticketDetailsScreen.errors.notFoundMessage"),
         [{ text: "OK", onPress: () => navigation.goBack() }],
       );
     }
-  }, [ticket]);
+  }, [ticket, notFoundAlertShown, navigation]);
 
-  if (!ticket) return null;
+  // Renderizar mensagem de erro se não encontrar ticket
+  if (!ticket) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <Text style={styles.errorText}>
+          {t("ticketDetailsScreen.errors.notFoundMessage")}
+        </Text>
+      </View>
+    );
+  }
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;

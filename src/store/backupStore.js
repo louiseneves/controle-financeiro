@@ -7,7 +7,7 @@ import  useGoalsStore  from './goalsStore';
 import  useBudgetStore  from './budgetStore';
 
 
-export const backupStore = create((set, get) => ({
+export const useBackupStore = create((set, get) => ({
   backups: [],
   loading: false,
   autoBackupEnabled: true,
@@ -199,3 +199,5 @@ const backupData = {
     }
   },
 }));
+
+export default useBackupStore;
