@@ -3,7 +3,7 @@
 ## ✅ **1. Testar Login e Cadastro**
 
 ### Cadastro
-- [ ] Abrir app pela primeira vez
+- [x ] Abrir app pela primeira vez
 - [ ] Clicar em "Criar Conta"
 - [ ] **Teste 1.1:** Tentar cadastrar sem preencher campos
   - Resultado esperado: Mensagem de erro "Preencha todos os campos"
