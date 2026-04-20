@@ -36,25 +36,48 @@ const useAuthStore = create((set, get) => ({
     return unsubscribe;
   },
 
-  // No authStore.js, na função login:
-  login: async (email, password) => {
-    try {
-      set({ loading: true, error: null });
+  // ✅ VALIDAR EMAIL
+  validateEmail: (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  },
 
-      // 🔍 DEBUG: Log dos dados
+  // ✅ LOGIN COM VALIDAÇÃO
+  login: async (email, password) => {
+    set({ loading: true, error: null });
+
+    try {
+      // ✅ Validações
+      if (!email || !email.trim()) {
+        throw new Error("Email é obrigatório");
+      }
+
+      const validateEmail = get().validateEmail;
+      if (!validateEmail(email)) {
+        throw new Error("Email inválido");
+      }
+
+      if (!password) {
+        throw new Error("Senha é obrigatória");
+      }
+
+      if (password.length < 6) {
+        throw new Error("Senha deve ter no mínimo 6 caracteres");
+      }
+
+      // 🔍 DEBUG
       console.log("🔍 Tentando login com:", { email, password: "***" });
 
+      // ✅ Fazer login no Firebase
       const result = await signInWithEmailAndPassword(auth, email, password);
 
       console.log("✅ Login realizado:", result.user.email);
-      set({ loading: false });
+
+      // ✅ User já será setado pelo onAuthStateChanged
+      set({ loading: false, error: null });
       return { success: true };
     } catch (error) {
-      // 🔍 DEBUG: Log completo do erro
-      console.log("❌ Erro completo:", error);
-      console.log("❌ Código do erro:", error.code);
-      console.log("❌ Mensagem:", error.message);
-      console.log("👀 Configuração do Firebase:", firebaseConfig);
+      console.log("❌ Erro:", error.message, error.code);
 
       let errorMessage = "Erro ao fazer login";
 
@@ -75,30 +98,60 @@ const useAuthStore = create((set, get) => ({
           errorMessage = "Email inválido";
           break;
         default:
-          errorMessage = `Erro ao fazer login (${error.code})`;
+          errorMessage = error.message || "Erro ao fazer login";
       }
 
+      // ✅ CRÍTICO: Sempre desativar loading
       set({ error: errorMessage, loading: false });
       return { success: false, error: errorMessage };
     }
   },
 
+  // ✅ REGISTER COM VALIDAÇÃO
   register: async (email, password, displayName) => {
+    set({ loading: true, error: null });
+
     try {
-      set({ loading: true, error: null });
+      // ✅ Validações
+      if (!email || !email.trim()) {
+        throw new Error("Email é obrigatório");
+      }
+
+      const validateEmail = get().validateEmail;
+      if (!validateEmail(email)) {
+        throw new Error("Email inválido");
+      }
+
+      if (!password) {
+        throw new Error("Senha é obrigatória");
+      }
+
+      if (password.length < 6) {
+        throw new Error("Senha deve ter no mínimo 6 caracteres");
+      }
+
+      if (!displayName || !displayName.trim()) {
+        throw new Error("Nome é obrigatório");
+      }
+
+      // ✅ Criar usuário no Firebase
       const { user } = await createUserWithEmailAndPassword(
         auth,
         email,
         password,
       );
 
+      // ✅ Atualizar perfil
       if (displayName) {
         await updateProfile(user, { displayName });
       }
 
-      set({ loading: false });
+      // ✅ User já será setado pelo onAuthStateChanged
+      set({ loading: false, error: null });
       return { success: true };
     } catch (error) {
+      console.log("❌ Erro de registro:", error.message, error.code);
+
       let errorMessage = "Erro ao cadastrar";
 
       switch (error.code) {
@@ -115,54 +168,66 @@ const useAuthStore = create((set, get) => ({
           errorMessage = "Sem conexão com a internet. Verifique sua rede";
           break;
         default:
-          errorMessage = `Erro ao cadastrar (${error.code})`;
+          errorMessage = error.message || "Erro ao cadastrar";
       }
 
+      // ✅ CRÍTICO: Sempre desativar loading
       set({ error: errorMessage, loading: false });
       return { success: false, error: errorMessage };
     }
   },
 
+  // ✅ LOGOUT COMPLETO
   logout: async () => {
+    set({ loading: true, error: null });
+
     try {
-      set({ loading: true });
       await signOut(auth);
+      // ✅ Resetar tudo
+      set({
+        user: null,
+        loading: false,
+        error: null,
+        initialized: true,
+      });
       return { success: true };
-    } catch {
-      set({ loading: false });
-      return { success: false, error: "Erro ao fazer logout" };
+    } catch (error) {
+      console.log("❌ Erro ao fazer logout:", error.message);
+      set({
+        error: error.message,
+        loading: false,
+      });
+      return { success: false, error: error.message };
     }
   },
 
+  // ✅ RESET PASSWORD
   resetPassword: async (email) => {
+    set({ loading: true, error: null });
+
     try {
-      set({ loading: true, error: null });
+      if (!email || !email.trim()) {
+        throw new Error("Email é obrigatório");
+      }
+
+      const validateEmail = get().validateEmail;
+      if (!validateEmail(email)) {
+        throw new Error("Email inválido");
+      }
+
       await sendPasswordResetEmail(auth, email);
       set({ loading: false });
       return { success: true };
     } catch (error) {
-      let errorMessage = "Erro ao enviar email";
-
-      switch (error.code) {
-        case "auth/user-not-found":
-          errorMessage = "Nenhuma conta encontrada com este email";
-          break;
-        case "auth/invalid-email":
-          errorMessage = "Email inválido";
-          break;
-        case "auth/network-request-failed":
-          errorMessage = "Sem conexão com a internet. Verifique sua rede";
-          break;
-        default:
-          errorMessage = `Erro ao enviar email (${error.code})`;
-      }
-
-      set({ error: errorMessage, loading: false });
-      return { success: false, error: errorMessage };
+      set({ error: error.message, loading: false });
+      return { success: false, error: error.message };
     }
   },
 
-  clearError: () => set({ error: null }),
+  // ✅ LIMPAR ERRO
+  clearError: () => {
+    set({ error: null });
+  },
 }));
 
 export default useAuthStore;

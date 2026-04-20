@@ -25,13 +25,17 @@ import {
 } from "../../utils";
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
+import { isoToBR, brToISO } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import useAuthStore from "../../store/authStore";
 
 const TransactionDetailScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { transaction } = route.params || {};
+  const user = useAuthStore((state) => state.user);
+  const currentUserId = user?.uid;
 
   // Protegção contra transaction undefined
   if (!transaction) {
@@ -133,6 +137,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
   };
 
   // Salvar edição
+  // ✅ Salvar edição (CORRIGIDO)
   const handleSave = async () => {
     if (!validateFields()) return;
 
@@ -150,14 +155,10 @@ const TransactionDetailScreen = ({ navigation, route }) => {
       const result = await updateTransaction(transaction.id, updatedData);
 
       if (result.success) {
+        // ✅ CORRIGIDO: Alert.alert com apenas 3 parâmetros STRING
         Alert.alert(
           t("transactionDetail.successTitle"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={24}
-            color={colors.text}
-          />,
-          t("transactionDetail.updateSuccess"),
+          t("transactionDetail.updateSuccess"), // ✅ Apenas STRING, sem ícone
           [
             {
               text: "OK",
@@ -185,13 +186,30 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     }
   };
 
-  // Deletar transação
+  // ✅ Deletar transação (CORRIGIDO)
   const handleDelete = () => {
+    // 🔍 DEBUG COMPLETO
+    console.log("🔍 ========== DEBUG DELETE ==========");
+    console.log("📋 Transaction completa:", transaction);
+    console.log("🆔 Transaction ID:", transaction.id);
+    console.log("👤 Transaction userId:", transaction.userId);
+    console.log("🔐 Auth UID atual:", currentUserId); // ✅ AGORA TEM VALOR
+    console.log("✅ UIDs batem?", transaction.userId === currentUserId);
+    console.log("================================");
+
+    if (transaction.userId !== currentUserId) {
+      Alert.alert("Erro", "Você não tem permissão para deletar esta transação");
+      return;
+    }
+
     Alert.alert(
       t("transactionDetail.deleteConfirmTitle"),
       t("transactionDetail.deleteConfirm"),
       [
-        { text: t("transactionDetail.cancelButton"), style: "cancel" },
+        {
+          text: t("transactionDetail.cancelButton"),
+          style: "cancel",
+        },
         {
           text: t("transactionDetail.deleteButtonAction"),
           style: "destructive",
@@ -203,11 +221,6 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               if (result.success) {
                 Alert.alert(
                   t("transactionDetail.successTitle"),
-                  <MaterialCommunityIcons
-                    name="checkbox-marked"
-                    size={24}
-                    color={colors.text}
-                  />,
                   t("transactionDetail.deleteSuccess"),
                   [
                     {
@@ -223,7 +236,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                 );
               }
             } catch (error) {
-              console.error(t("transactionDetail.deleteError"), error);
+              console.error("❌ Erro ao deletar:", error);
               Alert.alert(
                 t("transactionDetail.errorTitle"),
                 t("transactionDetail.deleteFailed"),
@@ -299,9 +312,9 @@ const TransactionDetailScreen = ({ navigation, route }) => {
 
             <Input
               label={t("transactionDetail.dateLabel")}
-              value={date}
-              onChangeText={setDate}
-              placeholder="YYYY-MM-DD"
+              value={isoToBR(date)}
+              onChangeText={(text) => setDate(brToISO(text))}
+              placeholder={t("transactionDetail.placeholders.date")}
               leftIcon={
                 <Text style={styles.iconText}>
                   <MaterialCommunityIcons
@@ -335,15 +348,17 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                       { borderColor: cat.color },
                     ]}
                     onPress={() => setCategory(cat.id)}
-                    activeOpacity={0.7}
                   >
-                    <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                    <MaterialIcons
+                      name={cat.icon}
+                      size={40}
+                      color={cat.color}
+                    />
                     <Text
                       style={[
                         styles.categoryName,
                         category === cat.id && styles.categoryNameSelected,
                       ]}
-                      numberOfLines={2}
                     >
                       {cat.name}
                     </Text>
@@ -505,41 +520,34 @@ const createStyles = (colors) =>
       marginBottom: 12,
     },
     categorySection: {
-      marginBottom: 16,
-    },
-    categoryScrollContainer: {
-      maxHeight: 300,
+      marginBottom: 24,
     },
     categoryGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
+      marginTop: 8,
     },
     categoryCard: {
       width: "31%",
       aspectRatio: 1,
       backgroundColor: colors.card,
       borderRadius: 12,
-      padding: 12,
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 2,
-      borderColor: colors.border,
     },
     categoryCardSelected: {
       borderWidth: 3,
-    },
-    categoryIcon: {
-      fontSize: 28,
-      marginBottom: 6,
+      backgroundColor: colors.success + "10",
     },
     categoryName: {
       fontSize: 11,
       color: colors.textSecondary,
-      textAlign: "center",
-      fontWeight: "500",
+      marginTop: 8,
     },
     categoryNameSelected: {
+      color: colors.success,
       fontWeight: "600",
     },
     checkboxContainer: {

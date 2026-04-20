@@ -1429,6 +1429,9 @@ export const translations = {
       descriptionLabel: "Descrição",
       amountLabel: "Valor",
       dateLabel: "Data",
+      placeholders: {
+        date: "DD/MM/AAAA",
+      },
       categoryLabel: "Categoria",
       recurringLabel: "Transação recorrente",
       recurringDescription: "Marque se essa transação se repete mensalmente",
@@ -3092,6 +3095,9 @@ export const translations = {
       descriptionLabel: "Description",
       amountLabel: "Amount",
       dateLabel: "Date",
+      placeholders: {
+        date: "MM/DD/YYYY",
+      },
       categoryLabel: "Category",
       recurringLabel: "Recurring transaction",
       recurringDescription: "Check if this transaction repeats monthly",
@@ -4778,6 +4784,7 @@ export const translations = {
       descriptionLabel: "Descripci\u00f3n",
       amountLabel: "Monto",
       dateLabel: "Fecha",
+      placeholders: { date: "DD/MM/AAAA" },
       categoryLabel: "Categor\u00eda",
       recurringLabel: "Transacci\u00f3n recurrente",
       recurringDescription:

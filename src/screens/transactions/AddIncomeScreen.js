@@ -73,7 +73,9 @@ const AddIncomeScreen = ({ navigation }) => {
   // Salvar Receita
   // -----------------------------
   const handleSave = async () => {
-    if (!validateFields()) return;
+    if (!validateFields()) {
+      return; // ✅ Não inicia loading se validação falhar
+    }
 
     if (!user?.uid) {
       Alert.alert(
@@ -84,14 +86,16 @@ const AddIncomeScreen = ({ navigation }) => {
       return;
     }
 
-    try {
-      setLoading(true);
+    setLoading(true); // ✅ Inicia APENAS se passou na validação
 
-      // Conversão segura da data
+    try {
       const parsedDate = new Date(`${date}T00:00:00`);
 
       if (isNaN(parsedDate.getTime())) {
-        Alert.alert(t("addIncome.error.title"), t("addIncome.date.invalid"));
+        Alert.alert(
+          t("addIncome.alerts.error.title"),
+          t("addIncome.form.date.invalid"),
+        );
         return;
       }
 
@@ -105,30 +109,44 @@ const AddIncomeScreen = ({ navigation }) => {
         userId: user.uid,
       };
 
+      console.log("📝 Enviando:", transactionData);
+
       const result = await addTransaction(transactionData);
+
+      console.log("📊 Resultado:", result);
 
       if (result?.success) {
         Alert.alert(
-          t("addIncome.success.title"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={24}
-            color={colors.success}
-          />,
-          t("addIncome.success.message"),
-          [{ text: "OK", onPress: () => navigation.goBack() }],
+          t("addIncome.alerts.success.title"),
+          t("addIncome.alerts.success.message"),
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setDescription("");
+                setAmount("");
+                setCategory("");
+                setDate(new Date().toISOString().split("T")[0]);
+                setIsRecurring(false);
+                navigation.goBack();
+              },
+            },
+          ],
         );
       } else {
         Alert.alert(
-          t("addIncome.error.title"),
-          result?.error || t("addIncome.error.generic"),
+          t("addIncome.alerts.error.title"),
+          result?.error || t("addIncome.alerts.error.generic"),
         );
       }
     } catch (error) {
-      console.error("Erro ao salvar receita:", error);
-      Alert.alert(t("addIncome.error.title"), t("addIncome.error.save"));
+      console.error("❌ Erro:", error);
+      Alert.alert(
+        t("addIncome.alerts.error.title"),
+        error?.message || t("addIncome.alerts.error.save"),
+      );
     } finally {
-      setLoading(false);
+      setLoading(false); // ✅ SEMPRE desativa
     }
   };
 

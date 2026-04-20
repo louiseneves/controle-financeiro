@@ -105,14 +105,10 @@ const AddExpenseScreen = ({ navigation }) => {
       const result = await addTransaction(transactionData);
 
       if (result.success) {
+        // ✅ CORRIGIDO: Remove o ícone, apenas strings
         Alert.alert(
           t("addExpense.alerts.success.title"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={20}
-            color={colors.success}
-          />,
-          t("addExpense.alerts.success.message"),
+          t("addExpense.alerts.success.message"), // ✅ Apenas STRING
           [{ text: "OK", onPress: () => navigation.goBack() }],
         );
       } else {

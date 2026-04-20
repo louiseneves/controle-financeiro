@@ -3,16 +3,16 @@
  * Gerenciamento de transações
  */
 
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   addDocument,
   getDocuments,
   updateDocument,
   deleteDocument,
-} from '../services/firebase/firestore';
-import { COLLECTIONS } from '../services/firebase/config';
-import NotificationService from '../services/notifications/notificationService';
-import useSettingsStore from './settingsStore';
+} from "../services/firebase/firestore";
+import { COLLECTIONS } from "../services/firebase/config";
+import NotificationService from "../services/notifications/notificationService";
+import useSettingsStore from "./settingsStore";
 
 const useTransactionStore = create((set, get) => ({
   // ==================== STATE ====================
@@ -29,14 +29,14 @@ const useTransactionStore = create((set, get) => ({
 
       const transactions = await getDocuments(
         COLLECTIONS.TRANSACTIONS,
-        { field: 'userId', operator: '==', value: userId },
-        { field: 'date', direction: 'desc' }
+        { field: "userId", operator: "==", value: userId },
+        { field: "date", direction: "desc" },
       );
 
       set({ transactions, loading: false });
       return { success: true };
     } catch (error) {
-      console.error('Erro ao carregar transações:', error);
+      console.error("Erro ao carregar transações:", error);
       set({ error: error.message, loading: false });
       return { success: false };
     }
@@ -45,41 +45,63 @@ const useTransactionStore = create((set, get) => ({
   // ==================== ADD ====================
   addTransaction: async (transaction) => {
     if (!transaction?.userId) {
-      return { success: false, error: 'Usuário não autenticado' };
+      return { success: false, error: "Usuário não autenticado" };
     }
 
-    try {
-      set({ loading: true, error: null });
+    set({ loading: true, error: null }); // ✅ Inicia loading
 
+    try {
       const newTransaction = {
         ...transaction,
         createdAt: new Date().toISOString(),
       };
 
-      const id = await addDocument(
-        COLLECTIONS.TRANSACTIONS,
-        newTransaction
-      );
+      console.log("📝 Salvando transação:", newTransaction);
 
-      set(state => ({
+      // ✅ Aguarda a adição
+      const id = await addDocument(COLLECTIONS.TRANSACTIONS, newTransaction);
+
+      console.log("✅ Transação salva com ID:", id);
+
+      // ✅ Atualiza estado
+      set((state) => ({
         transactions: [{ id, ...newTransaction }, ...state.transactions],
-        loading: false,
+        loading: false, // ✅ Desativa loading
+        error: null,
       }));
 
-      // 🔔 Notificação
-      const settings = useSettingsStore.getState();
-      if (settings.notifications.enabled) {
-        NotificationService.showNotification(
-          '✅ Transação registrada',
-          `${settings.formatCurrency(transaction.amount)} adicionada com sucesso`
-        );
+      // 🔔 Notificação (com tratamento de erro)
+      try {
+        const settings = useSettingsStore.getState();
+        if (settings?.notifications?.enabled) {
+          const formattedAmount =
+            settings.formatCurrency?.(transaction.amount) ||
+            `R$ ${transaction.amount.toFixed(2)}`;
+
+          await NotificationService.showNotification(
+            "✅ Transação registrada",
+            `${formattedAmount} adicionada com sucesso`,
+          );
+        }
+      } catch (notifError) {
+        console.warn("⚠️ Erro ao enviar notificação:", notifError);
+        // ✅ Notificação falha NÃO impede retorno de sucesso
       }
 
-      return { success: true };
+      return { success: true, id };
     } catch (error) {
-      console.error('Erro ao adicionar transação:', error);
-      set({ error: error.message, loading: false });
-      return { success: false, error: error.message };
+      console.error("❌ Erro ao adicionar transação:", error);
+
+      // ✅ SEMPRE desativa loading em erro
+      set({
+        error: error.message || "Erro ao adicionar transação",
+        loading: false,
+      });
+
+      return {
+        success: false,
+        error: error.message || "Erro ao adicionar transação",
+      };
     }
   },
 
@@ -90,16 +112,16 @@ const useTransactionStore = create((set, get) => ({
 
       await updateDocument(COLLECTIONS.TRANSACTIONS, id, data);
 
-      set(state => ({
-        transactions: state.transactions.map(t =>
-          t.id === id ? { ...t, ...data } : t
+      set((state) => ({
+        transactions: state.transactions.map((t) =>
+          t.id === id ? { ...t, ...data } : t,
         ),
         loading: false,
       }));
 
       return { success: true };
     } catch (error) {
-      console.error('Erro ao atualizar transação:', error);
+      console.error("Erro ao atualizar transação:", error);
       set({ error: error.message, loading: false });
       return { success: false };
     }
@@ -110,18 +132,31 @@ const useTransactionStore = create((set, get) => ({
     try {
       set({ loading: true, error: null });
 
+      // 🔍 Pega o userId do estado
+      const state = get();
+      const transaction = state.transactions.find((t) => t.id === id);
+
+      if (!transaction?.userId) {
+        return {
+          success: false,
+          error: "Transação sem userId - não pode deletar",
+        };
+      }
+
+      console.log("🗑️ Deletando:", { id, userId: transaction.userId });
+
       await deleteDocument(COLLECTIONS.TRANSACTIONS, id);
 
-      set(state => ({
-        transactions: state.transactions.filter(t => t.id !== id),
+      set((state) => ({
+        transactions: state.transactions.filter((t) => t.id !== id),
         loading: false,
       }));
 
       return { success: true };
     } catch (error) {
-      console.error('Erro ao deletar transação:', error);
+      console.error("❌ Erro ao deletar transação:", error);
       set({ error: error.message, loading: false });
-      return { success: false };
+      return { success: false, error: error.message };
     }
   },
 
@@ -131,13 +166,13 @@ const useTransactionStore = create((set, get) => ({
 
     const sumByType = (type) =>
       transactions
-        .filter(t => t.type === type)
+        .filter((t) => t.type === type)
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-    const income = sumByType('receita');
-    const expense = sumByType('despesa');
-    const investment = sumByType('investimento');
-    const offer = sumByType('oferta');
+    const income = sumByType("receita");
+    const expense = sumByType("despesa");
+    const investment = sumByType("investimento");
+    const offer = sumByType("oferta");
 
     return {
       income,
@@ -155,7 +190,7 @@ const useTransactionStore = create((set, get) => ({
     const month = now.getMonth();
     const year = now.getFullYear();
 
-    return get().transactions.filter(t => {
+    return get().transactions.filter((t) => {
       const d = new Date(t.date);
       return d.getMonth() === month && d.getFullYear() === year;
     });
@@ -170,4 +205,3 @@ const useTransactionStore = create((set, get) => ({
 }));
 
 export default useTransactionStore;
-

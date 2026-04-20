@@ -66,21 +66,14 @@ const LoginScreen = ({ navigation }) => {
 
   // Fazer login
   const handleLogin = async () => {
-    if (!validateFields()) return;
-
     try {
-      const result = await login(email, password);
+      const result = await login(email, password); // ← Store faz tudo agora
 
       if (result?.success) {
-        // sucesso: mostrar alerta com callback para evitar UX abrupta
         Alert.alert(
           t("login.alerts.successTitle"),
           t("login.alerts.successMessage"),
-          [
-            {
-              text: "OK",
-            },
-          ],
+          [{ text: "OK" }],
           { cancelable: false },
         );
       } else {

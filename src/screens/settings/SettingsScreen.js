@@ -460,7 +460,7 @@ const SettingsScreen = ({ navigation }) => {
               {t("settings.footer.madeWithPrefix")}
             </Text>
 
-            <MaterialIcons
+            <MaterialCommunityIcons
               name="heart"
               size={14}
               color={colors.error}
