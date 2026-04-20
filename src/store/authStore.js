@@ -1,8 +1,3 @@
-/**
- * Auth Store - Zustand
- * Gerenciamento de estado de autenticação
- */
-
 import { create } from "zustand";
 import {
   createUserWithEmailAndPassword,
@@ -14,24 +9,13 @@ import {
 } from "firebase/auth";
 import { auth } from "../services/firebase/config";
 import { saveData, STORAGE_KEYS } from "../services/storage/asyncStorage";
-import {
-  handleError,
-  getErrorMessage,
-  ERROR_TYPES,
-} from "../utils/errorHandler";
 
 const useAuthStore = create((set, get) => ({
-  /* =========================
-     Estado
-  ========================= */
   user: null,
   loading: true,
   initialized: false,
   error: null,
 
-  /* =========================
-     Inicializar Auth
-  ========================= */
   initializeAuth: () => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -41,27 +25,10 @@ const useAuthStore = create((set, get) => ({
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
         };
-
-        set({
-          user: userData,
-          loading: false,
-          initialized: true,
-          error: null,
-        });
-
-        // Salva apenas se mudou
-        const storedUser = get().user;
-        if (!storedUser || storedUser.uid !== userData.uid) {
-          await saveData(STORAGE_KEYS.USER_DATA, userData);
-        }
+        set({ user: userData, loading: false, initialized: true, error: null });
+        await saveData(STORAGE_KEYS.USER_DATA, userData);
       } else {
-        set({
-          user: null,
-          loading: false,
-          initialized: true,
-          error: null,
-        });
-
+        set({ user: null, loading: false, initialized: true, error: null });
         await saveData(STORAGE_KEYS.USER_DATA, null);
       }
     });
@@ -69,37 +36,56 @@ const useAuthStore = create((set, get) => ({
     return unsubscribe;
   },
 
-  /* =========================
-     Login
-  ========================= */
+  // No authStore.js, na função login:
   login: async (email, password) => {
     try {
       set({ loading: true, error: null });
 
-      await signInWithEmailAndPassword(auth, email, password);
+      // 🔍 DEBUG: Log dos dados
+      console.log("🔍 Tentando login com:", { email, password: "***" });
 
-      // onAuthStateChanged vai atualizar o estado
+      const result = await signInWithEmailAndPassword(auth, email, password);
+
+      console.log("✅ Login realizado:", result.user.email);
+      set({ loading: false });
       return { success: true };
     } catch (error) {
-      const appError = handleError(error, "authStore.login", { email });
-      const errorMessage = getErrorMessage(appError);
+      // 🔍 DEBUG: Log completo do erro
+      console.log("❌ Erro completo:", error);
+      console.log("❌ Código do erro:", error.code);
+      console.log("❌ Mensagem:", error.message);
+      console.log("👀 Configuração do Firebase:", firebaseConfig);
 
-      set({
-        error: errorMessage,
-        loading: false,
-      });
+      let errorMessage = "Erro ao fazer login";
 
+      switch (error.code) {
+        case "auth/invalid-credential":
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+          errorMessage = "Email ou senha incorretos";
+          break;
+        case "auth/too-many-requests":
+          errorMessage =
+            "Muitas tentativas. Aguarde alguns minutos e tente novamente";
+          break;
+        case "auth/network-request-failed":
+          errorMessage = "Sem conexão com a internet. Verifique sua rede";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "Email inválido";
+          break;
+        default:
+          errorMessage = `Erro ao fazer login (${error.code})`;
+      }
+
+      set({ error: errorMessage, loading: false });
       return { success: false, error: errorMessage };
     }
   },
 
-  /* =========================
-     Cadastro
-  ========================= */
   register: async (email, password, displayName) => {
     try {
       set({ loading: true, error: null });
-
       const { user } = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -110,24 +96,33 @@ const useAuthStore = create((set, get) => ({
         await updateProfile(user, { displayName });
       }
 
-      // onAuthStateChanged vai sincronizar o estado
+      set({ loading: false });
       return { success: true };
     } catch (error) {
-      const appError = handleError(error, "authStore.register", { email });
-      const errorMessage = getErrorMessage(appError);
+      let errorMessage = "Erro ao cadastrar";
 
-      set({
-        error: errorMessage,
-        loading: false,
-      });
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errorMessage = "Este email já está em uso";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "Email inválido";
+          break;
+        case "auth/weak-password":
+          errorMessage = "Senha muito fraca. Use no mínimo 6 caracteres";
+          break;
+        case "auth/network-request-failed":
+          errorMessage = "Sem conexão com a internet. Verifique sua rede";
+          break;
+        default:
+          errorMessage = `Erro ao cadastrar (${error.code})`;
+      }
 
+      set({ error: errorMessage, loading: false });
       return { success: false, error: errorMessage };
     }
   },
 
-  /* =========================
-     Logout
-  ========================= */
   logout: async () => {
     try {
       set({ loading: true });
@@ -139,31 +134,34 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  /* =========================
-     Reset de senha
-  ========================= */
   resetPassword: async (email) => {
     try {
       set({ loading: true, error: null });
       await sendPasswordResetEmail(auth, email);
       set({ loading: false });
-      return { success: true, message: "Email de recuperação enviado" };
+      return { success: true };
     } catch (error) {
-      const appError = handleError(error, "authStore.resetPassword", { email });
-      const errorMessage = getErrorMessage(appError);
+      let errorMessage = "Erro ao enviar email";
 
-      set({
-        error: errorMessage,
-        loading: false,
-      });
+      switch (error.code) {
+        case "auth/user-not-found":
+          errorMessage = "Nenhuma conta encontrada com este email";
+          break;
+        case "auth/invalid-email":
+          errorMessage = "Email inválido";
+          break;
+        case "auth/network-request-failed":
+          errorMessage = "Sem conexão com a internet. Verifique sua rede";
+          break;
+        default:
+          errorMessage = `Erro ao enviar email (${error.code})`;
+      }
 
+      set({ error: errorMessage, loading: false });
       return { success: false, error: errorMessage };
     }
   },
 
-  /* =========================
-     Utilidades
-  ========================= */
   clearError: () => set({ error: null }),
 }));
 

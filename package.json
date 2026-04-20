@@ -6,7 +6,34 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --maxWorkers=2"
+  },
+  "jest": {
+    "preset": "react-native",
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-native/extend-expect"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|@react-native|@react-navigation|react-native-vector-icons|react-native-push-notification)/)"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}",
+      "!src/**/*.test.{js,jsx}",
+      "!src/navigation/**",
+      "!src/assets/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 70,
+        "branches": 60,
+        "functions": 70,
+        "lines": 70
+      }
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -19,6 +46,7 @@
     "axios": "^1.13.2",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
     "expo": "~54.0.30",
     "expo-constants": "^18.0.13",
     "expo-crypto": "~15.0.8",
@@ -53,10 +81,12 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
-    "detox": "^20.46.3",
-    "detox-cli": "^20.46.3",
+    "detox": "^20.50.1",
+    "detox-cli": "^20.50.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "^3.7.3"
+    "jest-expo": "^55.0.15",
+    "prettier": "^3.7.3",
+    "react-test-renderer": "^19.1.0"
   }
 }
