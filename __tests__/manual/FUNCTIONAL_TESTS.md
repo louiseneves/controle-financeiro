@@ -621,7 +621,14 @@
 
 ---
 
+<<<<<<< HEAD
 **Data de execução:** **20/04/2026**
 **Testador:** **Louise**  
 **Versão do app:** **1.0.0**  
 **Dispositivo:** **Pixel 9**
+=======
+**Data de execução:** __/__/____  
+**Testador:** _______________  
+**Versão do app:** 1.0.0  
+**Dispositivo:** _______________
+>>>>>>> 0a5983d1d6eca86ac272731849c841029d2abaee
