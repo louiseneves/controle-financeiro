@@ -87,7 +87,7 @@ const AddInvestmentScreen = ({ navigation }) => {
 
       if (isNaN(parsedDate.getTime())) {
         Alert.alert(
-          t("addInvestment.error.title"),
+          t("addInvestment.alerts.error.title"),
           t("addInvestment.form.date.invalid"),
         );
         return;
@@ -106,14 +106,10 @@ const AddInvestmentScreen = ({ navigation }) => {
       const result = await addTransaction(transactionData);
 
       if (result.success) {
+        // ✅ CORRIGIDO: Remove o ícone, apenas strings
         Alert.alert(
-          t("addInvestment.success.title"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={24}
-            color={colors.success}
-          />,
-          t("addInvestment.success.message"),
+          t("addInvestment.alerts.success.title"),
+          t("addInvestment.alerts.success.message"), // ✅ Apenas STRING
           [
             {
               text: "OK",
@@ -123,15 +119,15 @@ const AddInvestmentScreen = ({ navigation }) => {
         );
       } else {
         Alert.alert(
-          t("addInvestment.error.title"),
-          result.error || t("addInvestment.error.genric"),
+          t("addInvestment.alerts.error.title"),
+          result.error || t("addInvestment.alerts.error.generic"),
         );
       }
     } catch (error) {
       console.error("Erro ao salvar investimento:", error);
       Alert.alert(
-        t("addInvestment.error.title"),
-        t("addInvestment.error.save"),
+        t("addInvestment.alerts.error.title"),
+        t("addInvestment.alerts.error.save"),
       );
     } finally {
       setLoading(false);

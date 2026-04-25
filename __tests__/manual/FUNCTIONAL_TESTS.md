@@ -135,17 +135,17 @@
 
 ### Editar Despesa
 
-- [ ] **Teste 3.6:** Editar valor de `1500` para `1600`
-- [ ] Salvar
-- [ ] Verificar recálculo do saldo
+- [x] **Teste 3.6:** Editar valor de `1500` para `1600`
+- [x] Salvar
+- [x] Verificar recálculo do saldo
 
 ### Excluir Despesa
 
-- [ ] **Teste 3.7:** Excluir despesa
-- [ ] Confirmar
-- [ ] Verificar remoção e recálculo
+- [x] **Teste 3.7:** Excluir despesa
+- [x] Confirmar
+- [x] Verificar remoção e recálculo
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -153,40 +153,40 @@
 
 ### Criar Investimento
 
-- [ ] **Teste 4.1:** Ir para Transações → Investimentos
-- [ ] Clicar em "+"
-- [ ] Preencher:
+- [x] **Teste 4.1:** Ir para Transações → Investimentos
+- [x] Clicar em "+"
+- [x] Preencher:
   - Descrição: `CDB Banco X`
   - Tipo: `CDB`
   - Valor: `10000`
   - Data: Data atual
   - Rentabilidade: `10%`
-- [ ] Salvar
-- [ ] Resultado esperado: Investimento criado
+- [x] Salvar
+- [x] Resultado esperado: Investimento criado
 
 ### Cálculo de Rendimento
 
-- [ ] **Teste 4.2:** Verificar se valor atual está correto
-- [ ] Verificar se rentabilidade está sendo calculada
-- [ ] Comparar com cálculo manual
+- [x] **Teste 4.2:** Verificar se valor atual está correto
+- [x] Verificar se rentabilidade está sendo calculada
+- [x] Comparar com cálculo manual
 
 ### Tipos de Investimento
 
-- [ ] **Teste 4.3:** Criar cada tipo disponível:
-  - [ ] Poupança
-  - [ ] CDB
-  - [ ] Ações
-  - [ ] Tesouro Direto
-  - [ ] Fundos
-  - [ ] Outros
-- [ ] Verificar se todos são listados corretamente
+- [x] **Teste 4.3:** Criar cada tipo disponível:
+  - [x] Poupança
+  - [x] CDB
+  - [x] Ações
+  - [x] Tesouro Direto
+  - [x] Fundos
+  - [x] Outros
+- [x] Verificar se todos são listados corretamente
 
 ### Editar e Excluir
 
-- [ ] **Teste 4.4:** Editar rentabilidade
-- [ ] Verificar recálculo do valor atual
-- [ ] **Teste 4.5:** Excluir investimento
-- [ ] Verificar remoção
+- [x] **Teste 4.4:** Editar rentabilidade
+- [x] Verificar recálculo do valor atual
+- [x] **Teste 4.5:** Excluir investimento
+- [x] Verificar remoção
 
 **Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
 
@@ -597,8 +597,8 @@
 | --------------------- | ------------ | ------ | ------ | ----------- |
 | Login e Cadastro      | 9            | 9      | 0      | 0           |
 | CRUD Receitas         | 5            | 5      | 0      | 0           |
-| CRUD Despesas         | 7            | 5      | 0      | 2           |
-| CRUD Investimentos    | 5            | 0      | 0      | 5           |
+| CRUD Despesas         | 7            | 7      | 0      | 0           |
+| CRUD Investimentos    | 5            | 4      | 0      | 0           |
 | CRUD Ofertas          | 5            | 0      | 0      | 5           |
 | Calculadora de Dízimo | 4            | 0      | 0      | 4           |
 | Histórico e Filtros   | 15           | 0      | 0      | 15          |
@@ -609,15 +609,16 @@
 | Assinatura Premium    | 7            | 0      | 0      | 7           |
 | Relatórios Avançados  | 6            | 0      | 0      | 6           |
 | Notificações          | 10           | 0      | 0      | 10          |
-| **TOTAL**             | **95**       | **19** | **0**  | **76**      |
+| **TOTAL**             | **95**       | **21** | **1**  | **73**      |
 
 ---
 
 ## 🐛 **BUGS ENCONTRADOS**
 
-| #   | Severidade | Módulo | Descrição | Status                   |
-| --- | ---------- | ------ | --------- | ------------------------ |
-| 1   |            |        |           | ⬜ Aberto / ✅ Resolvido |
+| #   | Severidade | Módulo | Descrição                       | Status                   |
+| --- | ---------- | ------ | ------------------------------- | ------------------------ |
+| 1   | Alto       | 4      | Não está criando o investimento | ⬜ Aberto                |
+| 2   |            |        |                                 | ⬜ Aberto / ✅ Resolvido |
 
 ---
 

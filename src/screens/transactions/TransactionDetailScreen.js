@@ -62,10 +62,14 @@ const TransactionDetailScreen = ({ navigation, route }) => {
   const [isRecurring, setIsRecurring] = useState(
     transaction.isRecurring || false,
   );
-
+  // ✅ NOVO: Estado para rentabilidade (investimento)
+  const [profitability, setProfitability] = useState(
+    transaction.profitability?.toString() || "",
+  );
   const [descriptionError, setDescriptionError] = useState("");
   const [amountError, setAmountError] = useState("");
   const [categoryError, setCategoryError] = useState("");
+  const [profitabilityError, setProfitabilityError] = useState(""); // ✅ NOVO
   const [loading, setLoading] = useState(false);
 
   // Obter categorias baseado no tipo
@@ -115,6 +119,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     setDescriptionError("");
     setAmountError("");
     setCategoryError("");
+    setProfitabilityError("");
 
     if (!description.trim()) {
       setDescriptionError(
@@ -131,6 +136,16 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     if (!category) {
       setCategoryError(t("transactionDetail.validation.categoryRequired"));
       isValid = false;
+    }
+
+    // ✅ NOVO: Validar rentabilidade APENAS para investimento
+    if (transaction.type === "investimento") {
+      if (profitability && parseFloat(profitability) < 0) {
+        setProfitabilityError(
+          t("transactionDetail.validation.profitabilityInvalid"),
+        );
+        isValid = false;
+      }
     }
 
     return isValid;
@@ -152,6 +167,12 @@ const TransactionDetailScreen = ({ navigation, route }) => {
         isRecurring,
       };
 
+      // ✅ NOVO: Adicionar profitability APENAS para investimento
+      if (transaction.type === "investimento") {
+        updatedData.profitability = profitability
+          ? parseFloat(profitability)
+          : 0;
+      }
       const result = await updateTransaction(transaction.id, updatedData);
 
       if (result.success) {
@@ -325,7 +346,27 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                 </Text>
               }
             />
-
+            {/* ✅ NOVO: Campo de Rentabilidade (APENAS para investimento) */}
+            {transaction.type === "investimento" && (
+              <Input
+                label={t("transactionDetail.profitabilityLabel")} // "Rentabilidade (% ao ano)"
+                placeholder="0.00"
+                value={profitability}
+                onChangeText={setProfitability}
+                keyboardType="decimal-pad"
+                error={profitabilityError}
+                editable={isEditing}
+                rightIcon={
+                  isEditing ? null : (
+                    <MaterialCommunityIcons
+                      name="lock"
+                      size={20}
+                      color={colors.textSecondary}
+                    />
+                  )
+                }
+              />
+            )}
             {/* Categorias */}
             <View style={styles.categorySection}>
               <Text style={styles.label}>

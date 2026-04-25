@@ -1429,6 +1429,7 @@ export const translations = {
       descriptionLabel: "Descrição",
       amountLabel: "Valor",
       dateLabel: "Data",
+      profitabilityLabel: "Rentabilidade",
       placeholders: {
         date: "DD/MM/AAAA",
       },
