@@ -34,7 +34,7 @@ const ReportsScreen = ({ navigation }) => {
   const { currency } = useSettingsStore();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState("month"); // month, 3months, year
+  const [selectedPeriod, setSelectedPeriod] = useState("month");
 
   useEffect(() => {
     if (user?.uid) {
@@ -130,14 +130,13 @@ const ReportsScreen = ({ navigation }) => {
       .sort((a, b) => b.amount - a.amount);
   }, [periodTransactions, expense]);
 
-  // ✅ Obter nome da categoria
+  // Obter nome da categoria
   const getCategoryName = (categoryId) => {
     return (
       EXPENSE_CATEGORIES.find((c) => c.id === categoryId)?.name || categoryId
     );
   };
 
-  // Dados para gráfico de pizza (top 5 categorias - categoriesData é resultado do useMemo acima)
   const categoryData = expensesByCategory;
   const pieColors = [
     colors.error,
@@ -157,7 +156,7 @@ const ReportsScreen = ({ navigation }) => {
 
   const normalizeChartValue = (value) => {
     const num = Number(value) || 0;
-    return Number(num.toFixed(2)); // 🔑 força 2 casas
+    return Number(num.toFixed(2));
   };
 
   const pieData = categoryData.slice(0, 5).map((item, index) => ({
@@ -238,6 +237,7 @@ const ReportsScreen = ({ navigation }) => {
           ›
         </Text>
       </TouchableOpacity>
+
       {/* Seletor de período */}
       <View style={styles.periodSelector}>
         {periods.map((period) => (
@@ -332,39 +332,46 @@ const ReportsScreen = ({ navigation }) => {
       <View style={styles.chartCard}>
         <Text style={styles.chartTitle}>{t("reports.charts.overview")}</Text>
         {barData.some((d) => d.amount > 0) ? (
-          <BarChart
-            data={barData.map((item) => ({
-              value: item.amount,
-              label: item.type,
-              frontColor: item.color,
-            }))}
-            height={220}
-            spacing={25}
-            maxValue={Math.max(income, expense, investment, offer, 1)}
-            /* 🔑 TOOLTIP COM MOEDA */
-            renderTooltip={(item) => (
-              <View
-                style={{
-                  backgroundColor: colors.card,
-                  padding: 6,
-                  borderRadius: 6,
-                }}
-              >
-                <Text style={{ color: colors.text, fontWeight: "600" }}>
-                  {formatCurrency(item.value / EXCHANGE_RATES[currency])}
-                </Text>
-              </View>
-            )}
-            yAxisTextStyle={{
-              color: colors.textSecondary,
-              fontSize: 12,
-            }}
-            xAxisLabelTextStyle={{
-              color: colors.text,
-              fontSize: 12,
-              fontWeight: "600",
-            }}
-          />
+          <>
+            <BarChart
+              data={barData.map((item) => ({
+                value: item.amount,
+                label: item.type,
+                frontColor: item.color,
+              }))}
+              height={180}
+              spacing={25}
+              maxValue={Math.max(income, expense, investment, offer, 1)}
+              hideRules
+              yAxisTextStyle={{
+                color: colors.textSecondary,
+                fontSize: 10,
+              }}
+              xAxisLabelTextStyle={{
+                color: colors.text,
+                fontSize: 11,
+                fontWeight: "600",
+              }}
+            />
+
+            {/* ✅ Legenda com valores embaixo do gráfico */}
+            <View style={styles.barLegend}>
+              {barData.map((item) => (
+                <View key={item.type} style={styles.barLegendItem}>
+                  <View
+                    style={[
+                      styles.barLegendDot,
+                      { backgroundColor: item.color },
+                    ]}
+                  />
+                  <Text style={styles.barLegendType}>{item.type}</Text>
+                  <Text style={[styles.barLegendValue, { color: item.color }]}>
+                    {formatCurrency(item.amount)}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
         ) : (
           <View style={styles.emptyChart}>
             <Text style={styles.emptyChartText}>
@@ -373,7 +380,6 @@ const ReportsScreen = ({ navigation }) => {
           </View>
         )}
       </View>
-
       {/* Gráfico de Pizza - Despesas por Categoria */}
       {categoryData.length > 0 && (
         <View style={styles.chartCard}>
@@ -387,7 +393,6 @@ const ReportsScreen = ({ navigation }) => {
                 data={pieData.map((item) => ({
                   value: item.y,
                   color: item.color,
-                  // ✅ Proteger contra divisão por zero
                   text: `${expense > 0 ? ((item.y / expense) * 100).toFixed(0) : "0"}%`,
                 }))}
                 donut
@@ -583,10 +588,9 @@ const createStyles = (colors) =>
     barValue: {
       fontSize: 11,
       fontWeight: "600",
-      color: colors.onPrimary,
+      color: colors.text,
       marginBottom: 6,
     },
-
     chartCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -637,6 +641,30 @@ const createStyles = (colors) =>
     legendValue: {
       fontSize: 13,
       color: colors.textSecondary,
+    },
+    barLegend: {
+      marginTop: 16,
+      gap: 8,
+    },
+    barLegendItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      paddingVertical: 4,
+    },
+    barLegendDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+    },
+    barLegendType: {
+      flex: 1,
+      fontSize: 13,
+      color: colors.text,
+    },
+    barLegendValue: {
+      fontSize: 13,
+      fontWeight: "bold",
     },
     categoryList: {
       backgroundColor: colors.card,

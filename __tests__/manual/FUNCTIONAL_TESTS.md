@@ -188,7 +188,7 @@
 - [x] **Teste 4.5:** Excluir investimento
 - [x] Verificar remoção
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -196,38 +196,38 @@
 
 ### Criar Oferta
 
-- [ ] **Teste 5.1:** Ir para Transações → Ofertas
-- [ ] Clicar em "+"
-- [ ] Preencher:
+- [x] **Teste 5.1:** Ir para Transações → Ofertas
+- [x] Clicar em "+"
+- [x] Preencher:
   - Descrição: `Oferta de Missões`
   - Tipo: `Missões`
   - Valor: `100`
   - Data: Data atual
   - Igreja: `Igreja Teste` (opcional)
-- [ ] Salvar
-- [ ] Resultado esperado: Oferta registrada
+- [x] Salvar
+- [x] Resultado esperado: Oferta registrada
 
 ### Tipos de Oferta
 
-- [ ] **Teste 5.2:** Criar ofertas de cada tipo:
-  - [ ] Dízimo
-  - [ ] Missões
-  - [ ] Construção
-  - [ ] Outros
-- [ ] Verificar se todas são listadas
+- [x] **Teste 5.2:** Criar ofertas de cada tipo:
+  - [x] Dízimo
+  - [x] Missões
+  - [x] Construção
+  - [x] Outros
+- [x] Verificar se todas são listadas
 
 ### Histórico de Ofertas
 
-- [ ] **Teste 5.3:** Ir para histórico de ofertas
-- [ ] Verificar se todas aparecem
-- [ ] Verificar totais por tipo
+- [x] **Teste 5.3:** Ir para histórico de ofertas
+- [x] Verificar se todas aparecem
+- [x] Verificar totais por tipo
 
 ### Editar e Excluir
 
-- [ ] **Teste 5.4:** Editar oferta
-- [ ] **Teste 5.5:** Excluir oferta
+- [x] **Teste 5.4:** Editar oferta
+- [x] **Teste 5.5:** Excluir oferta
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -235,30 +235,30 @@
 
 ### Modo Automático
 
-- [ ] **Teste 6.1:** Ir para Transações → Dízimo
-- [ ] Verificar cálculo automático (10% das receitas)
-- [ ] Adicionar receita de R$ 1000
-- [ ] Voltar para Dízimo
-- [ ] Verificar se sugestão aumentou para R$ 100
+- [x] **Teste 6.1:** Ir para Transações → Dízimo
+- [x] Verificar cálculo automático (10% das receitas)
+- [x] Adicionar receita de R$ 1000
+- [x] Voltar para Dízimo
+- [x] Verificar se sugestão aumentou para R$ 100
 
 ### Modo Personalizado
 
-- [ ] **Teste 6.2:** Alternar para "Modo Personalizado"
-- [ ] Selecionar receitas específicas
-- [ ] Verificar cálculo apenas das selecionadas
+- [x] **Teste 6.2:** Alternar para "Modo Personalizado"
+- [x] Selecionar receitas específicas
+- [x] Verificar cálculo apenas das selecionadas
 
 ### Registrar Dízimo
 
-- [ ] **Teste 6.3:** Clicar em "Registrar Dízimo"
-- [ ] Confirmar valor sugerido
-- [ ] Resultado esperado: Dízimo registrado como oferta
+- [x] **Teste 6.3:** Clicar em "Registrar Dízimo"
+- [x] Confirmar valor sugerido
+- [x] Resultado esperado: Dízimo registrado como oferta
 
 ### Histórico
 
-- [ ] **Teste 6.4:** Verificar histórico de dízimos
-- [ ] Conferir valores e datas
+- [x] **Teste 6.4:** Verificar histórico de dízimos
+- [x] Conferir valores e datas
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -266,45 +266,45 @@
 
 ### Listagem Completa
 
-- [ ] **Teste 7.1:** Ir para Histórico
-- [ ] Verificar se todas as transações aparecem
-- [ ] Verificar ordenação por data (mais recente primeiro)
+- [x] **Teste 7.1:** Ir para Histórico
+- [x] Verificar se todas as transações aparecem
+- [x] Verificar ordenação por data (mais recente primeiro)
 
 ### Filtro por Tipo
 
-- [ ] **Teste 7.2:** Filtrar por "Receitas"
+- [x] **Teste 7.2:** Filtrar por "Receitas"
   - Resultado: Apenas receitas
-- [ ] **Teste 7.3:** Filtrar por "Despesas"
+- [x] **Teste 7.3:** Filtrar por "Despesas"
   - Resultado: Apenas despesas
-- [ ] **Teste 7.4:** Filtrar por "Investimentos"
-- [ ] **Teste 7.5:** Filtrar por "Ofertas"
+- [x] **Teste 7.4:** Filtrar por "Investimentos"
+- [x] **Teste 7.5:** Filtrar por "Ofertas"
 
 ### Filtro por Categoria
 
-- [ ] **Teste 7.6:** Filtrar por categoria "Alimentação"
-- [ ] Resultado: Apenas transações dessa categoria
+- [x] **Teste 7.6:** Filtrar por categoria "Alimentação"
+- [x] Resultado: Apenas transações dessa categoria
 
 ### Filtro por Data
 
-- [ ] **Teste 7.7:** Filtrar por "Este mês"
-- [ ] **Teste 7.8:** Filtrar por "Mês passado"
-- [ ] **Teste 7.9:** Filtrar por "Este ano"
-- [ ] **Teste 7.10:** Filtrar período personalizado
+- [x] **Teste 7.7:** Filtrar por "Este mês"
+- [x] **Teste 7.8:** Filtrar por "Mês passado"
+- [x] **Teste 7.9:** Filtrar por "Este ano"
+- [x] **Teste 7.10:** Filtrar período personalizado
 
 ### Busca por Descrição
 
-- [ ] **Teste 7.11:** Buscar "Aluguel"
-- [ ] Resultado: Encontrar transação com essa descrição
-- [ ] **Teste 7.12:** Buscar termo inexistente
-- [ ] Resultado: "Nenhuma transação encontrada"
+- [x] **Teste 7.11:** Buscar "Aluguel"
+- [x] Resultado: Encontrar transação com essa descrição
+- [x] **Teste 7.12:** Buscar termo inexistente
+- [x] Resultado: "Nenhuma transação encontrada"
 
 ### Ordenação
 
-- [ ] **Teste 7.13:** Ordenar por data (crescente/decrescente)
-- [ ] **Teste 7.14:** Ordenar por valor (maior/menor)
-- [ ] **Teste 7.15:** Ordenar por descrição (A-Z)
+- [x] **Teste 7.13:** Ordenar por data (crescente/decrescente)
+- [x] **Teste 7.14:** Ordenar por valor (maior/menor)
+- [x] **Teste 7.15:** Ordenar por descrição (A-Z)
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 

@@ -44,23 +44,35 @@ const InvestmentsListScreen = ({ navigation }) => {
   );
 
   // Calcular rendimento estimado
+  /**
+   * Calcula lucro estimado com juros COMPOSTOS
+   */
   const calculateEstimatedProfit = (investment) => {
     if (!investment.profitability || !investment.date) return 0;
 
     const startDate = new Date(investment.date);
-    // ✅ Validar se a data é válida
+
+    // Validar data
     if (isNaN(startDate.getTime())) return 0;
 
     const now = new Date();
-    const monthsDiff =
-      (now.getFullYear() - startDate.getFullYear()) * 12 +
-      (now.getMonth() - startDate.getMonth());
+    const amount = Number(investment.amount || 0);
+    const profitability = Number(investment.profitability || 0);
 
-    const yearlyProfit =
-      (Number(investment.amount || 0) * investment.profitability) / 100;
-    const monthlyProfit = yearlyProfit / 12;
+    // ✅ Validar se valores são números válidos
+    if (amount <= 0 || profitability <= 0) return 0;
 
-    return monthlyProfit * monthsDiff;
+    // ✅ Calcular DIAS exatos (mais preciso que meses)
+    const timeDiff = now.getTime() - startDate.getTime();
+    const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+
+    // ✅ Calcular com JUROS COMPOSTOS (padrão para investimentos)
+    const years = daysDiff / 365;
+    const valorFinal = amount * Math.pow(1 + profitability / 100, years);
+    const lucro = valorFinal - amount;
+
+    // ✅ Arredondar para 2 casas decimais
+    return Math.round(lucro * 100) / 100;
   };
 
   const totalEstimatedProfit = investments.reduce(

@@ -377,6 +377,7 @@ export const translations = {
         dateAsc: "Mais antigas",
         amountDesc: "Maior valor",
         amountAsc: "Menor valor",
+        descAsc: "A-Z",
       },
 
       summary: {
@@ -1414,6 +1415,10 @@ export const translations = {
       errorSave: "Não foi possível registrar o dízimo",
       cancelButton: "Cancelar",
       confirmButton: "Registrar",
+      warningNoReceiptsTitle: "Aviso",
+      warningNoReceiptsMessage:
+        "Selecione pelo menos uma receita ou informe um valor extra.",
+      extraAmountLabel: "Valor extra (opcional)",
     },
     transactionDetail: {
       notFound: "Transação não encontrada",
@@ -2036,6 +2041,7 @@ export const translations = {
         dateAsc: "Oldest",
         amountDesc: "Highest amount",
         amountAsc: "Lowest amount",
+        descAsc: "A-Z",
       },
 
       summary: {
@@ -3081,6 +3087,10 @@ export const translations = {
       errorSave: "Could not register tithe",
       cancelButton: "Cancel",
       confirmButton: "Register",
+      warningNoReceiptsTitle: "Warning",
+      warningNoReceiptsMessage:
+        "Select at least one income or enter an extra amount.",
+      extraAmountLabel: "Extra amount (optional)",
     },
     transactionDetail: {
       notFound: "Transaction not found",
@@ -3096,6 +3106,7 @@ export const translations = {
       descriptionLabel: "Description",
       amountLabel: "Amount",
       dateLabel: "Date",
+      profitabilityLabel: "Profitability",
       placeholders: {
         date: "MM/DD/YYYY",
       },
@@ -3690,6 +3701,7 @@ export const translations = {
         dateAsc: "Más antiguas",
         amountDesc: "Mayor valor",
         amountAsc: "Menor valor",
+        descAsc: "A-Z",
       },
 
       summary: {
@@ -4770,6 +4782,10 @@ export const translations = {
       errorSave: "No se pudo registrar el diezmo",
       cancelButton: "Cancelar",
       confirmButton: "Registrar",
+      warningNoReceiptsTitle: "Advertencia",
+      warningNoReceiptsMessage:
+        "Selecciona al menos un ingreso o ingresa un monto extra.",
+      extraAmountLabel: "Monto extra (opcional)",
     },
     transactionDetail: {
       notFound: "Transacci\u00f3n no encontrada",
@@ -4785,6 +4801,7 @@ export const translations = {
       descriptionLabel: "Descripci\u00f3n",
       amountLabel: "Monto",
       dateLabel: "Fecha",
+      profitabilityLabel: "Rentabilidad",
       placeholders: { date: "DD/MM/AAAA" },
       categoryLabel: "Categor\u00eda",
       recurringLabel: "Transacci\u00f3n recurrente",

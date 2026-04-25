@@ -29,15 +29,29 @@ const TitheCalculatorScreen = ({ navigation }) => {
 
   const [customAmount, setCustomAmount] = useState("");
   const [selectedMode, setSelectedMode] = useState("month"); // 'month' ou 'custom'
+  const [selectedReceipts, setSelectedReceipts] = useState([]);
+  const [extraAmount, setExtraAmount] = useState(""); // ✅ NOVO: valor extra
   const [loading, setLoading] = useState(false);
 
   // Calcular receitas do mês
   const monthTransactions = getCurrentMonthTransactions();
+  const allMonthIncomes = monthTransactions.filter((t) => t.type === "receita");
   const monthIncome = monthTransactions
     .filter((t) => t.type === "receita")
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  const monthTithe = calculateTithe(monthIncome);
+  // Calcular receitas SELECIONADAS
+  const selectedIncome = allMonthIncomes
+    .filter((t) => selectedReceipts.includes(t.id))
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  // ✅ NOVO: Valor extra convertido
+  const extra = parseFloat(extraAmount) || 0;
+
+  // Usar modo personalizado ou modo mensal
+  const calculatedIncome =
+    selectedMode === "custom" ? selectedIncome + extra : monthIncome;
+  const monthTithe = calculateTithe(calculatedIncome);
 
   // Calcular dízimo pago
   const paidTithe = monthTransactions
@@ -49,8 +63,16 @@ const TitheCalculatorScreen = ({ navigation }) => {
   // Histórico de dízimos
   const titheHistory = monthTransactions
     .filter((t) => t.type === "oferta" && t.category === "dizimo")
-    // ✅ Validar datas antes de comparar no sort
     .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+  // Toggle de seleção de receita
+  const toggleReceiptSelection = (receiptId) => {
+    setSelectedReceipts((prev) =>
+      prev.includes(receiptId)
+        ? prev.filter((id) => id !== receiptId)
+        : [...prev, receiptId],
+    );
+  };
 
   // Registrar dízimo
   const handleRegisterTithe = async (amount, description) => {
@@ -69,24 +91,17 @@ const TitheCalculatorScreen = ({ navigation }) => {
       const result = await addTransaction(transactionData);
 
       if (result.success) {
-        Alert.alert(
-          t("tithe.successTitle"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={24}
-            color={colors.text}
-          />,
-          t("tithe.successMessage"),
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                setCustomAmount("");
-                navigation.goBack();
-              },
+        Alert.alert(t("tithe.successTitle"), t("tithe.successMessage"), [
+          {
+            text: "OK",
+            onPress: () => {
+              setCustomAmount("");
+              setSelectedReceipts([]);
+              setExtraAmount(""); // ✅ NOVO: limpar valor extra
+              navigation.goBack();
             },
-          ],
-        );
+          },
+        ]);
       } else {
         Alert.alert(
           t("tithe.errorTitle"),
@@ -135,24 +150,42 @@ const TitheCalculatorScreen = ({ navigation }) => {
     );
   };
 
-  // Registrar valor personalizado
+  // Registrar dízimo personalizado
   const handleRegisterCustomTithe = () => {
-    const amount = parseFloat(customAmount);
+    // ✅ ATUALIZADO: aceita seleção OU valor extra
+    if (selectedReceipts.length === 0 && extra === 0) {
+      Alert.alert(
+        t("tithe.warningNoReceiptsTitle"),
+        t("tithe.warningNoReceiptsMessage"),
+      );
+      return;
+    }
 
-    if (!amount || amount <= 0) {
-      Alert.alert(t("tithe.errorTitle"), t("tithe.errorInvalidAmount"));
+    if (monthTithe === 0) {
+      Alert.alert(
+        t("tithe.warningNoIncomeTitle"),
+        t("tithe.warningNoIncomeMessage"),
+      );
       return;
     }
 
     Alert.alert(
       t("tithe.confirmTitle"),
-      t("tithe.confirmCustomMessage", { amount: formatCurrency(amount) }),
+      t("tithe.confirmMessage", {
+        amount: formatCurrency(monthTithe),
+        monthYear: formatMonthYear(new Date()),
+      }),
       [
         { text: t("tithe.cancelButton"), style: "cancel" },
         {
           text: t("tithe.confirmButton"),
           onPress: () =>
-            handleRegisterTithe(amount, t("tithe.confirmCustomDescription")),
+            handleRegisterTithe(
+              monthTithe,
+              t("tithe.confirmDescription", {
+                monthYear: formatMonthYear(new Date()),
+              }),
+            ),
         },
       ],
     );
@@ -176,7 +209,11 @@ const TitheCalculatorScreen = ({ navigation }) => {
             styles.modeButton,
             selectedMode === "month" && styles.modeButtonActive,
           ]}
-          onPress={() => setSelectedMode("month")}
+          onPress={() => {
+            setSelectedMode("month");
+            setSelectedReceipts([]);
+            setExtraAmount(""); // ✅ NOVO: limpar ao trocar de modo
+          }}
           activeOpacity={0.7}
         >
           <Text
@@ -306,7 +343,7 @@ const TitheCalculatorScreen = ({ navigation }) => {
           )}
         </>
       ) : (
-        // Modo: Valor Personalizado
+        // Modo: Personalizado
         <>
           <View style={styles.customCard}>
             <Text style={styles.cardTitle}>{t("tithe.customCard")}</Text>
@@ -314,30 +351,106 @@ const TitheCalculatorScreen = ({ navigation }) => {
               {t("tithe.customCardSubtitle")}
             </Text>
 
-            <Input
-              label={t("tithe.incomeLabel")}
-              value={customAmount}
-              onChangeText={setCustomAmount}
-              placeholder="0,00"
-              keyboardType="numeric"
-              leftIcon={
-                <Text style={styles.iconText}>
+            {/* Lista de receitas para selecionar */}
+            {allMonthIncomes.length === 0 ? (
+              <View style={styles.emptyState}>
+                <MaterialCommunityIcons
+                  name="file-document-edit-outline"
+                  size={48}
+                  color={colors.textSecondary}
+                />
+                <Text style={styles.emptyText}>{t("tithe.emptyState")}</Text>
+              </View>
+            ) : (
+              <>
+                {allMonthIncomes.map((income) => {
+                  const isSelected = selectedReceipts.includes(income.id);
+                  return (
+                    <TouchableOpacity
+                      key={income.id}
+                      style={[
+                        styles.receiptItem,
+                        isSelected && styles.receiptItemSelected,
+                      ]}
+                      onPress={() => toggleReceiptSelection(income.id)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.receiptInfo}>
+                        <Text style={styles.receiptDescription}>
+                          {income.description}
+                        </Text>
+                        <Text style={styles.receiptDate}>
+                          {formatDate(income.date)}
+                        </Text>
+                      </View>
+                      <View style={styles.receiptRight}>
+                        <Text
+                          style={[
+                            styles.receiptAmount,
+                            isSelected && { color: colors.tithe },
+                          ]}
+                        >
+                          {formatCurrency(Number(income.amount))}
+                        </Text>
+                        <MaterialCommunityIcons
+                          name={
+                            isSelected
+                              ? "checkbox-marked-circle"
+                              : "checkbox-blank-circle-outline"
+                          }
+                          size={24}
+                          color={
+                            isSelected ? colors.tithe : colors.textSecondary
+                          }
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </>
+            )}
+
+            {/* ✅ NOVO: Campo de valor extra */}
+            <View style={styles.extraAmountSection}>
+              <Text style={styles.extraAmountLabel}>
+                {t("tithe.extraAmountLabel")}
+              </Text>
+              <Input
+                value={extraAmount}
+                onChangeText={setExtraAmount}
+                placeholder="0,00"
+                keyboardType="numeric"
+                leftIcon={
                   <MaterialCommunityIcons
-                    name="currency-usd"
+                    name="plus-circle-outline"
                     size={24}
                     color={colors.textSecondary}
                   />
-                </Text>
-              }
-            />
+                }
+              />
+            </View>
 
-            {customAmount && parseFloat(customAmount) > 0 && (
+            {/* ✅ ATUALIZADO: Resultado com breakdown */}
+            {(selectedReceipts.length > 0 || extra > 0) && (
               <View style={styles.resultCard}>
-                <Text style={styles.resultLabel}>
-                  {t("tithe.tithePercent")}
-                </Text>
+                <View>
+                  <Text style={styles.resultLabel}>
+                    {t("tithe.tithePercent")}
+                  </Text>
+                  {selectedReceipts.length > 0 && (
+                    <Text style={styles.resultSublabel}>
+                      {selectedReceipts.length} receita(s):{" "}
+                      {formatCurrency(selectedIncome)}
+                    </Text>
+                  )}
+                  {extra > 0 && (
+                    <Text style={styles.resultSublabel}>
+                      + Extra: {formatCurrency(extra)}
+                    </Text>
+                  )}
+                </View>
                 <Text style={styles.resultValue}>
-                  {formatCurrency(calculateTithe(parseFloat(customAmount)))}
+                  {formatCurrency(monthTithe)}
                 </Text>
               </View>
             )}
@@ -346,7 +459,8 @@ const TitheCalculatorScreen = ({ navigation }) => {
               title={t("tithe.registerButton")}
               onPress={handleRegisterCustomTithe}
               loading={loading}
-              disabled={!customAmount || parseFloat(customAmount) <= 0}
+              // ✅ ATUALIZADO: habilita se tiver seleção OU valor extra
+              disabled={selectedReceipts.length === 0 && extra === 0}
               style={styles.registerButton}
             />
           </View>
@@ -497,11 +611,61 @@ const createStyles = (colors) =>
     iconText: {
       fontSize: 20,
     },
+    // ✅ NOVO: estilos de receitas selecionáveis
+    receiptItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 10,
+    },
+    receiptItemSelected: {
+      borderColor: colors.tithe,
+      backgroundColor: colors.tithe + "10",
+    },
+    receiptInfo: {
+      flex: 1,
+      marginRight: 12,
+    },
+    receiptDescription: {
+      fontSize: 15,
+      fontWeight: "600",
+      color: colors.text,
+      marginBottom: 2,
+    },
+    receiptDate: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    receiptRight: {
+      alignItems: "flex-end",
+      gap: 4,
+    },
+    receiptAmount: {
+      fontSize: 15,
+      fontWeight: "bold",
+      color: colors.text,
+    },
+    // ✅ NOVO: seção de valor extra
+    extraAmountSection: {
+      marginTop: 16,
+      marginBottom: 4,
+    },
+    extraAmountLabel: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: colors.textSecondary,
+      marginBottom: 8,
+    },
     resultCard: {
       backgroundColor: colors.tithe + "10",
       borderRadius: 12,
       padding: 16,
       marginBottom: 16,
+      marginTop: 8,
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
@@ -510,6 +674,12 @@ const createStyles = (colors) =>
       fontSize: 16,
       fontWeight: "600",
       color: colors.text,
+    },
+    // ✅ NOVO: sublabel do resultado
+    resultSublabel: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 2,
     },
     resultValue: {
       fontSize: 24,
@@ -522,7 +692,6 @@ const createStyles = (colors) =>
     emptyState: {
       alignItems: "center",
       paddingVertical: 40,
-      backgroundColor: colors.card,
       borderRadius: 12,
     },
     emptyIcon: {
@@ -534,6 +703,7 @@ const createStyles = (colors) =>
       color: colors.textSecondary,
       textAlign: "center",
       paddingHorizontal: 20,
+      marginTop: 12,
     },
     historySection: {
       marginTop: 24,

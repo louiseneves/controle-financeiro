@@ -77,6 +77,14 @@ const HistoryScreen = ({ navigation }) => {
           return Number(b.amount || 0) - Number(a.amount || 0);
         case "amount_asc":
           return Number(a.amount || 0) - Number(b.amount || 0);
+        case "desc_asc":
+          return (a.description || "").localeCompare(
+            b.description || "",
+            undefined,
+            {
+              sensitivity: "base",
+            },
+          );
         default:
           return 0;
       }
@@ -301,6 +309,23 @@ const HistoryScreen = ({ navigation }) => {
               ]}
             >
               {t("history.sort.amountAsc")}
+            </Text>
+          </TouchableOpacity>
+          {/* ✅ NOVO: botão A-Z */}
+          <TouchableOpacity
+            style={[
+              styles.sortButton,
+              sortBy === "desc_asc" && styles.sortButtonActive,
+            ]}
+            onPress={() => setSortBy("desc_asc")}
+          >
+            <Text
+              style={[
+                styles.sortButtonText,
+                sortBy === "desc_asc" && styles.sortButtonTextActive,
+              ]}
+            >
+              {t("history.sort.descAsc")}
             </Text>
           </TouchableOpacity>
         </ScrollView>

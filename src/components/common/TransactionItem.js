@@ -15,7 +15,7 @@ import {
 import { useTheme } from "../../context/ThemeContext";
 import useSettingsStore from "../../store/settingsStore";
 import { t } from "../../i18n";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const TransactionItem = ({ transaction, onPress }) => {
   const { colors } = useTheme();
@@ -49,11 +49,19 @@ const TransactionItem = ({ transaction, onPress }) => {
         );
       case "oferta":
         return (
-          <MaterialIcons name="hands-pray" size={24} color={colors.text} />
+          <MaterialCommunityIcons
+            name="hands-pray"
+            size={24}
+            color={colors.text}
+          />
         );
       default:
         return (
-          <MaterialIcons name="currency-usd" size={24} color={colors.text} />
+          <MaterialCommunityIcons
+            name="currency-usd"
+            size={24}
+            color={colors.text}
+          />
         );
     }
   };

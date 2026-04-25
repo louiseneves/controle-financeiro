@@ -86,7 +86,10 @@ const AddOfferScreen = ({ navigation }) => {
       const parsedDate = new Date(`${date}T00:00:00`);
 
       if (isNaN(parsedDate.getTime())) {
-        Alert.alert(t("addOffer.error.title"), t("addOffer.form.date.invalid"));
+        Alert.alert(
+          t("addOffer.alerts.error.title"),
+          t("addOffer.form.date.invalid"),
+        );
         return;
       }
 
@@ -104,13 +107,8 @@ const AddOfferScreen = ({ navigation }) => {
 
       if (result.success) {
         Alert.alert(
-          t("addOffer.success.title"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={24}
-            color={colors.success}
-          />,
-          t("addOffer.success.message"),
+          t("addOffer.alerts.success.title"),
+          t("addOffer.alerts.success.message"),
           [
             {
               text: "OK",
@@ -120,13 +118,16 @@ const AddOfferScreen = ({ navigation }) => {
         );
       } else {
         Alert.alert(
-          t("addOffer.error.title"),
-          result.error || t("addOffer.error.generic"),
+          t("addOffer.alerts.error.title"),
+          result.error || t("addOffer.alerts.error.generic"),
         );
       }
     } catch (error) {
       console.error("Erro ao salvar oferta:", error);
-      Alert.alert(t("addOffer.error.title"), t("addOffer.error.save"));
+      Alert.alert(
+        t("addOffer.alerts.error.title"),
+        t("addOffer.alerts.error.save"),
+      );
     } finally {
       setLoading(false);
     }
