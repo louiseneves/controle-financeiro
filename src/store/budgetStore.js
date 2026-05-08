@@ -1,208 +1,303 @@
-/**
- * Budget Store - Zustand
- * Gerenciamento de orçamentos mensais
- */
-
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   addDocument,
   getDocuments,
   updateDocument,
   deleteDocument,
-} from '../services/firebase/firestore';
-import { COLLECTIONS } from '../services/firebase/config';
-import NotificationService from '../services/notifications/notificationService';
-import useSettingsStore from './settingsStore';
-import useTransactionStore from './transactionStore';
+} from "../services/firebase/firestore";
+import { COLLECTIONS, auth } from "../services/firebase/config";
+import NotificationService from "../services/notifications/notificationService";
+import useSettingsStore from "./settingsStore";
+import useTransactionStore from "./transactionStore";
+import { Alert } from "react-native";
+import { EXPENSE_CATEGORIES } from "../utils";
+import { formatCurrency } from "../utils/helpers/formatters";
+
+// ✅ Fora do create() — persiste entre chamadas
+let _alertHistory = {};
 
 const useBudgetStore = create((set, get) => ({
-  // ==================== STATE ====================
   budgets: [],
   loading: false,
   error: null,
+  alertHistory: {},
 
-  // ==================== LOAD ====================
   loadBudgets: async (userId) => {
     if (!userId) return;
 
     try {
       set({ loading: true, error: null });
 
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
       const budgets = await getDocuments(
         COLLECTIONS.PLANNING,
-        { field: 'userId', operator: '==', value: userId },
-        { field: 'month', direction: 'desc' }
+        { field: "userId", operator: "==", value: userId },
+        { field: "month", direction: "desc" },
       );
 
-      set({ budgets, loading: false });
+      // ✅ Filtra apenas o orçamento do mês atual
+      const currentMonthBudgets = budgets.filter(
+        (b) => b.month === currentMonth,
+      );
+
+      set({ budgets: currentMonthBudgets, loading: false });
       return { success: true };
     } catch (error) {
-      console.error('Erro ao carregar orçamentos:', error);
       set({ error: error.message, loading: false });
       return { success: false };
     }
   },
 
-  // ==================== ADD ====================
-  addBudget: async (budgetData, userId) => {
+  addBudget: async (budgetData) => {
     if (!budgetData?.userId) {
-      return { success: false, error: 'Usuário não autenticado' };
+      return { success: false, error: "Usuário não autenticado" };
     }
 
     try {
       set({ loading: true, error: null });
 
+      const existing = get().budgets.find(
+        (b) => b.month === budgetData.month && b.userId === budgetData.userId,
+      );
+
+      if (existing) {
+        set({ loading: false });
+        return {
+          success: false,
+          error: "Já existe um orçamento para este mês",
+        };
+      }
+
       const newBudget = {
         ...budgetData,
-        userId,
         createdAt: new Date().toISOString(),
       };
 
       const id = await addDocument(COLLECTIONS.PLANNING, newBudget);
 
-      set(state => ({
+      set((state) => ({
         budgets: [{ id, ...newBudget }, ...state.budgets],
         loading: false,
       }));
 
       return { success: true };
     } catch (error) {
-      console.error('Erro ao adicionar orçamento:', error);
       set({ error: error.message, loading: false });
       return { success: false };
     }
   },
 
-  // ==================== UPDATE ====================
   updateBudget: async (id, data) => {
     try {
       set({ loading: true, error: null });
 
       await updateDocument(COLLECTIONS.PLANNING, id, data);
 
-      set(state => ({
-        budgets: state.budgets.map(b =>
-          b.id === id ? { ...b, ...data } : b
+      set((state) => ({
+        budgets: state.budgets.map((b) =>
+          b.id === id ? { ...b, ...data } : b,
         ),
         loading: false,
       }));
 
       return { success: true };
     } catch (error) {
-      console.error('Erro ao atualizar orçamento:', error);
       set({ error: error.message, loading: false });
       return { success: false };
     }
   },
 
-  // ==================== DELETE ====================
   deleteBudget: async (id) => {
     try {
       set({ loading: true, error: null });
 
       await deleteDocument(COLLECTIONS.PLANNING, id);
 
-      set(state => ({
-        budgets: state.budgets.filter(b => b.id !== id),
+      set((state) => ({
+        budgets: state.budgets.filter((b) => b.id !== id),
         loading: false,
       }));
 
       return { success: true };
     } catch (error) {
-      console.error('Erro ao deletar orçamento:', error);
       set({ error: error.message, loading: false });
       return { success: false };
     }
   },
 
-  restoreBudgets: async (budgets) => {
-  const user = auth.currentUser;
-  if (!user) {
-    return { success: false, error: 'Usuário não autenticado' };
-  }
-
-  try {
-    set({ loading: true, error: null });
-
-    const existingBudgets = get().budgets;
-    for (const budget of existingBudgets) {
-      await deleteDocument(COLLECTIONS.PLANNING, budget.id);
-    }
-
-    const restoredBudgets = [];
-    for (const budget of budgets) {
-      const { id, ...data } = budget;
-      
-      const newBudgetData = {
-        ...data,
-        userId: user.uid,
-        restoredAt: new Date().toISOString(),
-      };
-
-      const newId = await addDocument(COLLECTIONS.PLANNING, newBudgetData);
-      restoredBudgets.push({ id: newId, ...newBudgetData });
-    }
-
-    set({ budgets: restoredBudgets, loading: false });
-    
-    console.log(`✅ ${restoredBudgets.length} orçamentos restaurados`);
-    return { success: true, count: restoredBudgets.length };
-  } catch (error) {
-    console.error('❌ Erro ao restaurar orçamentos:', error);
-    set({ error: error.message, loading: false });
-    return { success: false, error: error.message };
-  }
-},
-
-  // ==================== GET CURRENT ====================
   getCurrentMonthBudget: () => {
     const now = new Date();
     const currentMonth = `${now.getFullYear()}-${String(
-      now.getMonth() + 1
-    ).padStart(2, '0')}`;
+      now.getMonth() + 1,
+    ).padStart(2, "0")}`;
 
-    return get().budgets.find(b => b.month === currentMonth) || null;
+    return get().budgets.find((b) => b.month === currentMonth) || null;
   },
 
-  // ==================== ALERTS ====================
-  checkBudgetAlerts: () => {
+  // ✅ newCategory e newAmount são opcionais:
+  // - addTransaction passa (category, amount) para incluir despesa ainda não no estado
+  // - deleteTransaction chama sem argumentos pois o estado já foi atualizado
+  checkBudgetAlerts: async (newCategory, newAmount, silent = false) => {
+    // 🔍 DEBUG TEMPORÁRIO
+    console.log("🔍 checkBudgetAlerts chamado:", {
+      newCategory,
+      newAmount,
+      silent,
+    });
+    console.log("🔍 alertHistory atual:", _alertHistory);
+    console.log("🔍 alertHistory atual:", JSON.stringify(_alertHistory));
     const settings = useSettingsStore.getState();
-    if (!settings.notifications.enabled || !settings.notifications.bills) {
-      return;
+    let { budgets } = get();
+    // ✅ Se não há orçamentos, tenta carregar antes de verificar
+    if (!budgets || budgets.length === 0) {
+      const { transactions } = useTransactionStore.getState();
+      const userId = transactions[0]?.userId;
+      if (userId) {
+        await get().loadBudgets(userId);
+        budgets = get().budgets;
+      }
     }
 
-    const { budgets } = get();
+    if (!budgets || budgets.length === 0) return;
     const { transactions } = useTransactionStore.getState();
-
     const now = new Date();
     const month = now.getMonth();
     const year = now.getFullYear();
+    const monthKey = `${year}-${month}`;
 
-    budgets.forEach(budget => {
-      const spent = transactions
-        .filter(t => {
+    // ✅ Limpeza de meses anteriores
+    Object.keys(_alertHistory).forEach((key) => {
+      if (!key.includes(monthKey)) {
+        delete _alertHistory[key];
+      }
+    });
+
+    // ✅ NOVO: Limpeza de orçamentos deletados
+    // Mantém apenas chaves cujo budgetId ainda existe no array de budgets
+    const activeBudgetIds = budgets.map((b) => b.id);
+    Object.keys(_alertHistory).forEach((key) => {
+      const budgetId = key.split("_")[0];
+      if (!activeBudgetIds.includes(budgetId)) {
+        delete _alertHistory[key];
+      }
+    });
+
+    // Indexar despesas do mês atual
+    const expensesByCategory = {};
+    transactions.forEach((t) => {
+      const d = new Date(t.date);
+      if (
+        t.type === "despesa" &&
+        d.getMonth() === month &&
+        d.getFullYear() === year
+      ) {
+        expensesByCategory[t.category] =
+          (expensesByCategory[t.category] || 0) + Number(t.amount || 0);
+      }
+    });
+
+    if (newCategory && newAmount && newAmount > 0) {
+      expensesByCategory[newCategory] =
+        (expensesByCategory[newCategory] || 0) + Number(newAmount);
+    }
+    console.log("🔍 expensesByCategory:", JSON.stringify(expensesByCategory));
+    console.log("🔍 total transactions no estado:", transactions.length);
+    console.log(
+      "🔍 transações de alimentacao em maio:",
+      transactions
+        .filter((t) => {
           const d = new Date(t.date);
           return (
-            t.type === 'despesa' &&
-            t.category === budget.category &&
+            t.type === "despesa" &&
+            t.category === "alimentacao" &&
             d.getMonth() === month &&
             d.getFullYear() === year
           );
         })
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+        .map((t) => ({ id: t.id, amount: t.amount, date: t.date })),
+    );
+    const alertsToShow = [];
 
-      if (!budget.amount || budget.amount <= 0) return;
+    budgets.forEach((budget) => {
+      if (!budget.categories) return;
 
-      const percentage = (spent / Number(budget.amount)) * 100;
+      Object.entries(budget.categories).forEach(([category, limit]) => {
+        if (!limit || limit <= 0) return;
 
-      NotificationService.scheduleBudgetWarning(
-        budget.category,
-        percentage
-      );
+        const spent = expensesByCategory[category] || 0;
+        const percentage = (spent / Number(limit)) * 100;
+        const alertKey = `${budget.id}_${category}_${monthKey}`;
+
+        const categoryName =
+          EXPENSE_CATEGORIES.find((c) => c.id === category)?.name || category;
+        console.log(
+          `🔍 ${category}: spent=${spent}, percentage=${percentage.toFixed(1)}%, history=${_alertHistory[alertKey]}`,
+        );
+        // ✅ Salvar estado anterior antes de resetar
+        const previousHistory = _alertHistory[alertKey];
+
+        // Reset direto baseado no percentual atual
+        if (percentage < 90) {
+          _alertHistory[alertKey] = null;
+        } else if (percentage < 100 && _alertHistory[alertKey] === "exceeded") {
+          _alertHistory[alertKey] = "warning";
+        }
+
+        // 🚨 100%
+        if (percentage >= 100 && _alertHistory[alertKey] !== "exceeded") {
+          if (!silent && settings?.notifications?.enabled) {
+            NotificationService.scheduleBudgetWarning(category, "exceeded");
+          }
+          alertsToShow.push({
+            title: "🚨 Orçamento Excedido!",
+            message: `Você ultrapassou o orçamento de "${categoryName}".\n\nGasto: ${formatCurrency(spent)} | Limite: ${formatCurrency(Number(limit))}`,
+          });
+          _alertHistory[alertKey] = "exceeded";
+
+          // ⚠️ 90% — dispara se estava "exceeded" e caiu para 90-99%
+        } else if (
+          percentage >= 90 &&
+          percentage < 100 &&
+          previousHistory === "exceeded" // ✅ usa o estado anterior ao reset
+        ) {
+          if (!silent && settings?.notifications?.enabled) {
+            NotificationService.scheduleBudgetWarning(category, "warning");
+          }
+          alertsToShow.push({
+            title: "⚠️ Atenção ao Orçamento",
+            message: `Você gastou ${percentage.toFixed(0)}% do orçamento de "${categoryName}".\n\nGasto: ${formatCurrency(spent)} | Limite: ${formatCurrency(Number(limit))}`,
+          });
+          // _alertHistory já está "warning" pelo reset acima
+
+          // ⚠️ 90% — dispara normalmente se nunca foi alertado
+        } else if (
+          percentage >= 90 &&
+          _alertHistory[alertKey] !== "warning" &&
+          _alertHistory[alertKey] !== "exceeded"
+        ) {
+          if (!silent && settings?.notifications?.enabled) {
+            NotificationService.scheduleBudgetWarning(category, "warning");
+          }
+          alertsToShow.push({
+            title: "⚠️ Atenção ao Orçamento",
+            message: `Você gastou ${percentage.toFixed(0)}% do orçamento de "${categoryName}".\n\nGasto: ${formatCurrency(spent)} | Limite: ${formatCurrency(Number(limit))}`,
+          });
+          _alertHistory[alertKey] = "warning";
+        }
+      });
     });
+
+    if (!silent && alertsToShow.length > 0) {
+      Alert.alert(alertsToShow[0].title, alertsToShow[0].message);
+    }
   },
 
-  // ==================== UTILS ====================
+  restoreBudgets: () => {
+    console.log("Restauração do Backup do orçamento");
+  },
+
   clearError: () => set({ error: null }),
 }));
 

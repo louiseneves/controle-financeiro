@@ -17,13 +17,51 @@ import {
 import { Button, Input } from "../../components/ui";
 import useAuthStore from "../../store/authStore";
 import useGoalsStore from "../../store/goalsStore";
-import { isoToBR } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import {
   MaterialCommunityIcons,
   Feather,
   FontAwesome6,
 } from "@expo/vector-icons";
+
+// ✅ CORRIGIDO: ícones como objetos com name/library em vez de JSX
+const ICONS = [
+  { key: "target", library: "Feather", name: "target" },
+  { key: "home", library: "Feather", name: "home" },
+  { key: "car", library: "MaterialCommunityIcons", name: "car" },
+  { key: "airplane", library: "MaterialCommunityIcons", name: "airplane" },
+  { key: "ring", library: "MaterialCommunityIcons", name: "ring" },
+  { key: "graduation-cap", library: "FontAwesome6", name: "graduation-cap" },
+  {
+    key: "currency-usd",
+    library: "MaterialCommunityIcons",
+    name: "currency-usd",
+  },
+  { key: "beach", library: "MaterialCommunityIcons", name: "beach" },
+  { key: "gamepad", library: "MaterialCommunityIcons", name: "gamepad" },
+  { key: "cellphone", library: "MaterialCommunityIcons", name: "cellphone" },
+  { key: "laptop", library: "MaterialCommunityIcons", name: "laptop" },
+  { key: "guitar", library: "FontAwesome6", name: "guitar" },
+];
+
+// ✅ Renderiza o ícone certo com base na library
+const GoalIcon = ({ icon, size = 24, color }) => {
+  if (icon.library === "Feather") {
+    return <Feather name={icon.name} size={size} color={color} />;
+  }
+  if (icon.library === "FontAwesome6") {
+    return <FontAwesome6 name={icon.name} size={size} color={color} />;
+  }
+  return <MaterialCommunityIcons name={icon.name} size={size} color={color} />;
+};
+
+// ✅ Máscara de data DD/MM/YYYY
+const maskDate = (value) => {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+};
 
 const AddGoalScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -37,33 +75,31 @@ const AddGoalScreen = ({ navigation }) => {
   const [deadlineBR, setDeadlineBR] = useState("");
   const [deadlineISO, setDeadlineISO] = useState("");
 
-  const [selectedIcon, setSelectedIcon] = useState(
-    <Feather name="target" size={24} color={colors.text} />,
-  );
+  // ✅ CORRIGIDO: selectedIcon é a key string, não JSX
+  const [selectedIconKey, setSelectedIconKey] = useState("target");
 
   const [titleError, setTitleError] = useState("");
   const [targetAmountError, setTargetAmountError] = useState("");
   const [deadlineError, setDeadlineError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const icons = [
-    <Feather name="target" size={24} color={colors.text} />,
-    <Feather name="home" size={24} color={colors.text} />,
-    <MaterialCommunityIcons name="car" size={24} color={colors.text} />,
-    <MaterialCommunityIcons name="airplane" size={24} color={colors.text} />,
-    <MaterialCommunityIcons name="ring" size={24} color={colors.text} />,
-    <FontAwesome6 name="graduation-cap" size={24} color={colors.text} />,
-    <MaterialCommunityIcons
-      name="currency-usd"
-      size={24}
-      color={colors.text}
-    />,
-    <MaterialCommunityIcons name="beach" size={24} color={colors.text} />,
-    <MaterialCommunityIcons name="gamepad" size={24} color={colors.text} />,
-    <MaterialCommunityIcons name="cellphone" size={24} color={colors.text} />,
-    <MaterialCommunityIcons name="laptop" size={24} color={colors.text} />,
-    <FontAwesome6 name="guitar" size={24} color={colors.text} />,
-  ];
+  const selectedIcon = ICONS.find((i) => i.key === selectedIconKey) || ICONS[0];
+
+  // ✅ Handler de data com máscara automática
+  const handleDateChange = (value) => {
+    const masked = maskDate(value);
+    setDeadlineBR(masked);
+
+    const digits = masked.replace(/\D/g, "");
+    if (digits.length === 8) {
+      const day = digits.slice(0, 2);
+      const month = digits.slice(2, 4);
+      const year = digits.slice(4, 8);
+      setDeadlineISO(`${year}-${month}-${day}`);
+    } else {
+      setDeadlineISO("");
+    }
+  };
 
   // Validar campos
   const validateFields = () => {
@@ -112,7 +148,9 @@ const AddGoalScreen = ({ navigation }) => {
         targetAmount: parseFloat(targetAmount),
         currentAmount: currentAmount ? parseFloat(currentAmount) : 0,
         deadline: deadlineISO,
-        icon: selectedIcon,
+        // ✅ CORRIGIDO: salva apenas strings, não JSX
+        iconName: selectedIcon.name,
+        iconLibrary: selectedIcon.library,
         userId: user.uid,
       };
 
@@ -127,13 +165,13 @@ const AddGoalScreen = ({ navigation }) => {
         ]);
       } else {
         Alert.alert(
-          t("addGoal.errorTitle"),
+          t("addGoal.error"),
           result.error || t("addGoal.errorGeneric"),
         );
       }
     } catch (error) {
       console.error("Erro ao salvar meta:", error);
-      Alert.alert(t("addGoal.errorTitle"), t("addGoal.errorGeneric"));
+      Alert.alert(t("addGoal.error"), t("addGoal.errorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -150,7 +188,9 @@ const AddGoalScreen = ({ navigation }) => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>{selectedIcon}</Text>
+          <View style={styles.headerIconWrapper}>
+            <GoalIcon icon={selectedIcon} size={48} color={colors.primary} />
+          </View>
           <Text style={styles.headerTitle}>{t("addGoal.title")}</Text>
           <Text style={styles.headerSubtitle}>{t("addGoal.subtitle")}</Text>
         </View>
@@ -160,14 +200,17 @@ const AddGoalScreen = ({ navigation }) => {
           <Input
             label={t("addGoal.fields.title")}
             value={title}
-            onChangeText={setTitle}
+            onChangeText={(v) => {
+              setTitle(v);
+              if (titleError) setTitleError("");
+            }}
             placeholder={t("addGoal.placeholders.title")}
             error={titleError}
             leftIcon={
               <MaterialCommunityIcons
                 name="file-document-edit-outline"
                 size={24}
-                color={colors.text}
+                color={colors.textSecondary}
               />
             }
           />
@@ -175,7 +218,10 @@ const AddGoalScreen = ({ navigation }) => {
           <Input
             label={t("addGoal.fields.targetAmount")}
             value={targetAmount}
-            onChangeText={setTargetAmount}
+            onChangeText={(v) => {
+              setTargetAmount(v);
+              if (targetAmountError) setTargetAmountError("");
+            }}
             placeholder="0,00"
             keyboardType="numeric"
             error={targetAmountError}
@@ -183,7 +229,7 @@ const AddGoalScreen = ({ navigation }) => {
               <MaterialCommunityIcons
                 name="currency-usd"
                 size={24}
-                color={colors.text}
+                color={colors.textSecondary}
               />
             }
           />
@@ -198,7 +244,7 @@ const AddGoalScreen = ({ navigation }) => {
               <MaterialCommunityIcons
                 name="cash"
                 size={24}
-                color={colors.text}
+                color={colors.textSecondary}
               />
             }
           />
@@ -206,17 +252,12 @@ const AddGoalScreen = ({ navigation }) => {
           <Input
             label={t("addGoal.fields.deadline")}
             value={deadlineBR}
-            onChangeText={(value) => {
-              setDeadlineBR(value);
-
-              // Converter de DD/MM/YYYY para YYYY-MM-DD
-              const [day, month, year] = value.split("/");
-              if (day && month && year) {
-                const iso = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-                setDeadlineISO(iso);
-              }
+            onChangeText={(v) => {
+              handleDateChange(v);
+              if (deadlineError) setDeadlineError("");
             }}
             placeholder={t("addGoal.placeholders.date")}
+            keyboardType="numeric"
             error={deadlineError}
             leftIcon={
               <MaterialCommunityIcons
@@ -231,17 +272,26 @@ const AddGoalScreen = ({ navigation }) => {
           <View style={styles.iconSection}>
             <Text style={styles.label}>{t("addGoal.fields.icon")}</Text>
             <View style={styles.iconGrid}>
-              {icons.map((icon) => (
+              {/* ✅ CORRIGIDO: key é string, comparação é por key */}
+              {ICONS.map((icon) => (
                 <TouchableOpacity
-                  key={icon}
+                  key={icon.key}
                   style={[
                     styles.iconButton,
-                    selectedIcon === icon && styles.iconButtonSelected,
+                    selectedIconKey === icon.key && styles.iconButtonSelected,
                   ]}
-                  onPress={() => setSelectedIcon(icon)}
+                  onPress={() => setSelectedIconKey(icon.key)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.iconButtonText}>{icon}</Text>
+                  <GoalIcon
+                    icon={icon}
+                    size={24}
+                    color={
+                      selectedIconKey === icon.key
+                        ? colors.primary
+                        : colors.textSecondary
+                    }
+                  />
                 </TouchableOpacity>
               ))}
             </View>
@@ -252,7 +302,13 @@ const AddGoalScreen = ({ navigation }) => {
             <View style={styles.previewCard}>
               <Text style={styles.previewLabel}>{t("addGoal.preview")}</Text>
               <View style={styles.preview}>
-                <Text style={styles.previewIcon}>{selectedIcon}</Text>
+                <View style={styles.previewIconWrapper}>
+                  <GoalIcon
+                    icon={selectedIcon}
+                    size={32}
+                    color={colors.primary}
+                  />
+                </View>
                 <View style={styles.previewInfo}>
                   <Text style={styles.previewTitle}>
                     {title || t("addGoal.previewDefault")}
@@ -275,8 +331,9 @@ const AddGoalScreen = ({ navigation }) => {
             style={styles.saveButton}
           />
 
+          {/* ✅ CORRIGIDO: chave de i18n que existe */}
           <Button
-            title={t("cancel")}
+            title={t("addGoal.actions.cancel") || "Cancelar"}
             onPress={() => navigation.goBack()}
             variant="outline"
           />
@@ -300,8 +357,13 @@ const createStyles = (colors) =>
       alignItems: "center",
       marginBottom: 32,
     },
-    headerIcon: {
-      fontSize: 64,
+    headerIconWrapper: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.primary + "15",
+      alignItems: "center",
+      justifyContent: "center",
       marginBottom: 16,
     },
     headerTitle: {
@@ -318,9 +380,6 @@ const createStyles = (colors) =>
     form: {
       marginBottom: 24,
     },
-    iconText: {
-      fontSize: 20,
-    },
     label: {
       fontSize: 14,
       fontWeight: "600",
@@ -336,8 +395,8 @@ const createStyles = (colors) =>
       gap: 10,
     },
     iconButton: {
-      width: 60,
-      height: 60,
+      width: 56,
+      height: 56,
       backgroundColor: colors.card,
       borderRadius: 12,
       alignItems: "center",
@@ -349,9 +408,6 @@ const createStyles = (colors) =>
       borderColor: colors.primary,
       borderWidth: 3,
       backgroundColor: colors.primary + "10",
-    },
-    iconButtonText: {
-      fontSize: 32,
     },
     previewCard: {
       backgroundColor: colors.card,
@@ -367,10 +423,15 @@ const createStyles = (colors) =>
     preview: {
       flexDirection: "row",
       alignItems: "center",
+      gap: 16,
     },
-    previewIcon: {
-      fontSize: 40,
-      marginRight: 16,
+    previewIconWrapper: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: colors.primary + "15",
+      alignItems: "center",
+      justifyContent: "center",
     },
     previewInfo: {
       flex: 1,

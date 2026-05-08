@@ -54,13 +54,13 @@ const GoalsScreen = ({ navigation }) => {
     // limite para usuários gratuitos
     if (!isPremium && goals.length >= 3) {
       Alert.alert(
-        t("premium.limitTitle"),
-        t("premium.goalsLimit", { limit: 3 }),
+        t("premium.alerts.limitTitle"),
+        t("premium.alerts.goalsLimit", { limit: 3 }),
         [
-          { text: t("common.ok") },
+          { text: t("premium.alerts.ok") },
           {
-            text: t("premium.upgrade"),
-            onPress: () => navigation.navigate("UpgradePremium"),
+            text: t("premium.buttons.upgrade"),
+            onPress: () => navigation.navigate("Premium"),
           },
         ],
       );

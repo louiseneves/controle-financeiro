@@ -1,11 +1,17 @@
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { auth } from '../services/firebase/config';
-import { addDocument, getDocuments, deleteDocument } from '../services/firebase/firestore';
-import  useTransactionStore  from './transactionStore';
-import  useGoalsStore  from './goalsStore';
-import  useBudgetStore  from './budgetStore';
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth } from "../services/firebase/config";
+import {
+  addDocument,
+  getDocuments,
+  deleteDocument,
+} from "../services/firebase/firestore";
 
+import useTransactionStore from "./transactionStore";
+import useGoalsStore from "./goalsStore";
+import useBudgetStore from "./budgetStore";
+
+const BACKUP_LIMIT_FREE = 3;
 
 export const useBackupStore = create((set, get) => ({
   backups: [],
@@ -13,191 +19,205 @@ export const useBackupStore = create((set, get) => ({
   autoBackupEnabled: true,
   lastBackup: null,
 
+  // ================= SETTINGS =================
   loadSettings: async () => {
     try {
-      const settings = await AsyncStorage.getItem('backupSettings');
+      const settings = await AsyncStorage.getItem("backupSettings");
       if (settings) {
-        const { autoBackupEnabled, lastBackup } = JSON.parse(settings);
-        set({ autoBackupEnabled, lastBackup });
+        const parsed = JSON.parse(settings);
+        set({
+          autoBackupEnabled: parsed.autoBackupEnabled ?? true,
+          lastBackup: parsed.lastBackup ?? null,
+        });
       }
     } catch (error) {
-      console.error('Erro ao carregar configurações de backup:', error);
+      console.error("Erro ao carregar settings:", error);
     }
   },
 
   saveSettings: async () => {
-  try {
-    const { autoBackupEnabled, lastBackup } = get();
-    await AsyncStorage.setItem(
-      'backupSettings',
-      JSON.stringify({ autoBackupEnabled, lastBackup })
-    );
-  } catch (error) {
-    console.error('Erro ao salvar configurações:', error);
-  }
-},
-
+    try {
+      const { autoBackupEnabled, lastBackup } = get();
+      await AsyncStorage.setItem(
+        "backupSettings",
+        JSON.stringify({ autoBackupEnabled, lastBackup }),
+      );
+    } catch (error) {
+      console.error("Erro ao salvar settings:", error);
+    }
+  },
 
   toggleAutoBackup: async (enabled) => {
     set({ autoBackupEnabled: enabled });
     await get().saveSettings();
   },
 
+  // ================= CREATE =================
   createBackup: async (isAutomatic = false, isPremium = false) => {
-  const user = auth.currentUser;
-  if (!user) return null;
+    const user = auth.currentUser;
+    if (!user) throw new Error("Usuário não autenticado");
 
-  set({ loading: true });
-    
-if (!isPremium && get().backups.length >= 3) {
-  throw new Error('Limite de backups atingido');
-}
+    const { backups } = get();
 
-  try {
-const now = new Date().toISOString();
+    // ✅ Conta apenas backups manuais no limite gratuito
+    const manualBackups = backups.filter((b) => !b.isAutomatic);
+    if (
+      !isPremium &&
+      !isAutomatic &&
+      manualBackups.length >= BACKUP_LIMIT_FREE
+    ) {
+      throw new Error("BACKUP_LIMIT");
+    }
 
-const backupData = {
-  userId: user.uid,
-  isAutomatic,
-  version: '1.0.0',
-  timestamp: now, // 🔑 ESSENCIAL
-  data: {
-    transactions: useTransactionStore.getState().transactions,
-    goals: useGoalsStore.getState().goals,
-    budgets: useBudgetStore.getState().budgets,
-    userProfile: {
-      name: user.displayName,
-      email: user.email,
-    },
+    set({ loading: true });
+
+    try {
+      const now = new Date().toISOString();
+
+      const backupData = {
+        userId: user.uid,
+        isAutomatic,
+        version: "1.0.0",
+        timestamp: now,
+        data: {
+          transactions: useTransactionStore.getState().transactions,
+          goals: useGoalsStore.getState().goals,
+          budgets: useBudgetStore.getState().budgets,
+        },
+      };
+
+      const id = await addDocument("backups", backupData);
+
+      const newBackup = { id, ...backupData };
+
+      set((state) => ({
+        backups: [newBackup, ...state.backups],
+        lastBackup: now,
+        loading: false,
+      }));
+
+      await get().saveSettings();
+
+      return newBackup;
+    } catch (error) {
+      console.error("Erro ao criar backup:", error);
+      set({ loading: false });
+      throw error;
+    }
   },
-};
 
-    
-    const backupId = await addDocument('backups', backupData);
-
-    const backup = {
-      id: backupId,
-      ...backupData,
-    };
-
-    set(state => ({
-      backups: [backup, ...state.backups],
-      lastBackup: now,
-      loading: false,
-    }));
-
-    await get().saveSettings();
-    return backup;
-  } catch (error) {
-    console.error('Erro ao criar backup:', error);
-    set({ loading: false });
-    throw error;
-  }
-},
-
+  // ================= LOAD =================
   loadBackups: async () => {
-  const user = auth.currentUser;
-  if (!user) return;
+    const user = auth.currentUser;
+    if (!user) return;
 
-  set({ loading: true });
+    set({ loading: true });
 
-  try {
-    const backups = await getDocuments(
-      'backups',
-      { field: 'userId', operator: '==', value: user.uid },
-      { field: 'timestamp', direction: 'desc' },
-      10
-    );
+    try {
+      const backups = await getDocuments(
+        "backups",
+        { field: "userId", operator: "==", value: user.uid },
+        { field: "timestamp", direction: "desc" },
+        10,
+      );
 
-    set({ backups, loading: false });
-  } catch (error) {
-    console.error('Erro ao carregar backups:', error);
-    set({ loading: false });
-  }
-},
+      set({ backups, loading: false });
+    } catch (error) {
+      console.error("Erro ao carregar backups:", error);
+      set({ loading: false });
+    }
+  },
 
-
+  // ================= RESTORE =================
   restoreBackup: async (backupId) => {
     set({ loading: true });
 
     try {
-      const backup = get().backups.find(b => b.id === backupId);
-      if (!backup) throw new Error('Backup não encontrado');
+      const backup = get().backups.find((b) => b.id === backupId);
+      if (!backup || !backup.data) {
+        throw new Error("Backup inválido");
+      }
 
       const { data } = backup;
 
-      await useTransactionStore.getState().restoreTransactions(data.transactions || []);
+      await useTransactionStore
+        .getState()
+        .restoreTransactions(data.transactions || []);
+
       await useGoalsStore.getState().restoreGoals(data.goals || []);
+
       await useBudgetStore.getState().restoreBudgets(data.budgets || []);
 
       set({ loading: false });
       return true;
     } catch (error) {
-      console.error('Erro ao restaurar backup:', error);
+      console.error("Erro ao restaurar:", error);
       set({ loading: false });
       throw error;
     }
   },
 
-  deleteBackup: async backupId => {
-  try {
-    await deleteDocument('backups', backupId);
-    set(state => ({
-      backups: state.backups.filter(b => b.id !== backupId),
-    }));
-  } catch (error) {
-    console.error('Erro ao excluir backup:', error);
-    throw error;
-  }
-},
-
-
-  exportBackupJSON: async () => {
+  // ================= DELETE =================
+  deleteBackup: async (backupId) => {
     try {
-      const transactions = useTransactionStore.getState().transactions;
-      const goals = useGoalsStore.getState().goals;
-      const budgets = useBudgetStore.getState().budgets;
+      await deleteDocument("backups", backupId);
 
-      const backupData = {
-        timestamp: new Date().toISOString(),
-        version: '1.0.0',
-        data: {
-          transactions,
-          goals,
-          budgets
-        }
-      };
-
-      return JSON.stringify(backupData, null, 2);
+      set((state) => ({
+        backups: state.backups.filter((b) => b.id !== backupId),
+      }));
     } catch (error) {
-      console.error('Erro ao exportar backup:', error);
+      console.error("Erro ao deletar:", error);
       throw error;
     }
   },
 
+  // ================= EXPORT =================
+  exportBackupJSON: async () => {
+    try {
+      const data = {
+        timestamp: new Date().toISOString(),
+        version: "1.0.0",
+        data: {
+          transactions: useTransactionStore.getState().transactions,
+          goals: useGoalsStore.getState().goals,
+          budgets: useBudgetStore.getState().budgets,
+        },
+      };
+
+      return JSON.stringify(data, null, 2);
+    } catch (error) {
+      console.error("Erro export JSON:", error);
+      throw error;
+    }
+  },
+
+  // ================= IMPORT =================
   importBackupJSON: async (jsonString) => {
     set({ loading: true });
 
     try {
-      const backupData = JSON.parse(jsonString);
-      const { data } = backupData;
+      const parsed = JSON.parse(jsonString);
 
-      if (!data || !data.transactions) {
-        throw new Error('Formato de backup inválido');
+      if (!parsed?.data) {
+        throw new Error("Formato inválido");
       }
 
-      await useTransactionStore.getState().restoreTransactions(data.transactions || []);
+      const { data } = parsed;
+
+      await useTransactionStore
+        .getState()
+        .restoreTransactions(data.transactions || []);
+
       await useGoalsStore.getState().restoreGoals(data.goals || []);
+
       await useBudgetStore.getState().restoreBudgets(data.budgets || []);
 
       set({ loading: false });
       return true;
     } catch (error) {
-      console.error('Erro ao importar backup:', error);
+      console.error("Erro import:", error);
       set({ loading: false });
       throw error;
     }
   },
 }));
-
-export default useBackupStore;

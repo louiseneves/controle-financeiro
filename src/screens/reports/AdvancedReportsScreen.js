@@ -21,7 +21,7 @@ import useAuthStore from "../../store/authStore";
 import { LineChart } from "react-native-gifted-charts";
 import useSettingsStore from "../../store/settingsStore";
 import { t } from "../../i18n";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const screenWidth = Dimensions.get("window").width;
 

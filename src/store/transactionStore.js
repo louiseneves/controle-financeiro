@@ -62,6 +62,22 @@ const useTransactionStore = create((set, get) => ({
       const id = await addDocument(COLLECTIONS.TRANSACTIONS, newTransaction);
 
       console.log("✅ Transação salva com ID:", id);
+      try {
+        const { useBackupStore } = require("./backupStore");
+        const backupStore = useBackupStore.getState();
+        const usePremiumStore = require("./premiumStore").default;
+        const isPremium = usePremiumStore.getState().isPremium;
+
+        // ✅ Backup automático apenas para premium
+        if (backupStore.autoBackupEnabled && isPremium) {
+          await backupStore.createBackup(true, isPremium);
+        }
+      } catch (backupError) {
+        console.warn(
+          "⚠️ Erro ao criar backup automático:",
+          backupError.message,
+        );
+      }
 
       // ✅ Atualiza estado
       set((state) => ({
@@ -70,7 +86,7 @@ const useTransactionStore = create((set, get) => ({
         error: null,
       }));
 
-      // 🔔 Notificação (com tratamento de erro)
+      // 🔔 Notificação
       try {
         const settings = useSettingsStore.getState();
         if (settings?.notifications?.enabled) {
@@ -85,7 +101,21 @@ const useTransactionStore = create((set, get) => ({
         }
       } catch (notifError) {
         console.warn("⚠️ Erro ao enviar notificação:", notifError);
-        // ✅ Notificação falha NÃO impede retorno de sucesso
+      }
+
+      // ✅ NOVO: Verificar alertas de orçamento após salvar despesa
+      // ✅ Verificar alertas de orçamento após salvar despesa
+      try {
+        if (transaction.type === "despesa") {
+          const useBudgetStore = require("./budgetStore").default;
+          // ✅ Sem newAmount — transação já está no estado quando chegamos aqui
+          await useBudgetStore.getState().checkBudgetAlerts();
+        }
+      } catch (budgetAlertError) {
+        console.warn(
+          "⚠️ Erro ao verificar alertas de orçamento:",
+          budgetAlertError,
+        );
       }
 
       return { success: true, id };
@@ -132,7 +162,6 @@ const useTransactionStore = create((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      // 🔍 Pega o userId do estado
       const state = get();
       const transaction = state.transactions.find((t) => t.id === id);
 
@@ -152,6 +181,18 @@ const useTransactionStore = create((set, get) => ({
         loading: false,
       }));
 
+      // ✅ NOVO: Recalcular alertas após deletar despesa
+      // Passa valor negativo para subtrair do cálculo
+      try {
+        // ✅ Sem argumentos — estado já foi atualizado antes desta chamada
+        if (transaction.type === "despesa") {
+          const useBudgetStore = require("./budgetStore").default;
+          await useBudgetStore.getState().checkBudgetAlerts();
+        }
+      } catch (budgetAlertError) {
+        console.warn("⚠️ Erro ao recalcular alertas:", budgetAlertError);
+      }
+
       return { success: true };
     } catch (error) {
       console.error("❌ Erro ao deletar transação:", error);
@@ -159,7 +200,6 @@ const useTransactionStore = create((set, get) => ({
       return { success: false, error: error.message };
     }
   },
-
   // ==================== SUMMARY ====================
   getSummary: () => {
     const { transactions } = get();
@@ -198,6 +238,10 @@ const useTransactionStore = create((set, get) => ({
 
   getRecentTransactions: (limit = 5) => {
     return get().transactions.slice(0, limit);
+  },
+
+  restoreTransactions: () => {
+    console.log("Restauração do Backup das transações");
   },
 
   // ==================== UTILS ====================

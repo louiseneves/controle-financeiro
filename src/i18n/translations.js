@@ -1,3 +1,5 @@
+import { backupUserData } from "../services/firebase/firestore";
+
 export const translations = {
   "pt-BR": {
     login: {
@@ -150,6 +152,7 @@ export const translations = {
       previewDefault: "Sua meta",
       actions: {
         create: "Criar Meta",
+        cancel: "Cancelar",
       },
       errors: {
         titleRequired: "Título é obrigatório",
@@ -157,6 +160,7 @@ export const translations = {
         deadlineInvalid: "Data limite inválida",
         deadlineFuture: "Data limite deve ser futura",
       },
+      successTitle: "Meta Criada!",
       success: "Meta criada com sucesso!",
       error: "Erro ao criar meta",
       errorGeneric: "Não foi possível criar a meta",
@@ -183,6 +187,16 @@ export const translations = {
       addTitle: "Adicionar à Meta",
       addLabel: "Valor",
 
+      withdrawTitle: "Retirar da Meta",
+      withdrawAvailable: "Valor disponível para retirada",
+      withdrawLabel: "Valor para Retirar",
+      withdrawButton: "Retirar da Meta",
+
+      edit: "Editar Meta",
+      successTitle: "Sucesso!",
+      updateSuccess: "Meta atualizada com sucesso!",
+      updateError: "Erro ao atualizar meta",
+
       delete: "Excluir Meta",
       deleteConfirmTitle: "Excluir Meta",
       deleteConfirmMessage: "Tem certeza que deseja excluir esta meta?",
@@ -191,6 +205,7 @@ export const translations = {
         invalidValue: "Digite um valor válido",
         successAdd: "{{amount}} adicionado à meta!",
         deleteSuccess: "Meta excluída com sucesso!",
+        cancel: "Cancelar",
         error: "Erro",
         addError: "Não foi possível adicionar o valor",
       },
@@ -242,6 +257,11 @@ export const translations = {
         equal: "Distribuir Igualmente",
         suggested: "Valores Sugeridos",
         cancel: "Cancelar",
+        emptyLastMonth:
+          "Você não tem despesas registradas no mês anterior para usar como sugestão.",
+        confirm:
+          "Esta ação irá preencher os campos de orçamento com valores sugeridos baseados em suas despesas deste mês. Deseja continuar?",
+        ok: "OK",
       },
 
       categoryTitle: "Orçamento por Categoria",
@@ -281,8 +301,8 @@ export const translations = {
         title: "Orçamento por Categoria",
         limit: "Limite",
         of: "de {{amount}}",
-        available: "Disponível:",
-        exceeded: "Excedido:",
+        available: "Disponível: {{amount}}",
+        exceeded: "Excedido:  {{amount}}",
       },
 
       warnings: {
@@ -301,6 +321,14 @@ export const translations = {
         create: "Criar Orçamento",
         edit: "Editar Orçamento",
       },
+
+      deleteTitle: "Excluir Orçamento",
+      deleteMessage: "Tem certeza que deseja excluir este orçamento?",
+      deleteSuccess: "Orçamento excluído com sucesso!",
+      deleted: "Orçamento excluído!",
+      deleteError: "Erro ao excluir orçamento",
+      cancel: "Cancelar",
+      delete: "Excluir",
     },
     advancedReports: {
       premium: {
@@ -539,6 +567,10 @@ export const translations = {
         premiumMessage:
           "A exportação de dados está disponível apenas para usuários Premium.",
         upgrade: "Upgrade",
+        autoBackupPremiumMessage:
+          "O backup automático é exclusivo para usuários Premium.",
+        restorePremiumMessage:
+          "A restauração de backup é exclusiva para usuários Premium.",
       },
 
       misc: {
@@ -708,6 +740,7 @@ export const translations = {
         confirmDemo: "Assinar (Demo)",
         yesCancel: "Sim, Cancelar",
         no: "Não",
+        upgrade: "Fazer Upgrade para Premium",
       },
 
       premiumStatus: {
@@ -736,8 +769,28 @@ export const translations = {
           "Usuários gratuitos podem criar até {{limit}} metas. Faça upgrade para desbloquear metas ilimitadas.",
         budgetLimit:
           "Apenas um orçamento ativo por vez está disponível sem assinatura Premium.",
+        backupLimit:
+          "Usuários gratuitos podem criar até {{limit}} backups. Faça upgrade para backups ilimitados.",
         supportLimit:
           "Você atingiu o número máximo de tickets abertos (3). Faça upgrade para entrar em contato novamente.",
+
+        // ✅ NOVO
+        premiumFeatureTitle: "Funcionalidade Premium",
+        editBudgetPremium:
+          "Criar ou editar múltiplos orçamentos é exclusivo do plano Premium. Faça upgrade para desbloquear mais controle financeiro.",
+      },
+
+      edit: {
+        editCompletedPremiumTitle: "Recurso Premium",
+        editCompletedPremiumMessage:
+          "Editar metas concluídas é exclusivo para assinantes Premium.\n\nFaça upgrade para desbloquear esta e outras funcionalidades!",
+        editCompletedPremiumCancel: "Agora não",
+        editCompletedPremiumAction: "Ver Premium",
+        editCompletedWarningTitle: "Editar Meta Concluída",
+        editCompletedWarningMessage:
+          "Esta meta já foi concluída. Ao aumentar o valor alvo, ela pode deixar de aparecer como concluída.\n\nDeseja continuar?",
+        editCompletedWarningCancel: "Cancelar",
+        editCompletedWarningConfirm: "Continuar",
       },
     },
     profile: {
@@ -1824,6 +1877,7 @@ export const translations = {
         deadlineInvalid: "Invalid deadline",
         deadlineFuture: "Deadline must be in the future",
       },
+      successTitle: "Goal Created!",
       success: "Goal created successfully!",
       error: "Error creating goal",
       errorGeneric: "Unable to create the goal",
@@ -1850,6 +1904,16 @@ export const translations = {
       addTitle: "Add to Goal",
       addLabel: "Amount",
 
+      withdrawTitle: "Withdraw from Goal",
+      withdrawAvailable: "Available to withdraw",
+      withdrawLabel: "Amount to Withdraw",
+      withdrawButton: "Withdraw from Goal",
+
+      edit: "Edit Goal",
+      successTitle: "Success!",
+      updateSuccess: "Goal updated successfully!",
+      updateError: "Error updating goal",
+
       delete: "Delete Goal",
       deleteConfirmTitle: "Delete Goal",
       deleteConfirmMessage: "Are you sure you want to delete this goal?",
@@ -1858,6 +1922,7 @@ export const translations = {
         invalidValue: "Enter a valid amount",
         successAdd: "{{amount}} added to the goal!",
         deleteSuccess: "Goal deleted successfully!",
+        cancel: "Cancel",
         error: "Error",
         addError: "Unable to add the amount",
       },
@@ -1909,6 +1974,11 @@ export const translations = {
         equal: "Distribute Equally",
         suggested: "Suggested Values",
         cancel: "Cancel",
+        emptyLastMonth:
+          "You have no expenses recorded last month to use as a suggestion.",
+        confirm:
+          "This will overwrite your current category budgets. Do you want to continue?",
+        ok: "OK",
       },
 
       categoryTitle: "Budget by Category",
@@ -1948,8 +2018,8 @@ export const translations = {
         title: "Budget by Category",
         limit: "Limit",
         of: "of {{amount}}",
-        available: "Available:",
-        exceeded: "Exceeded:",
+        available: "Available: {{amount}}",
+        exceeded: "Exceeded: {{amount}}",
       },
 
       warnings: {
@@ -1967,6 +2037,14 @@ export const translations = {
         create: "Create Budget",
         edit: "Edit Budget",
       },
+
+      deleteTitle: "Delete Budget",
+      deleteMessage: "Are you sure you want to delete this budget?",
+      deleteSuccess: "Budget deleted successfully!",
+      deleted: "Budget deleted!",
+      deleteError: "Error deleting budget",
+      cancel: "Cancel",
+      delete: "Delete",
     },
     advancedReports: {
       premium: {
@@ -2202,6 +2280,10 @@ export const translations = {
         premiumTitle: "Premium Feature",
         premiumMessage: "Data export is available only for Premium users.",
         upgrade: "Upgrade",
+        autoBackupPremiumMessage:
+          "Automatic backup is exclusive to Premium users.",
+        restorePremiumMessage:
+          "Backup restoration is exclusive to Premium users.",
       },
 
       misc: {
@@ -2372,6 +2454,7 @@ export const translations = {
         confirmDemo: "Subscribe (Demo)",
         yesCancel: "Yes, cancel",
         no: "No",
+        upgrade: "Upgrade to Premium",
       },
 
       premiumStatus: {
@@ -2395,6 +2478,33 @@ export const translations = {
         demoDisclaimer:
           "* Demo mode. In production, billing will be handled by Google Play.",
         ok: "OK",
+        limitTitle: "Feature Limit",
+        goalsLimit:
+          "Free users can create up to {{limit}} active goals. Upgrade for unlimited goals.",
+        budgetLimit:
+          "Only one active budget at a time is available without a Premium subscription.",
+        backupLimit:
+          "Free users can create up to {{limit}} backups. Upgrade for unlimited backups.",
+        supportLimit:
+          "You have reached the maximum number of open tickets (3). Upgrade to contact support again.",
+
+        // ✅ ADD THIS
+        premiumFeatureTitle: "Premium Feature",
+        editBudgetPremium:
+          "Editing multiple budgets is a Premium feature. Upgrade to unlock advanced financial control.",
+      },
+
+      edit: {
+        editCompletedPremiumTitle: "Premium Feature",
+        editCompletedPremiumMessage:
+          "Editing completed goals is exclusive to Premium subscribers.\n\nUpgrade to unlock this and other features!",
+        editCompletedPremiumCancel: "Not now",
+        editCompletedPremiumAction: "See Premium",
+        editCompletedWarningTitle: "Edit Completed Goal",
+        editCompletedWarningMessage:
+          "This goal has already been completed. Increasing the target amount may remove its completed status.\n\nDo you want to continue?",
+        editCompletedWarningCancel: "Cancel",
+        editCompletedWarningConfirm: "Continue",
       },
     },
     profile: {
@@ -3483,6 +3593,7 @@ export const translations = {
         deadlineInvalid: "Fecha límite inválida",
         deadlineFuture: "La fecha límite debe ser futura",
       },
+      successTitle: "¡Meta Creada!",
       success: "¡Meta creada con éxito!",
       error: "Error al crear la meta",
       errorGeneric: "No se pudo crear la meta",
@@ -3509,6 +3620,16 @@ export const translations = {
       addTitle: "Agregar a la Meta",
       addLabel: "Monto",
 
+      withdrawTitle: "Retirar de la Meta",
+      withdrawAvailable: "Disponible para Retirar",
+      withdrawLabel: "Monto a Retirar",
+      withdrawButton: "Retirar de la Meta",
+
+      edit: "Editar Meta",
+      successTitle: "¡Éxito!",
+      updateSuccess: "¡Meta actualizada correctamente!",
+      updateError: "Error al actualizar la meta",
+
       delete: "Eliminar Meta",
       deleteConfirmTitle: "Eliminar Meta",
       deleteConfirmMessage: "¿Seguro que deseas eliminar esta meta?",
@@ -3517,6 +3638,7 @@ export const translations = {
         invalidValue: "Ingresa un monto válido",
         successAdd: "{{amount}} agregado a la meta!",
         deleteSuccess: "¡Meta eliminada con éxito!",
+        cancel: "Cancelar",
         error: "Error",
         addError: "No se pudo agregar el monto",
       },
@@ -3568,6 +3690,11 @@ export const translations = {
         equal: "Distribuir Igualmente",
         suggested: "Valores Sugeridos",
         cancel: "Cancelar",
+        emptyLastMonth:
+          "No tienes gastos registrados el mes anterior para usar como sugerencia.",
+        confirm:
+          "¿Deseas aplicar los valores sugeridos a tu presupuesto mensual?",
+        ok: "Sí, aplicar sugerencias",
       },
 
       categoryTitle: "Presupuesto por Categoría",
@@ -3607,8 +3734,8 @@ export const translations = {
         title: "Presupuesto por Categoría",
         limit: "Límite",
         of: "de {{amount}}",
-        available: "Disponible:",
-        exceeded: "Excedido:",
+        available: "Disponible: {{amount}}",
+        exceeded: "Excedido: {{amount}}",
       },
 
       warnings: {
@@ -3627,6 +3754,14 @@ export const translations = {
         create: "Crear Presupuesto",
         edit: "Editar Presupuesto",
       },
+
+      deleteTitle: "Eliminar Presupuesto",
+      deleteMessage: "¿Seguro que deseas eliminar este presupuesto?",
+      deleteSuccess: "¡Presupuesto eliminado con éxito!",
+      deleted: "¡Presupuesto eliminado!",
+      deleteError: "Error al eliminar el presupuesto",
+      cancel: "Cancelar",
+      delete: "Eliminar",
     },
     advancedReports: {
       premium: {
@@ -3863,6 +3998,10 @@ export const translations = {
         premiumMessage:
           "La exportación de datos está disponible solo para usuarios Premium.",
         upgrade: "Actualizar",
+        autoBackupPremiumMessage:
+          "La copia de seguridad automática es exclusiva para usuarios Premium.",
+        restorePremiumMessage:
+          "La restauración de copias de seguridad es exclusiva para usuarios Premium.",
       },
 
       misc: {
@@ -4032,6 +4171,7 @@ export const translations = {
         confirmDemo: "Suscribirse (Demo)",
         yesCancel: "Sí, cancelar",
         no: "No",
+        upgrade: "Actualizar a Premium",
       },
 
       premiumStatus: {
@@ -4055,6 +4195,33 @@ export const translations = {
         demoDisclaimer:
           "* Modo de demostración. En producción, el cobro se realizará vía Google Play.",
         ok: "OK",
+        limitTitle: "Límite Alcanzado",
+        goalsLimit:
+          "Usuarios gratuitos pueden tener hasta {{limit}} metas activas. Actualiza para metas ilimitadas.",
+        budgetLimit:
+          "Usuarios gratuitos pueden crear hasta {{limit}} presupuestos mensuales. Haz upgrade para presupuestos ilimitados.",
+        backupLimit:
+          "Usuarios gratuitos pueden crear hasta {{limit}} copias de seguridad. Actualiza para copias ilimitadas.",
+        supportLimit:
+          "El soporte prioritario es exclusivo para suscriptores Premium. Actualiza para recibir asistencia más rápida.",
+
+        // ✅ ADICIONE ISSO AQUI
+        premiumFeatureTitle: "Función Premium",
+        editBudgetPremium:
+          "Editar múltiples presupuestos es una función exclusiva del plan Premium. Actualiza para desbloquear esta funcionalidad.",
+      },
+
+      edit: {
+        editCompletedPremiumTitle: "Función Premium",
+        editCompletedPremiumMessage:
+          "Editar metas completadas es exclusivo para suscriptores Premium.\n\n¡Actualiza para desbloquear esta y otras funcionalidades!",
+        editCompletedPremiumCancel: "Ahora no",
+        editCompletedPremiumAction: "Ver Premium",
+        editCompletedWarningTitle: "Editar Meta Completada",
+        editCompletedWarningMessage:
+          "Esta meta ya fue completada. Aumentar el monto objetivo puede quitarle el estado de completada.\n\n¿Deseas continuar?",
+        editCompletedWarningCancel: "Cancelar",
+        editCompletedWarningConfirm: "Continuar",
       },
     },
     profile: {

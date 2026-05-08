@@ -1,5 +1,5 @@
 /**
- * Tela de Criar/Editar Orçamento
+ * Tela de Criar/Editar Orçamento - FINAL (PRODUCTION READY)
  */
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -16,93 +16,141 @@ import {
 } from "react-native";
 import { Button, Input } from "../../components/ui";
 import { COLORS, EXPENSE_CATEGORIES, formatMonthYear } from "../../utils";
+
 import useAuthStore from "../../store/authStore";
 import useBudgetStore from "../../store/budgetStore";
-import useSettingsStore from "../../store/settingsStore";
+import useTransactionStore from "../../store/transactionStore";
+
 import { t } from "../../i18n";
 import {
   getCurrencyPlaceholder,
-  getCurrencySymbol,
-  getCurrentLocale,
   parseCurrencyInput,
   formatCurrency,
 } from "../../utils/helpers/formatters";
-import { MaterialCommunityIcons, FontAwesome6 } from "@expo/vector-icons";
+
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const CreateBudgetScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const { user } = useAuthStore();
-  const { addBudget, updateBudget } = useBudgetStore();
-  const [categoryInputs, setCategoryInputs] = useState({});
+  const { addBudget, updateBudget, budgets } = useBudgetStore();
+  const { transactions } = useTransactionStore();
 
   const existingBudget = route.params?.budget;
   const isEditing = !!existingBudget;
-  const locale = getCurrentLocale();
+
+  const [categoryInputs, setCategoryInputs] = useState({});
   const [categoryBudgets, setCategoryBudgets] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const currency = useSettingsStore((state) => state.currency);
-  const language = useSettingsStore((state) => state.language);
+  const currencyPlaceholder = getCurrencyPlaceholder();
 
-  const currencyPlaceholder = useMemo(
-    () => getCurrencyPlaceholder(),
-    [currency, language],
-  );
+  // ================================
+  // 📅 MÊS ATUAL (single source)
+  // ================================
+  const currentMonth = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      "0",
+    )}`;
+  }, []);
 
-  const currencySymbol = getCurrencySymbol();
+  // ================================
+  // 📌 LOAD EDIT DATA
+  // ================================
   useEffect(() => {
-    if (isEditing && existingBudget.categories) {
+    if (isEditing && existingBudget?.categories) {
       setCategoryBudgets(existingBudget.categories);
 
-      const formattedInputs = {};
-      Object.entries(existingBudget.categories).forEach(([key, value]) => {
-        formattedInputs[key] = formatCurrency(value);
+      const formatted = {};
+      Object.entries(existingBudget.categories).forEach(([k, v]) => {
+        formatted[k] = formatCurrency(v);
       });
 
-      setCategoryInputs(formattedInputs);
+      setCategoryInputs(formatted);
     }
   }, [isEditing, existingBudget]);
 
+  // ================================
+  // ✏️ INPUT HANDLER
+  // ================================
   const handleAmountChange = (category, value) => {
-    // 1. Texto visual (sem formatar)
+    const numeric = parseCurrencyInput(value) || 0;
+
     setCategoryInputs((prev) => ({
       ...prev,
       [category]: value,
     }));
 
-    // 2. Número real (independente de como foi digitado)
-    const numericValue = parseCurrencyInput(value);
-
     setCategoryBudgets((prev) => ({
       ...prev,
-      [category]: numericValue,
+      [category]: numeric,
     }));
   };
 
-  const calculateTotal = () => {
+  // ================================
+  // 📊 TOTAL
+  // ================================
+  const totalBudget = useMemo(() => {
     return Object.values(categoryBudgets).reduce(
-      (sum, amount) => sum + Number(amount || 0),
+      (sum, val) => sum + Number(val || 0),
       0,
     );
+  }, [categoryBudgets]);
+
+  // ================================
+  // 🤖 SUGESTÃO INTELIGENTE
+  // ================================
+  const getSuggestedBudgets = () => {
+    // ✅ Usa o mês anterior como base
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthStr = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`;
+
+    const expenses = transactions.filter(
+      (t) => t.type === "despesa" && t.date?.startsWith(lastMonthStr),
+    );
+
+    const grouped = {};
+    expenses.forEach((t) => {
+      grouped[t.category] = (grouped[t.category] || 0) + Number(t.amount);
+    });
+
+    return grouped;
+  };
+  const handleQuickFill = () => {
+    const suggestions = getSuggestedBudgets();
+
+    if (Object.keys(suggestions).length === 0) {
+      Alert.alert(
+        t("budget.quickFill.title"),
+        t("budget.quickFill.emptyLastMonth") ||
+          "Você não tem despesas registradas no mês anterior para usar como sugestão.",
+      );
+      return;
+    }
+
+    const inputs = {};
+    Object.entries(suggestions).forEach(([k, v]) => {
+      inputs[k] = formatCurrency(v);
+    });
+
+    setCategoryBudgets(suggestions);
+    setCategoryInputs(inputs);
   };
 
+  // ================================
+  // 💾 SAVE
+  // ================================
   const handleSave = async () => {
-    const total = calculateTotal();
-
-    if (total === 0) {
+    if (totalBudget <= 0) {
       Alert.alert(t("budget.alerts.error"), t("budget.alerts.minRequired"));
       return;
     }
 
-    // Filtrar apenas categorias com valor > 0
-    const filteredBudgets = Object.entries(categoryBudgets)
-      .filter(([_, amount]) => amount > 0)
-      .reduce((obj, [key, value]) => {
-        obj[key] = value;
-        return obj;
-      }, {});
     if (!user?.uid) {
       Alert.alert(
         t("auth.sessionExpired.title"),
@@ -110,198 +158,112 @@ const CreateBudgetScreen = ({ navigation, route }) => {
       );
       return;
     }
+
+    // 🚫 BLOQUEIO: 1 orçamento por mês
+    const alreadyExists = budgets.find((b) => b.month === currentMonth);
+
+    if (alreadyExists && !isEditing) {
+      Alert.alert(
+        t("budget.alreadyExistsTitle"),
+        t("budget.alreadyExistsMessage"),
+      );
+      return;
+    }
+
+    const filtered = Object.entries(categoryBudgets)
+      .filter(([_, v]) => v > 0)
+      .reduce((acc, [k, v]) => {
+        acc[k] = v;
+        return acc;
+      }, {});
+
     try {
       setLoading(true);
 
-      const now = new Date();
-      const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-      const budgetData = {
-        month,
-        categories: filteredBudgets,
+      const payload = {
+        month: currentMonth,
+        categories: filtered,
         userId: user.uid,
       };
 
-      let result;
-      if (isEditing) {
-        result = await updateBudget(existingBudget.id, budgetData);
-      } else {
-        result = await addBudget(budgetData);
+      const result = isEditing
+        ? await updateBudget(existingBudget.id, payload)
+        : await addBudget(payload);
+
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
-      if (result.success) {
-        Alert.alert(
-          t("budget.alerts.successTitle"),
-          <MaterialCommunityIcons
-            name="checkbox-marked"
-            size={24}
-            color={colors.text}
-          />,
-          isEditing ? t("budget.alerts.updated") : t("budget.alerts.created"),
-          [
-            {
-              text: "OK",
-              onPress: () => navigation.goBack(),
-            },
-          ],
-        );
-      } else {
-        Alert.alert(
-          t("budget.alerts.error"),
-          result.error || t("budget.alerts.genericError"),
-        );
-      }
+      Alert.alert(
+        t("budget.alerts.successTitle"),
+        isEditing ? t("budget.alerts.updated") : t("budget.alerts.created"),
+        [{ text: "OK", onPress: () => navigation.goBack() }],
+      );
     } catch (error) {
-      console.error("Erro ao salvar:", error);
+      console.error("Erro ao salvar orçamento:", error);
       Alert.alert(t("budget.alerts.error"), t("budget.alerts.saveError"));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickFill = () => {
-    Alert.alert(t("budget.quickFill.title"), t("budget.quickFill.choose"), [
-      {
-        text: t("budget.quickFill.equal"),
-        onPress: () => {
-          const equalAmount = 500;
-          const budgets = {};
-          const inputs = {};
-
-          EXPENSE_CATEGORIES.forEach((cat) => {
-            budgets[cat.id] = equalAmount;
-            inputs[cat.id] = formatCurrency(equalAmount);
-          });
-
-          setCategoryBudgets(budgets);
-          setCategoryInputs(inputs);
-        },
-      },
-      {
-        text: t("budget.quickFill.suggested"),
-        onPress: () => {
-          const suggestions = {
-            alimentacao: 800,
-            moradia: 1200,
-            transporte: 400,
-            saude: 300,
-            contas: 500,
-            mercado: 600,
-            combustivel: 300,
-            telefone: 150,
-          };
-
-          const inputs = {};
-          Object.entries(suggestions).forEach(([key, value]) => {
-            inputs[key] = formatCurrency(value);
-          });
-
-          setCategoryBudgets(suggestions);
-          setCategoryInputs(inputs);
-        },
-      },
-
-      { text: "Cancelar", style: "cancel" },
-    ]);
-  };
-
-  const totalBudget = calculateTotal();
-
+  // ================================
+  // 🧠 UI
+  // ================================
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header */}
+      <ScrollView contentContainerStyle={styles.content}>
+        {/* HEADER */}
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>
-            <MaterialCommunityIcons
-              name="chart-bar"
-              size={64}
-              color={colors.text}
-            />
-          </Text>
-          <Text style={styles.headerTitle}>
+          <MaterialCommunityIcons
+            name="chart-bar"
+            size={60}
+            color={colors.primary}
+          />
+          <Text style={styles.title}>
             {isEditing ? t("budget.editTitle") : t("budget.createTitle")}
           </Text>
-          <Text style={styles.headerSubtitle}>{t("budget.subtitle")}</Text>
-          <Text style={styles.headerSubtitle}>
-            {formatMonthYear(new Date())}
-          </Text>
+          <Text style={styles.subtitle}>{formatMonthYear(new Date())}</Text>
         </View>
 
-        {/* Total */}
+        {/* TOTAL */}
         <View style={styles.totalCard}>
           <Text style={styles.totalLabel}>{t("budget.total")}</Text>
           <Text style={styles.totalAmount}>{formatCurrency(totalBudget)}</Text>
 
-          <TouchableOpacity
-            style={styles.quickFillButton}
-            onPress={handleQuickFill}
-          >
-            <Text style={styles.quickFillText}>
-              <MaterialCommunityIcons
-                name="lightning-bolt"
-                size={24}
-                color={colors.card}
-              />
-              {t("budget.quickFill.title")}
-            </Text>
+          <TouchableOpacity onPress={handleQuickFill}>
+            <Text style={styles.quickFill}>{t("budget.quickFill.title")}</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Categorias */}
-        <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>{t("budget.categoryTitle")}</Text>
-
-          {EXPENSE_CATEGORIES.map((category) => (
-            <View key={category.id} style={styles.categoryInput}>
-              <View style={styles.categoryHeader}>
-                <Text style={styles.categoryIcon}>{category.icon}</Text>
-                <Text style={styles.categoryName}>{category.name}</Text>
-              </View>
-
-              <Input
-                value={categoryInputs[category.id] || ""}
-                onChangeText={(value) => handleAmountChange(category.id, value)}
-                onBlur={() => {
-                  const value = categoryBudgets[category.id] || 0;
-                  setCategoryInputs((prev) => ({
-                    ...prev,
-                    [category.id]: value ? formatCurrency(value) : "",
-                  }));
-                }}
-                placeholder={currencyPlaceholder}
-                keyboardType="numeric"
-                leftIcon={
-                  <Text style={styles.inputIcon}>{currencySymbol}</Text>
-                }
-                style={styles.input}
-              />
+        {/* CATEGORIAS */}
+        {EXPENSE_CATEGORIES.map((cat) => (
+          <View key={cat.id} style={styles.category}>
+            <View style={styles.categoryHeader}>
+              <MaterialIcons name={cat.icon} size={22} color={colors.text} />
+              <Text style={styles.categoryName}>{cat.name}</Text>
             </View>
-          ))}
-        </View>
 
-        {/* Dica */}
-        <View style={styles.tipBox}>
-          <Text style={styles.tipIcon}>
-            <MaterialCommunityIcons
-              name="lightbulb-outline"
-              size={24}
-              color={colors.info}
+            <Input
+              value={categoryInputs[cat.id] || ""}
+              onChangeText={(v) => handleAmountChange(cat.id, v)}
+              placeholder={currencyPlaceholder}
+              keyboardType="numeric"
+              onBlur={() => {
+                const val = categoryBudgets[cat.id] || 0;
+                setCategoryInputs((prev) => ({
+                  ...prev,
+                  [cat.id]: val ? formatCurrency(val) : "",
+                }));
+              }}
             />
-          </Text>
-          <View style={styles.tipContent}>
-            <Text style={styles.tipTitle}>{t("budget.tip.title")}</Text>
-            <Text style={styles.tipText}>{t("budget.tip.text")}</Text>
           </View>
-        </View>
+        ))}
 
-        {/* Botões */}
+        {/* ACTIONS */}
         <View style={styles.actions}>
           <Button
             title={
@@ -309,8 +271,7 @@ const CreateBudgetScreen = ({ navigation, route }) => {
             }
             onPress={handleSave}
             loading={loading}
-            disabled={totalBudget === 0}
-            style={styles.saveButton}
+            disabled={totalBudget <= 0}
           />
 
           <Button
@@ -334,125 +295,56 @@ const createStyles = (colors) =>
       padding: 20,
       paddingBottom: 40,
     },
+
     header: {
       alignItems: "center",
       marginBottom: 24,
     },
-    headerIcon: {
-      fontSize: 64,
-      marginBottom: 16,
-    },
-    headerTitle: {
-      fontSize: 24,
+    title: {
+      fontSize: 22,
       fontWeight: "bold",
       color: colors.text,
-      marginBottom: 8,
-      textAlign: "center",
     },
-    headerSubtitle: {
-      fontSize: 16,
+    subtitle: {
       color: colors.textSecondary,
-      textAlign: "center",
     },
+
     totalCard: {
       backgroundColor: colors.primary,
+      padding: 20,
       borderRadius: 16,
-      padding: 24,
       alignItems: "center",
-      marginBottom: 24,
-      shadowColor: COLORS.black,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      elevation: 5,
+      marginBottom: 20,
     },
     totalLabel: {
-      fontSize: 14,
-      color: colors.card,
-      opacity: 0.9,
-      marginBottom: 8,
+      color: colors.text,
     },
     totalAmount: {
-      fontSize: 36,
+      fontSize: 28,
       fontWeight: "bold",
-      color: colors.card,
-      marginBottom: 16,
-    },
-    quickFillButton: {
-      backgroundColor: colors.card + "20",
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      borderRadius: 20,
-    },
-    quickFillText: {
-      fontSize: 14,
-      color: colors.card,
-      fontWeight: "600",
-    },
-    categoriesSection: {
-      marginBottom: 24,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: "600",
       color: colors.text,
-      marginBottom: 16,
     },
-    categoryInput: {
+    quickFill: {
+      marginTop: 8,
+      color: colors.textSecondary,
+      opacity: 0.9,
+    },
+
+    category: {
       marginBottom: 16,
     },
     categoryHeader: {
       flexDirection: "row",
-      alignItems: "center",
-      marginBottom: 8,
       gap: 8,
-    },
-    categoryIcon: {
-      fontSize: 24,
+      marginBottom: 6,
     },
     categoryName: {
-      fontSize: 16,
-      fontWeight: "600",
       color: colors.text,
     },
-    input: {
-      marginBottom: 0,
-    },
-    inputIcon: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.textSecondary,
-    },
-    tipBox: {
-      flexDirection: "row",
-      backgroundColor: colors.info + "10",
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 24,
-      gap: 12,
-    },
-    tipIcon: {
-      fontSize: 24,
-    },
-    tipContent: {
-      flex: 1,
-    },
-    tipTitle: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: colors.text,
-      marginBottom: 4,
-    },
-    tipText: {
-      fontSize: 14,
-      color: colors.textSecondary,
-      lineHeight: 20,
-    },
+
     actions: {
+      marginTop: 20,
       gap: 12,
-    },
-    saveButton: {
-      marginBottom: 12,
     },
   });
 

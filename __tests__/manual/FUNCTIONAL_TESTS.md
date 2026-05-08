@@ -312,42 +312,42 @@
 
 ### Criar Meta
 
-- [ ] **Teste 8.1:** Ir para Planejamento → Metas
-- [ ] Clicar em "+"
-- [ ] Preencher:
+- [x] **Teste 8.1:** Ir para Planejamento → Metas
+- [x] Clicar em "+"
+- [x] Preencher:
   - Nome: `Viagem para praia`
   - Valor alvo: `5000`
   - Data: 6 meses no futuro
-- [ ] Salvar
-- [ ] Resultado: Meta criada, progresso 0%
+- [x] Salvar
+- [x] Resultado: Meta criada, progresso 0%
 
 ### Adicionar Progresso
 
-- [ ] **Teste 8.2:** Clicar na meta
-- [ ] Clicar em "Adicionar Valor"
-- [ ] Adicionar R$ 1000
-- [ ] Resultado: Progresso 20%, barra visual atualizada
+- [x] **Teste 8.2:** Clicar na meta
+- [x] Clicar em "Adicionar Valor"
+- [x] Adicionar R$ 1000
+- [x] Resultado: Progresso 20%, barra visual atualizada
 
 ### Múltiplas Metas
 
-- [ ] **Teste 8.3:** Criar 5 metas diferentes
-- [ ] Verificar limite para usuários gratuitos (5 metas)
-- [ ] **Teste 8.4:** Tentar criar 6ª meta sendo gratuito
-- [ ] Resultado: Mensagem pedindo upgrade Premium
+- [x] **Teste 8.3:** Criar 5 metas diferentes
+- [x] Verificar limite para usuários gratuitos (5 metas)
+- [x] **Teste 8.4:** Tentar criar 6ª meta sendo gratuito
+- [x] Resultado: Mensagem pedindo upgrade Premium
 
 ### Notificações de Meta
 
-- [ ] **Teste 8.5:** Adicionar progresso até 80%
-- [ ] Resultado esperado: Notificação "Quase lá!"
-- [ ] **Teste 8.6:** Adicionar até 100%
-- [ ] Resultado esperado: Notificação "Parabéns!"
+- [x] **Teste 8.5:** Adicionar progresso até 80%
+- [x] Resultado esperado: Notificação "Quase lá!"
+- [x] **Teste 8.6:** Adicionar até 100%
+- [x] Resultado esperado: Notificação "Parabéns!"
 
 ### Editar e Excluir
 
-- [ ] **Teste 8.7:** Editar meta (nome, valor, data)
-- [ ] **Teste 8.8:** Excluir meta
+- [x] **Teste 8.7:** Editar meta (nome, valor, data)
+- [x] **Teste 8.8:** Excluir meta
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -355,37 +355,37 @@
 
 ### Criar Orçamento
 
-- [ ] **Teste 9.1:** Ir para Planejamento → Orçamento
-- [ ] Clicar em "+"
-- [ ] Selecionar categoria: "Alimentação"
-- [ ] Definir limite: R$ 1000
-- [ ] Salvar
-- [ ] Resultado: Orçamento criado, gasto atual R$ 0
+- [x] **Teste 9.1:** Ir para Planejamento → Orçamento
+- [x] Clicar em "+"
+- [x] Selecionar categoria: "Alimentação"
+- [x] Definir limite: R$ 1000
+- [x] Salvar
+- [x] Resultado: Orçamento criado, gasto atual R$ 0
 
 ### Acompanhar Gastos
 
-- [ ] **Teste 9.2:** Adicionar despesa de R$ 500 em Alimentação
-- [ ] Voltar para Orçamento
-- [ ] Verificar: Gasto R$ 500 / R$ 1000 (50%)
+- [x] **Teste 9.2:** Adicionar despesa de R$ 500 em Alimentação
+- [x] Voltar para Orçamento
+- [x] Verificar: Gasto R$ 500 / R$ 1000 (50%)
 
 ### Alertas de Limite
 
-- [ ] **Teste 9.3:** Adicionar mais R$ 400 (total R$ 900)
-- [ ] Resultado esperado: Alerta "Você gastou 90% do orçamento"
-- [ ] **Teste 9.4:** Adicionar mais R$ 200 (total R$ 1100)
-- [ ] Resultado esperado: Alerta "Orçamento excedido!"
+- [x] **Teste 9.3:** Adicionar mais R$ 400 (total R$ 900)
+- [x] Resultado esperado: Alerta "Você gastou 90% do orçamento"
+- [x] **Teste 9.4:** Adicionar mais R$ 200 (total R$ 1100)
+- [x] Resultado esperado: Alerta "Orçamento excedido!"
 
 ### Sugestões de Economia
 
-- [ ] **Teste 9.5:** Ver sugestões quando orçamento estiver alto
-- [ ] Verificar se sugestões fazem sentido
+- [x] **Teste 9.5:** Ver sugestões quando orçamento estiver alto
+- [x] Verificar se sugestões fazem sentido
 
 ### Comparativo
 
-- [ ] **Teste 9.6:** Ver comparativo gasto vs orçamento
-- [ ] Verificar gráficos
+- [x] **Teste 9.6:** Ver comparativo gasto vs orçamento
+- [x] Verificar gráficos
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -393,32 +393,32 @@
 
 ### Backup Automático
 
-- [ ] **Teste 10.1:** Ir para Perfil → Backup
-- [ ] Ativar "Backup Automático"
-- [ ] Adicionar uma transação
-- [ ] Voltar para Backup
-- [ ] Resultado: Novo backup automático criado
+- [x] **Teste 10.1:** Ir para Perfil → Backup
+- [x] Ativar "Backup Automático"
+- [x] Adicionar uma transação
+- [x] Voltar para Backup
+- [x] Resultado: Novo backup automático criado
 
 ### Backup Manual
 
-- [ ] **Teste 10.2:** Clicar em "Criar Backup Agora"
-- [ ] Aguardar confirmação
-- [ ] Resultado: Backup criado, aparece na lista
+- [x] **Teste 10.2:** Clicar em "Criar Backup Agora"
+- [x] Aguardar confirmação
+- [x] Resultado: Backup criado, aparece na lista
 
 ### Lista de Backups
 
-- [ ] **Teste 10.3:** Verificar lista de backups
-- [ ] Conferir data e hora
-- [ ] Verificar indicador "Auto" para automáticos
-- [ ] Verificar contagem de itens
+- [x] **Teste 10.3:** Verificar lista de backups
+- [x] Conferir data e hora
+- [x] Verificar indicador "Auto" para automáticos
+- [x] Verificar contagem de itens
 
 ### Limite de Backups (Gratuito)
 
-- [ ] **Teste 10.4:** Criar 3 backups sendo usuário gratuito
-- [ ] Tentar criar 4º backup
-- [ ] Resultado esperado: Mensagem pedindo upgrade Premium
+- [x] **Teste 10.4:** Criar 3 backups sendo usuário gratuito
+- [x] Tentar criar 4º backup
+- [x] Resultado esperado: Mensagem pedindo upgrade Premium
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -426,10 +426,10 @@
 
 ### Preparação
 
-- [ ] **Teste 11.1:** Anotar quantidade atual de transações
-- [ ] Criar backup
-- [ ] Adicionar 3 novas transações
-- [ ] Verificar que total aumentou
+- [x] **Teste 11.1:** Anotar quantidade atual de transações
+- [x] Criar backup
+- [x] Adicionar 3 novas transações
+- [x] Verificar que total aumentou
 
 ### Restaurar Backup
 
@@ -598,18 +598,18 @@
 | Login e Cadastro      | 9            | 9      | 0      | 0           |
 | CRUD Receitas         | 5            | 5      | 0      | 0           |
 | CRUD Despesas         | 7            | 7      | 0      | 0           |
-| CRUD Investimentos    | 5            | 4      | 0      | 0           |
-| CRUD Ofertas          | 5            | 0      | 0      | 5           |
-| Calculadora de Dízimo | 4            | 0      | 0      | 4           |
-| Histórico e Filtros   | 15           | 0      | 0      | 15          |
-| Metas Financeiras     | 8            | 0      | 0      | 8           |
-| Planejamento          | 6            | 0      | 0      | 6           |
-| Sistema de Backup     | 4            | 0      | 0      | 4           |
+| CRUD Investimentos    | 5            | 5      | 0      | 0           |
+| CRUD Ofertas          | 5            | 5      | 0      | 0           |
+| Calculadora de Dízimo | 4            | 4      | 0      | 0           |
+| Histórico e Filtros   | 15           | 15     | 0      | 0           |
+| Metas Financeiras     | 8            | 8      | 0      | 0           |
+| Planejamento          | 6            | 6      | 0      | 0           |
+| Sistema de Backup     | 4            | 4      | 0      | 0           |
 | Restauração           | 4            | 0      | 0      | 4           |
 | Assinatura Premium    | 7            | 0      | 0      | 7           |
 | Relatórios Avançados  | 6            | 0      | 0      | 6           |
 | Notificações          | 10           | 0      | 0      | 10          |
-| **TOTAL**             | **95**       | **21** | **1**  | **73**      |
+| **TOTAL**             | **95**       | **68** | **0**  | **27**      |
 
 ---
 
@@ -617,7 +617,7 @@
 
 | #   | Severidade | Módulo | Descrição                       | Status                   |
 | --- | ---------- | ------ | ------------------------------- | ------------------------ |
-| 1   | Alto       | 4      | Não está criando o investimento | ⬜ Aberto                |
+| 1   | Alto       | 4      | Não está criando o investimento | ⬜ Resolvido             |
 | 2   |            |        |                                 | ⬜ Aberto / ✅ Resolvido |
 
 ---

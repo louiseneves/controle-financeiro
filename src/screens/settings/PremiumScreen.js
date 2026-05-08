@@ -287,7 +287,7 @@ const PremiumScreen = ({ navigation }) => {
         <Text style={styles.headerBadge}>
           <MaterialCommunityIcons
             name="star"
-            size={20}
+            size={50}
             color={colors.warning}
           />
           {t("premium.badge")}
@@ -419,6 +419,8 @@ const createStyles = (colors) =>
     headerBadge: {
       fontSize: 48,
       marginBottom: 16,
+      color: colors.warning,
+      fontWeight: 300,
     },
     headerTitle: {
       fontSize: 28,

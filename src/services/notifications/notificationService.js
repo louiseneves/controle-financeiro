@@ -3,7 +3,8 @@ import { Platform } from "react-native";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true, // ✅ substitui shouldShowAlert
+    shouldShowList: true, // ✅ substitui shouldShowAlert
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -252,22 +253,73 @@ class NotificationService {
       console.warn("⚠️ Erro ao agendar lembrete de metas:", error.message);
     }
   }
+  // Notificação de progresso de meta
+  async scheduleGoalAchievementNotification(goalName, percentage) {
+    if (!goalName?.trim() || typeof percentage !== "number") {
+      console.warn("⚠️ Parâmetros inválidos para notificação de meta");
+      return;
+    }
 
+    try {
+      let title = "🎯 Progresso na Meta";
+      let body = `Você está em ${percentage.toFixed(0)}% da meta "${goalName}"!`;
+
+      if (percentage >= 100) {
+        title = "🏆 Meta Alcançada!";
+        body = `Parabéns! Você concluiu a meta "${goalName}"!`;
+      } else if (percentage >= 75) {
+        title = "🎯 Quase lá!";
+        body = `Você está em ${percentage.toFixed(0)}% da meta "${goalName}"!`;
+      } else if (percentage >= 50) {
+        title = "💪 Na metade!";
+        body = `Você atingiu 50% da meta "${goalName}". Continue assim!`;
+      }
+
+      await this.showNotification(title, body, {
+        type: "goal_progress",
+        goalName,
+        percentage,
+      });
+    } catch (error) {
+      console.warn("⚠️ Erro ao notificar progresso de meta:", error.message);
+    }
+  }
   // Alerta de orçamento
-  async scheduleBudgetWarning(category, percentage) {
-    if (!category?.trim() || typeof percentage !== "number") {
+  async scheduleBudgetWarning(category, type) {
+    if (!category?.trim() || !type) {
       console.error("❌ Parâmetros inválidos para alerta de orçamento");
       return;
     }
 
     try {
-      await this.showNotification(
-        "⚠️ Orçamento Atingido",
-        `Você atingiu ${percentage}% do orçamento em ${category}`,
-        { type: "budget_alert", category, percentage },
-      );
+      let title = "";
+      let body = "";
+
+      if (type === "warning") {
+        title = "⚠️ Atenção ao orçamento";
+        body = `Você já usou 90% do orçamento em ${category}`;
+      }
+
+      if (type === "exceeded") {
+        title = "🚨 Orçamento excedido!";
+        body = `Você ultrapassou o limite em ${category}`;
+      }
+
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data: {
+            type: "budget_alert",
+            category,
+            alertType: type,
+          },
+          sound: true,
+        },
+        trigger: null,
+      });
     } catch (error) {
-      console.warn("⚠️ Erro ao agendar alerta de orçamento:", error.message);
+      console.warn("⚠️ Erro ao notificar orçamento:", error.message);
     }
   }
 }
