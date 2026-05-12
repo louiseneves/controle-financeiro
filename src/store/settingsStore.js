@@ -1,6 +1,5 @@
 /**
- * Settings Store - CORRIGIDO
- * Gerenciamento de configurações com dark mode funcional
+ * Settings Store - COMPLETO E CORRIGIDO
  */
 
 import { create } from "zustand";
@@ -9,12 +8,12 @@ import {
   getData,
   STORAGE_KEYS,
 } from "../services/storage/asyncStorage";
+
 import NotificationService from "../services/notifications/notificationService";
-import { convertFromBRL } from "../services/currency/currencyService";
 
 const EXCHANGE_RATES = {
   BRL: 1,
-  USD: 0.2, // exemplo
+  USD: 0.2,
   EUR: 0.18,
   GBP: 0.15,
   ARS: 55,
@@ -25,42 +24,128 @@ const EXCHANGE_RATES = {
 
 const DEFAULT_NOTIFICATIONS = {
   enabled: true,
+
   bills: true,
   tithe: true,
   goals: true,
   dailyReminder: true,
+
   time: "20:00",
+
+  // ✅ Dízimo personalizado
+  titheDay: 5,
+  titheMonth: 1,
+
+  // ✅ Alerta orçamento
+  budgetAlerts: true,
 };
 
 const useSettingsStore = create((set, get) => ({
-  /* ==================== STATE ==================== */
-  darkMode: true, // ✅ TRUE por padrão (modo escuro)
+  /* =========================================================
+   * STATE
+   * =======================================================*/
+
+  darkMode: true,
+
   currency: "BRL",
+
   language: "pt-BR",
-  notifications: { ...DEFAULT_NOTIFICATIONS },
+
+  notifications: {
+    ...DEFAULT_NOTIFICATIONS,
+  },
+
   loading: false,
 
-  /* ==================== STATIC DATA ==================== */
+  /* =========================================================
+   * STATIC DATA
+   * =======================================================*/
+
   availableCurrencies: [
-    { code: "BRL", symbol: "R$", name: "Real Brasileiro", flag: "🇧🇷" },
-    { code: "USD", symbol: "$", name: "Dólar Americano", flag: "🇺🇸" },
-    { code: "EUR", symbol: "€", name: "Euro", flag: "🇪🇺" },
-    { code: "GBP", symbol: "£", name: "Libra Esterlina", flag: "🇬🇧" },
-    { code: "ARS", symbol: "$", name: "Peso Argentino", flag: "🇦🇷" },
-    { code: "CLP", symbol: "$", name: "Peso Chileno", flag: "🇨🇱" },
-    { code: "PYG", symbol: "₲", name: "Guarani Paraguaio", flag: "🇵🇾" },
-    { code: "UYU", symbol: "$", name: "Peso Uruguaio", flag: "🇺🇾" },
+    {
+      code: "BRL",
+      symbol: "R$",
+      name: "Real Brasileiro",
+      flag: "🇧🇷",
+    },
+
+    {
+      code: "USD",
+      symbol: "$",
+      name: "Dólar Americano",
+      flag: "🇺🇸",
+    },
+
+    {
+      code: "EUR",
+      symbol: "€",
+      name: "Euro",
+      flag: "🇪🇺",
+    },
+
+    {
+      code: "GBP",
+      symbol: "£",
+      name: "Libra Esterlina",
+      flag: "🇬🇧",
+    },
+
+    {
+      code: "ARS",
+      symbol: "$",
+      name: "Peso Argentino",
+      flag: "🇦🇷",
+    },
+
+    {
+      code: "CLP",
+      symbol: "$",
+      name: "Peso Chileno",
+      flag: "🇨🇱",
+    },
+
+    {
+      code: "PYG",
+      symbol: "₲",
+      name: "Guarani Paraguaio",
+      flag: "🇵🇾",
+    },
+
+    {
+      code: "UYU",
+      symbol: "$",
+      name: "Peso Uruguaio",
+      flag: "🇺🇾",
+    },
   ],
 
   availableLanguages: [
-    { code: "pt-BR", name: "Português (Brasil)", flag: "🇧🇷" },
-    { code: "en-US", name: "English (US)", flag: "🇺🇸" },
-    { code: "es-ES", name: "Español", flag: "🇪🇸" },
+    {
+      code: "pt-BR",
+      name: "Português (Brasil)",
+      flag: "🇧🇷",
+    },
+
+    {
+      code: "en-US",
+      name: "English (US)",
+      flag: "🇺🇸",
+    },
+
+    {
+      code: "es-ES",
+      name: "Español",
+      flag: "🇪🇸",
+    },
   ],
 
-  /* ==================== LOAD ==================== */
+  /* =========================================================
+   * LOAD SETTINGS
+   * =======================================================*/
+
   loadSettings: async () => {
     set({ loading: true });
+
     try {
       const settings = await getData(STORAGE_KEYS.SETTINGS);
 
@@ -72,25 +157,40 @@ const useSettingsStore = create((set, get) => ({
 
         set({
           darkMode: settings.darkMode ?? true,
+
           currency: settings.currency ?? "BRL",
+
           language: settings.language ?? "pt-BR",
+
           notifications,
+
           loading: false,
         });
 
-        // ✅ Aplicar notificações APÓS carregar configurações
+        // ✅ Aplicar notificações
         await NotificationService.applySettings(notifications);
+
+        console.log("✅ Settings carregados");
       } else {
         await get().saveSettings();
-        set({ loading: false });
+
+        set({
+          loading: false,
+        });
       }
     } catch (error) {
-      console.error("Erro ao carregar configurações:", error);
-      set({ loading: false });
+      console.error("❌ Erro ao carregar settings:", error);
+
+      set({
+        loading: false,
+      });
     }
   },
 
-  /* ==================== SAVE ==================== */
+  /* =========================================================
+   * SAVE SETTINGS
+   * =======================================================*/
+
   saveSettings: async () => {
     try {
       const { darkMode, currency, language, notifications } = get();
@@ -102,108 +202,202 @@ const useSettingsStore = create((set, get) => ({
         notifications,
       });
 
-      return { success: true };
+      return {
+        success: true,
+      };
     } catch (error) {
-      console.error("Erro ao salvar configurações:", error);
-      return { success: false, error: error.message };
+      console.error("❌ Erro ao salvar settings:", error);
+
+      return {
+        success: false,
+        error: error.message,
+      };
     }
   },
 
-  updateNotifications: async (config) => {
-    const updated = {
-      ...get().notifications,
-      ...config,
-    };
+  /* =========================================================
+   * DARK MODE
+   * =======================================================*/
 
-    set({ notifications: updated });
-    await get().saveSettings();
-
-    // ✅ Aplicar as novas configurações (cancela antigas, agenda novas)
-    await NotificationService.applySettings(updated);
-  },
-
-  /* ==================== ACTIONS ==================== */
   toggleDarkMode: async () => {
     const newValue = !get().darkMode;
-    set({ darkMode: newValue });
+
+    set({
+      darkMode: newValue,
+    });
+
     await get().saveSettings();
+
     return newValue;
   },
 
   setDarkMode: async (value) => {
-    set({ darkMode: value });
+    set({
+      darkMode: value,
+    });
+
     await get().saveSettings();
   },
+
+  /* =========================================================
+   * CURRENCY
+   * =======================================================*/
 
   setCurrency: async (currency) => {
-    set({ currency });
+    set({
+      currency,
+    });
+
     await get().saveSettings();
   },
+
+  /* =========================================================
+   * LANGUAGE
+   * =======================================================*/
 
   setLanguage: async (language) => {
-    set({ language });
+    set({
+      language,
+    });
+
     await get().saveSettings();
   },
 
-  updateNotifications: async (config) => {
-    const updated = {
-      ...get().notifications,
-      ...config,
-    };
+  /* =========================================================
+   * NOTIFICATIONS
+   * =======================================================*/
 
-    set({ notifications: updated });
-    await get().saveSettings();
-    await NotificationService.applySettings(updated);
+  updateNotifications: async (config) => {
+    try {
+      const updatedNotifications = {
+        ...get().notifications,
+        ...config,
+      };
+
+      set({
+        notifications: updatedNotifications,
+      });
+
+      await get().saveSettings();
+
+      // ✅ Reaplicar notificações
+      await NotificationService.applySettings(updatedNotifications);
+
+      console.log("✅ Notificações atualizadas");
+    } catch (error) {
+      console.error("❌ Erro updateNotifications:", error);
+    }
   },
 
   setNotificationTime: async (time) => {
-    const updated = {
-      ...get().notifications,
-      time,
-    };
+    try {
+      const updatedNotifications = {
+        ...get().notifications,
+        time,
+      };
 
-    set({ notifications: updated });
-    await get().saveSettings();
-    await NotificationService.applySettings(updated);
+      set({
+        notifications: updatedNotifications,
+      });
+
+      await get().saveSettings();
+
+      await NotificationService.applySettings(updatedNotifications);
+
+      console.log("✅ Horário atualizado");
+    } catch (error) {
+      console.error("❌ Erro setNotificationTime:", error);
+    }
   },
+
+  // ✅ NOVO
+  setTitheDate: async (day, month) => {
+    try {
+      const updatedNotifications = {
+        ...get().notifications,
+
+        titheDay: day,
+        titheMonth: month,
+      };
+
+      set({
+        notifications: updatedNotifications,
+      });
+
+      await get().saveSettings();
+
+      await NotificationService.applySettings(updatedNotifications);
+
+      console.log("✅ Data do dízimo atualizada");
+    } catch (error) {
+      console.error("❌ Erro setTitheDate:", error);
+    }
+  },
+
+  /* =========================================================
+   * RESET
+   * =======================================================*/
 
   resetSettings: async () => {
-    set({
-      darkMode: true, // ✅ TRUE por padrão
-      currency: "BRL",
-      language: "pt-BR",
-      notifications: { ...DEFAULT_NOTIFICATIONS },
-    });
+    try {
+      set({
+        darkMode: true,
 
-    await NotificationService.cancelAll();
-    await NotificationService.applySettings(DEFAULT_NOTIFICATIONS);
-    await get().saveSettings();
+        currency: "BRL",
+
+        language: "pt-BR",
+
+        notifications: {
+          ...DEFAULT_NOTIFICATIONS,
+        },
+      });
+
+      await NotificationService.cancelAll();
+
+      await NotificationService.applySettings(DEFAULT_NOTIFICATIONS);
+
+      await get().saveSettings();
+
+      console.log("✅ Configurações resetadas");
+    } catch (error) {
+      console.error("❌ Erro resetSettings:", error);
+    }
   },
 
-  /* ==================== HELPERS ==================== */
+  /* =========================================================
+   * HELPERS
+   * =======================================================*/
+
   getCurrencySymbol: () => {
     const { currency, availableCurrencies } = get();
-    return availableCurrencies.find((c) => c.code === currency)?.symbol || "R$";
+
+    return (
+      availableCurrencies.find((item) => item.code === currency)?.symbol || "R$"
+    );
   },
 
   getCurrencyData: () => {
     const { currency, availableCurrencies } = get();
+
     return (
-      availableCurrencies.find((c) => c.code === currency) ||
+      availableCurrencies.find((item) => item.code === currency) ||
       availableCurrencies[0]
     );
   },
 
   convertFromBRL: (value) => {
     const { currency } = get();
+
     const rate = EXCHANGE_RATES[currency] ?? 1;
 
-    const num = typeof value === "number" ? value : parseFloat(value) || 0;
-    return num * rate;
+    const number = typeof value === "number" ? value : parseFloat(value) || 0;
+
+    return number * rate;
   },
 
   formatCurrency: (value) => {
     const { currency } = get();
+
     const converted = get().convertFromBRL(value);
 
     const localeMap = {
@@ -223,6 +417,7 @@ const useSettingsStore = create((set, get) => ({
       return new Intl.NumberFormat(locale, {
         style: "currency",
         currency,
+
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(converted);
@@ -231,75 +426,140 @@ const useSettingsStore = create((set, get) => ({
     }
   },
 
+  /* =========================================================
+   * THEME
+   * =======================================================*/
+
   getTheme: () => {
     const darkMode = get().darkMode;
 
     return {
       dark: darkMode,
+
       colors: darkMode
         ? {
-            // Modo Escuro
+            // =========================
+            // DARK MODE
+            // =========================
+
             primary: "#3B82F6",
             primaryDark: "#2563EB",
             primaryLight: "#60A5FA",
+
             secondary: "#8B5CF6",
+
             success: "#10B981",
+
             error: "#EF4444",
+
             warning: "#F59E0B",
+
             info: "#3B82F6",
+
             income: "#10B981",
+
             expense: "#EF4444",
+
             investment: "#8B5CF6",
+
             offer: "#F59E0B",
+
             tithe: "#6366F1",
+
             background: "#0F172A",
+
             backgroundSecondary: "#1E293B",
+
             card: "#1E293B",
+
             surface: "#334155",
+
             text: "#F1F5F9",
+
             textSecondary: "#CBD5E1",
+
             textTertiary: "#94A3B8",
+
             border: "#334155",
+
             borderLight: "#475569",
-            overlay: "rgba(0, 0, 0, 0.7)",
+
+            overlay: "rgba(0,0,0,0.7)",
+
             disabled: "#475569",
+
             placeholder: "#64748B",
+
             inputBackground: "#1E293B",
+
             inputBorder: "#334155",
+
             buttonDisabled: "#475569",
-            shadow: "rgba(0, 0, 0, 0.5)",
+
+            shadow: "rgba(0,0,0,0.5)",
           }
         : {
-            // Modo Claro
+            // =========================
+            // LIGHT MODE
+            // =========================
+
             primary: "#2563EB",
+
             primaryDark: "#1E40AF",
+
             primaryLight: "#60A5FA",
+
             secondary: "#8B5CF6",
+
             success: "#10B981",
+
             error: "#EF4444",
+
             warning: "#F59E0B",
+
             info: "#3B82F6",
+
             income: "#10B981",
+
             expense: "#EF4444",
+
             investment: "#8B5CF6",
+
             offer: "#F59E0B",
+
             tithe: "#6366F1",
+
             background: "#F8FAFC",
+
             backgroundSecondary: "#F1F5F9",
+
             card: "#FFFFFF",
+
             surface: "#F1F5F9",
+
             text: "#0F172A",
+
             textSecondary: "#475569",
+
             textTertiary: "#64748B",
+
             border: "#E2E8F0",
+
             borderLight: "#F1F5F9",
-            overlay: "rgba(0, 0, 0, 0.5)",
+
+            overlay: "rgba(0,0,0,0.5)",
+
             disabled: "#CBD5E1",
+
             placeholder: "#94A3B8",
+
             inputBackground: "#FFFFFF",
+
             inputBorder: "#E2E8F0",
+
             buttonDisabled: "#CBD5E1",
-            shadow: "rgba(0, 0, 0, 0.1)",
+
+            shadow: "rgba(0,0,0,0.1)",
           },
     };
   },

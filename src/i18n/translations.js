@@ -360,10 +360,13 @@ export const translations = {
         expense: "Despesas",
         balance: "Saldo Anual",
         evolution: "Evolução Mensal",
+        monthlyAverage: "Média Mensal",
       },
 
       comparison: {
         title: "Comparativo Mensal",
+        month1: "Mês 1",
+        month2: "Mês 2",
       },
 
       projection: {
@@ -372,6 +375,11 @@ export const translations = {
         expense: "Despesas Previstas",
         balance: "Saldo Previsto",
         info: "Projeção baseada na média dos últimos 3 meses. Mantenha seus registros atualizados para previsões mais precisas.",
+        yearEnd: "Projeção até o fim do ano",
+        projectedIncome: "Receita projetada",
+        projectedExpense: "Despesa projetada",
+        projectedBalance: "Saldo projetado",
+        basedOn: "Baseado nos últimos 3 meses • {{count}} meses restantes",
       },
 
       export: {
@@ -571,6 +579,7 @@ export const translations = {
           "O backup automático é exclusivo para usuários Premium.",
         restorePremiumMessage:
           "A restauração de backup é exclusiva para usuários Premium.",
+        ok: "OK",
       },
 
       misc: {
@@ -2076,10 +2085,13 @@ export const translations = {
         expense: "Expenses",
         balance: "Annual Balance",
         evolution: "Monthly Evolution",
+        monthlyAverage: "Monthly Average",
       },
 
       comparison: {
         title: "Monthly Comparison",
+        month1: "Month 1",
+        month2: "Month 2",
       },
 
       projection: {
@@ -2088,6 +2100,11 @@ export const translations = {
         expense: "Expected Expenses",
         balance: "Expected Balance",
         info: "Projection based on the average of the last 3 months. Keep your records updated for more accurate forecasts.",
+        yearEnd: "Year-end Projection",
+        projectedIncome: "Projected income",
+        projectedExpense: "Projected expense",
+        projectedBalance: "Projected balance",
+        basedOn: "Based on the last 3 months • {{count}} months remaining",
       },
 
       export: {
@@ -2284,6 +2301,7 @@ export const translations = {
           "Automatic backup is exclusive to Premium users.",
         restorePremiumMessage:
           "Backup restoration is exclusive to Premium users.",
+        ok: "OK",
       },
 
       misc: {
@@ -3793,10 +3811,13 @@ export const translations = {
         expense: "Gastos",
         balance: "Saldo Anual",
         evolution: "Evolución Mensual",
+        monthlyAverage: "Promedio Mensual",
       },
 
       comparison: {
         title: "Comparativo Mensual",
+        month1: "Mes 1",
+        month2: "Mes 2",
       },
 
       projection: {
@@ -3805,6 +3826,11 @@ export const translations = {
         expense: "Gastos Previstos",
         balance: "Saldo Previsto",
         info: "Proyección basada en el promedio de los últimos 3 meses. Mantén tus registros actualizados para mayor precisión.",
+        yearEnd: "Proyección hasta fin de año",
+        projectedIncome: "Ingreso proyectado",
+        projectedExpense: "Gasto proyectado",
+        projectedBalance: "Saldo proyectado",
+        basedOn: "Basado en los últimos 3 meses • {{count}} meses restantes",
       },
 
       export: {
@@ -4002,6 +4028,7 @@ export const translations = {
           "La copia de seguridad automática es exclusiva para usuarios Premium.",
         restorePremiumMessage:
           "La restauración de copias de seguridad es exclusiva para usuarios Premium.",
+        ok: "OK",
       },
 
       misc: {

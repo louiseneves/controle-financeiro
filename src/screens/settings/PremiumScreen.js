@@ -2,7 +2,7 @@
  * Tela de Upgrade Premium
  */
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import {
   View,
@@ -31,13 +31,15 @@ const PremiumScreen = ({ navigation }) => {
     expirationDate,
     activatePremium,
     cancelPremium,
+    restorePurchases,
     loadPremiumStatus,
+    loading,
   } = usePremiumStore();
   const [selectedPlan, setSelectedPlan] = useState("yearly");
 
   useEffect(() => {
     loadPremiumStatus();
-  }, []);
+  }, [loadPremiumStatus]);
 
   const plans = [
     {
@@ -138,10 +140,11 @@ const PremiumScreen = ({ navigation }) => {
   ];
 
   const selectedPlanData = useMemo(() => {
-    return plans.find((p) => p.id === selectedPlan);
+    return plans.find((p) => p.id === selectedPlan) || plans[0];
   }, [selectedPlan]);
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = useCallback(async () => {
+    if (loading) return;
     if (!selectedPlanData) {
       Alert.alert(
         t("premium.alerts.errorTitle"),
@@ -165,7 +168,7 @@ const PremiumScreen = ({ navigation }) => {
             if (result.success) {
               Alert.alert(
                 t("premium.alerts.welcomeTitle"),
-                <MaterialIcons name="celebration" color={colors.text} />,
+
                 t("premium.alerts.welcomeMessage"),
                 [
                   {
@@ -179,7 +182,7 @@ const PremiumScreen = ({ navigation }) => {
         },
       ],
     );
-  };
+  }, [loading, selectedPlan, selectedPlanData]);
 
   const handleCancelSubscription = () => {
     Alert.alert(
@@ -388,10 +391,15 @@ const PremiumScreen = ({ navigation }) => {
 
       {/* Botão de Assinatura */}
       <Button
-        title={t("premium.buttons.subscribe", {
-          price: formatCurrency(selectedPlanData?.price),
-        })}
+        title={
+          loading
+            ? "Processando..."
+            : t("premium.buttons.subscribe", {
+                price: formatCurrency(selectedPlanData?.price || 0),
+              })
+        }
         onPress={handleSubscribe}
+        disabled={loading}
         style={styles.subscribeButton}
       />
 

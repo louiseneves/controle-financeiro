@@ -2,7 +2,7 @@
  * Tela de Detalhes/Edição de Transação
  */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import {
   View,
@@ -14,30 +14,41 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+
 import { Button, Input } from "../../components/ui";
+
 import {
-  COLORS,
   INCOME_CATEGORIES,
   EXPENSE_CATEGORIES,
   INVESTMENT_CATEGORIES,
   OFFER_CATEGORIES,
   formatDate,
 } from "../../utils";
+
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
 import { isoToBR, brToISO } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
+
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+
 import useAuthStore from "../../store/authStore";
 
 const TransactionDetailScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { transaction } = route.params || {};
+
   const user = useAuthStore((state) => state.user);
   const currentUserId = user?.uid;
 
-  // Protegção contra transaction undefined
+  const formatCurrency = useSettingsStore((state) => state.formatCurrency);
+
+  const { updateTransaction, deleteTransaction } = useTransactionStore();
+
+  /* ==================== PROTEÇÃO ==================== */
+
   if (!transaction) {
     return (
       <View style={styles.container}>
@@ -46,73 +57,84 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     );
   }
 
-  const formatCurrency = useSettingsStore((state) => state.formatCurrency);
-  const { updateTransaction, deleteTransaction } = useTransactionStore();
+  /* ==================== STATES ==================== */
 
   const [isEditing, setIsEditing] = useState(false);
+
   const [description, setDescription] = useState(transaction.description);
+
   const [amount, setAmount] = useState(transaction.amount.toString());
+
   const [category, setCategory] = useState(transaction.category);
+
   const [date, setDate] = useState(() => {
     if (transaction.date) {
       return transaction.date.split("T")[0];
     }
+
     return new Date().toISOString().split("T")[0];
   });
+
   const [isRecurring, setIsRecurring] = useState(
     transaction.isRecurring || false,
   );
-  // ✅ NOVO: Estado para rentabilidade (investimento)
+
   const [profitability, setProfitability] = useState(
     transaction.profitability?.toString() || "",
   );
+
   const [descriptionError, setDescriptionError] = useState("");
   const [amountError, setAmountError] = useState("");
   const [categoryError, setCategoryError] = useState("");
-  const [profitabilityError, setProfitabilityError] = useState(""); // ✅ NOVO
+  const [profitabilityError, setProfitabilityError] = useState("");
+
   const [loading, setLoading] = useState(false);
 
-  // Obter categorias baseado no tipo
+  /* ==================== HELPERS ==================== */
+
   const getCategories = () => {
     switch (transaction.type) {
       case "receita":
         return INCOME_CATEGORIES;
+
       case "despesa":
         return EXPENSE_CATEGORIES;
+
       case "investimento":
         return INVESTMENT_CATEGORIES;
+
       case "oferta":
         return OFFER_CATEGORIES;
+
       default:
         return [];
     }
   };
 
-  // ✅ Obter nome da categoria
+  const categories = getCategories();
+
   const getCategoryName = () => {
-    const categories = getCategories();
     return (
       categories.find((c) => c.id === transaction.category)?.name ||
       transaction.category
     );
   };
 
-  const categories = getCategories();
-
-  // Obter cor do tipo usando objeto de transações do tema
   const getTypeColor = () => {
     const map = {
-      receita: colors.transaction?.income || colors.success,
-      despesa: colors.transaction?.expense || colors.error,
-      investimento: colors.transaction?.investment || colors.primary,
-      oferta: colors.transaction?.offer || colors.warning,
+      receita: colors.income,
+      despesa: colors.expense,
+      investimento: colors.investment,
+      oferta: colors.offer,
     };
+
     return map[transaction.type] || colors.textSecondary;
   };
 
   const typeColor = getTypeColor();
 
-  // Validar campos
+  /* ==================== VALIDATION ==================== */
+
   const validateFields = () => {
     let isValid = true;
 
@@ -125,25 +147,28 @@ const TransactionDetailScreen = ({ navigation, route }) => {
       setDescriptionError(
         t("transactionDetail.validation.descriptionRequired"),
       );
+
       isValid = false;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
       setAmountError(t("transactionDetail.validation.amountInvalid"));
+
       isValid = false;
     }
 
     if (!category) {
       setCategoryError(t("transactionDetail.validation.categoryRequired"));
+
       isValid = false;
     }
 
-    // ✅ NOVO: Validar rentabilidade APENAS para investimento
     if (transaction.type === "investimento") {
       if (profitability && parseFloat(profitability) < 0) {
         setProfitabilityError(
           t("transactionDetail.validation.profitabilityInvalid"),
         );
+
         isValid = false;
       }
     }
@@ -151,8 +176,8 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     return isValid;
   };
 
-  // Salvar edição
-  // ✅ Salvar edição (CORRIGIDO)
+  /* ==================== SAVE ==================== */
+
   const handleSave = async () => {
     if (!validateFields()) return;
 
@@ -163,23 +188,22 @@ const TransactionDetailScreen = ({ navigation, route }) => {
         description: description.trim(),
         amount: parseFloat(amount),
         category,
-        date: new Date(date).toISOString(),
+        date: `${date}T12:00:00`,
         isRecurring,
       };
 
-      // ✅ NOVO: Adicionar profitability APENAS para investimento
       if (transaction.type === "investimento") {
         updatedData.profitability = profitability
           ? parseFloat(profitability)
           : 0;
       }
+
       const result = await updateTransaction(transaction.id, updatedData);
 
       if (result.success) {
-        // ✅ CORRIGIDO: Alert.alert com apenas 3 parâmetros STRING
         Alert.alert(
           t("transactionDetail.successTitle"),
-          t("transactionDetail.updateSuccess"), // ✅ Apenas STRING, sem ícone
+          t("transactionDetail.updateSuccess"),
           [
             {
               text: "OK",
@@ -197,7 +221,8 @@ const TransactionDetailScreen = ({ navigation, route }) => {
         );
       }
     } catch (error) {
-      console.error(t("transactionDetail.updateError"), error);
+      console.error("❌ Erro ao atualizar:", error);
+
       Alert.alert(
         t("transactionDetail.errorTitle"),
         t("transactionDetail.updateFailed"),
@@ -207,19 +232,12 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     }
   };
 
-  // ✅ Deletar transação (CORRIGIDO)
-  const handleDelete = () => {
-    // 🔍 DEBUG COMPLETO
-    console.log("🔍 ========== DEBUG DELETE ==========");
-    console.log("📋 Transaction completa:", transaction);
-    console.log("🆔 Transaction ID:", transaction.id);
-    console.log("👤 Transaction userId:", transaction.userId);
-    console.log("🔐 Auth UID atual:", currentUserId); // ✅ AGORA TEM VALOR
-    console.log("✅ UIDs batem?", transaction.userId === currentUserId);
-    console.log("================================");
+  /* ==================== DELETE ==================== */
 
+  const handleDelete = () => {
     if (transaction.userId !== currentUserId) {
       Alert.alert("Erro", "Você não tem permissão para deletar esta transação");
+
       return;
     }
 
@@ -234,9 +252,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
         {
           text: t("transactionDetail.deleteButtonAction"),
           style: "destructive",
+
           onPress: async () => {
             try {
               setLoading(true);
+
               const result = await deleteTransaction(transaction.id);
 
               if (result.success) {
@@ -258,6 +278,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               }
             } catch (error) {
               console.error("❌ Erro ao deletar:", error);
+
               Alert.alert(
                 t("transactionDetail.errorTitle"),
                 t("transactionDetail.deleteFailed"),
@@ -271,6 +292,8 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     );
   };
 
+  /* ==================== RENDER ==================== */
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -279,13 +302,15 @@ const TransactionDetailScreen = ({ navigation, route }) => {
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        {/* Header com info do tipo */}
+        {/* HEADER */}
+
         <View style={[styles.header, { backgroundColor: typeColor + "20" }]}>
           <Text style={styles.typeLabel}>
-            {/* ✅ Proteger contra transaction.type undefined */}
             {(transaction?.type || "TRANSAÇÃO").toUpperCase()}
           </Text>
+
           {!isEditing && (
             <Text style={[styles.headerAmount, { color: typeColor }]}>
               {formatCurrency(transaction.amount)}
@@ -293,8 +318,9 @@ const TransactionDetailScreen = ({ navigation, route }) => {
           )}
         </View>
 
+        {/* ==================== EDIT ==================== */}
+
         {isEditing ? (
-          // Modo de Edição
           <View style={styles.form}>
             <Input
               label={t("transactionDetail.descriptionLabel")}
@@ -303,13 +329,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               placeholder={t("transactionDetail.descriptionLabel")}
               error={descriptionError}
               leftIcon={
-                <Text style={styles.iconText}>
-                  <MaterialCommunityIcons
-                    name="file-document-edit-outline"
-                    size={24}
-                    color={colors.textSecondary}
-                  />
-                </Text>
+                <MaterialCommunityIcons
+                  name="file-document-edit-outline"
+                  size={22}
+                  color={colors.textSecondary}
+                />
               }
             />
 
@@ -321,13 +345,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               keyboardType="numeric"
               error={amountError}
               leftIcon={
-                <Text style={styles.iconText}>
-                  <MaterialCommunityIcons
-                    name="currency-usd"
-                    size={24}
-                    color={colors.textSecondary}
-                  />
-                </Text>
+                <MaterialCommunityIcons
+                  name="currency-usd"
+                  size={22}
+                  color={colors.textSecondary}
+                />
               }
             />
 
@@ -337,68 +359,70 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               onChangeText={(text) => setDate(brToISO(text))}
               placeholder={t("transactionDetail.placeholders.date")}
               leftIcon={
-                <Text style={styles.iconText}>
-                  <MaterialCommunityIcons
-                    name="calendar"
-                    size={24}
-                    color={colors.textSecondary}
-                  />
-                </Text>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={22}
+                  color={colors.textSecondary}
+                />
               }
             />
-            {/* ✅ NOVO: Campo de Rentabilidade (APENAS para investimento) */}
+
+            {/* RENTABILIDADE */}
+
             {transaction.type === "investimento" && (
               <Input
-                label={t("transactionDetail.profitabilityLabel")} // "Rentabilidade (% ao ano)"
+                label={t("transactionDetail.profitabilityLabel")}
                 placeholder="0.00"
                 value={profitability}
                 onChangeText={setProfitability}
                 keyboardType="decimal-pad"
                 error={profitabilityError}
-                editable={isEditing}
-                rightIcon={
-                  isEditing ? null : (
-                    <MaterialCommunityIcons
-                      name="lock"
-                      size={20}
-                      color={colors.textSecondary}
-                    />
-                  )
-                }
               />
             )}
-            {/* Categorias */}
+
+            {/* CATEGORIAS */}
+
             <View style={styles.categorySection}>
               <Text style={styles.label}>
-                {t("transactionDetail.categoryLabel")}{" "}
-                {categoryError && <Text style={styles.errorText}>*</Text>}
+                {t("transactionDetail.categoryLabel")}
               </Text>
+
               <ScrollView
                 style={styles.categoryScrollContainer}
                 contentContainerStyle={styles.categoryGrid}
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}
-                scrollEnabled={true}
+                nestedScrollEnabled
+                showsVerticalScrollIndicator={false}
               >
                 {categories.map((cat) => (
                   <TouchableOpacity
                     key={cat.id}
                     style={[
                       styles.categoryCard,
-                      category === cat.id && styles.categoryCardSelected,
-                      { borderColor: cat.color },
+                      {
+                        borderColor: cat.color,
+                      },
+
+                      category === cat.id && {
+                        borderWidth: 3,
+                        backgroundColor: cat.color + "15",
+                      },
                     ]}
                     onPress={() => setCategory(cat.id)}
                   >
                     <MaterialIcons
                       name={cat.icon}
-                      size={40}
+                      size={38}
                       color={cat.color}
                     />
+
                     <Text
                       style={[
                         styles.categoryName,
-                        category === cat.id && styles.categoryNameSelected,
+
+                        category === cat.id && {
+                          color: cat.color,
+                          fontWeight: "700",
+                        },
                       ]}
                     >
                       {cat.name}
@@ -406,33 +430,45 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+
               {categoryError && (
                 <Text style={styles.errorTextSmall}>{categoryError}</Text>
               )}
             </View>
 
-            {/* Recorrente */}
-            <TouchableOpacity
-              style={styles.checkboxContainer}
-              onPress={() => setIsRecurring(!isRecurring)}
-              activeOpacity={0.7}
-            >
-              <View
-                style={[styles.checkbox, isRecurring && styles.checkboxChecked]}
-              >
-                {isRecurring && <Text style={styles.checkmark}>✓</Text>}
-              </View>
-              <View style={styles.checkboxContent}>
-                <Text style={styles.checkboxLabel}>
-                  {t("transactionDetail.recurringLabel")}
-                </Text>
-                <Text style={styles.checkboxDescription}>
-                  {t("transactionDetail.recurringDescription")}
-                </Text>
-              </View>
-            </TouchableOpacity>
+            {/* RECORRENTE */}
 
-            {/* Botões de edição */}
+            {(transaction.type === "receita" ||
+              transaction.type === "despesa") && (
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setIsRecurring(!isRecurring)}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    styles.checkbox,
+
+                    isRecurring && styles.checkboxChecked,
+                  ]}
+                >
+                  {isRecurring && <Text style={styles.checkmark}>✓</Text>}
+                </View>
+
+                <View style={styles.checkboxContent}>
+                  <Text style={styles.checkboxLabel}>
+                    {t("transactionDetail.recurringLabel")}
+                  </Text>
+
+                  <Text style={styles.checkboxDescription}>
+                    {t("transactionDetail.recurringDescription")}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+
+            {/* ACTIONS */}
+
             <View style={styles.actions}>
               <Button
                 title={t("transactionDetail.saveButton")}
@@ -440,29 +476,38 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                 loading={loading}
                 style={styles.saveButton}
               />
+
               <Button
                 title={t("transactionDetail.cancelButton")}
+                variant="outline"
                 onPress={() => {
                   setIsEditing(false);
-                  // Resetar valores
+
                   setDescription(transaction.description);
+
                   setAmount(transaction.amount.toString());
+
                   setCategory(transaction.category);
+
                   setDate(transaction.date.split("T")[0]);
+
                   setIsRecurring(transaction.isRecurring || false);
+
+                  setProfitability(transaction.profitability?.toString() || "");
                 }}
-                variant="outline"
               />
             </View>
           </View>
         ) : (
-          // Modo de Visualização
+          /* ==================== DETAILS ==================== */
+
           <View style={styles.details}>
             <View style={styles.detailCard}>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>
                   {t("transactionDetail.descriptionLabel")}
                 </Text>
+
                 <Text style={styles.detailValue}>
                   {transaction.description}
                 </Text>
@@ -474,6 +519,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                 <Text style={styles.detailLabel}>
                   {t("transactionDetail.categoryLabel")}
                 </Text>
+
                 <Text style={styles.detailValue}>{getCategoryName()}</Text>
               </View>
 
@@ -483,37 +529,72 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                 <Text style={styles.detailLabel}>
                   {t("transactionDetail.dateLabel")}
                 </Text>
+
                 <Text style={styles.detailValue}>
                   {formatDate(transaction.date)}
                 </Text>
               </View>
 
-              <View style={styles.divider} />
+              {/* RENTABILIDADE */}
 
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>
-                  {t("transactionDetail.recurringLabel")}
-                </Text>
-                <Text style={styles.detailValue}>
-                  {transaction.isRecurring
-                    ? t("transactionDetail.yesText")
-                    : t("transactionDetail.noText")}
-                </Text>
-              </View>
+              {transaction.type === "investimento" && (
+                <>
+                  <View style={styles.divider} />
+
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>
+                      {t("transactionDetail.profitabilityLabel")}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.detailValue,
+                        {
+                          color: colors.success,
+                        },
+                      ]}
+                    >
+                      {transaction.profitability || 0}%
+                    </Text>
+                  </View>
+                </>
+              )}
+
+              {/* RECORRENTE */}
+
+              {(transaction.type === "receita" ||
+                transaction.type === "despesa") && (
+                <>
+                  <View style={styles.divider} />
+
+                  <View style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>
+                      {t("transactionDetail.recurringLabel")}
+                    </Text>
+
+                    <Text style={styles.detailValue}>
+                      {transaction.isRecurring
+                        ? t("transactionDetail.yesText")
+                        : t("transactionDetail.noText")}
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
 
-            {/* Botões de ação */}
+            {/* BOTÕES */}
+
             <View style={styles.actions}>
               <Button
                 title={t("transactionDetail.editButton")}
                 onPress={() => setIsEditing(true)}
-                variant="primary"
                 style={styles.editButton}
               />
+
               <Button
                 title={t("transactionDetail.deleteButton")}
-                onPress={handleDelete}
                 variant="error"
+                onPress={handleDelete}
                 loading={loading}
               />
             </View>
@@ -530,156 +611,201 @@ const createStyles = (colors) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+
     content: {
       paddingBottom: 40,
     },
+
     header: {
       padding: 24,
       alignItems: "center",
       marginBottom: 24,
     },
+
     typeLabel: {
       fontSize: 14,
       fontWeight: "600",
       color: colors.textSecondary,
       marginBottom: 8,
     },
+
     headerAmount: {
       fontSize: 36,
       fontWeight: "bold",
     },
+
     form: {
       padding: 20,
     },
-    iconText: {
-      fontSize: 20,
-    },
+
     label: {
       fontSize: 14,
       fontWeight: "600",
       color: colors.text,
       marginBottom: 12,
     },
+
     categorySection: {
       marginBottom: 24,
     },
+
+    categoryScrollContainer: {
+      maxHeight: 320,
+    },
+
     categoryGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
-      marginTop: 8,
     },
+
     categoryCard: {
       width: "31%",
       aspectRatio: 1,
+
       backgroundColor: colors.card,
-      borderRadius: 12,
+
+      borderRadius: 14,
+
       alignItems: "center",
       justifyContent: "center",
+
       borderWidth: 2,
     },
-    categoryCardSelected: {
-      borderWidth: 3,
-      backgroundColor: colors.success + "10",
-    },
+
     categoryName: {
       fontSize: 11,
       color: colors.textSecondary,
       marginTop: 8,
+      textAlign: "center",
+      paddingHorizontal: 4,
     },
-    categoryNameSelected: {
-      color: colors.success,
-      fontWeight: "600",
-    },
+
     checkboxContainer: {
       flexDirection: "row",
       alignItems: "flex-start",
+
       backgroundColor: colors.card,
+
       borderRadius: 12,
+
       padding: 16,
+
       gap: 12,
+
       marginBottom: 24,
     },
+
     checkbox: {
       width: 24,
       height: 24,
+
       borderRadius: 6,
+
       borderWidth: 2,
       borderColor: colors.border,
+
       alignItems: "center",
       justifyContent: "center",
     },
+
     checkboxChecked: {
       backgroundColor: colors.primary,
       borderColor: colors.primary,
     },
+
     checkmark: {
-      color: colors.card,
+      color: "#FFFFFF",
       fontSize: 16,
       fontWeight: "bold",
     },
+
     checkboxContent: {
       flex: 1,
     },
+
     checkboxLabel: {
       fontSize: 16,
       fontWeight: "600",
       color: colors.text,
       marginBottom: 4,
     },
+
     checkboxDescription: {
       fontSize: 13,
       color: colors.textSecondary,
     },
-    errorText: {
-      color: colors.error,
-      fontSize: 14,
-    },
-    errorTextSmall: {
-      fontSize: 12,
-      color: colors.error,
-      marginTop: 4,
-      marginLeft: 4,
-    },
+
     details: {
       padding: 20,
     },
+
     detailCard: {
       backgroundColor: colors.card,
+
       borderRadius: 16,
+
       padding: 20,
+
       marginBottom: 24,
-      shadowColor: COLORS.black,
-      shadowOffset: { width: 0, height: 2 },
+
+      shadowColor: colors.shadow,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+
       shadowOpacity: 0.1,
       shadowRadius: 4,
+
       elevation: 3,
     },
+
     detailRow: {
       paddingVertical: 12,
     },
+
     detailLabel: {
       fontSize: 14,
       color: colors.textSecondary,
       marginBottom: 6,
     },
+
     detailValue: {
       fontSize: 16,
       fontWeight: "600",
       color: colors.text,
     },
+
     divider: {
       height: 1,
       backgroundColor: colors.border,
     },
+
     actions: {
       gap: 12,
     },
+
     saveButton: {
       marginBottom: 12,
     },
+
     editButton: {
       marginBottom: 12,
+    },
+
+    errorText: {
+      color: colors.error,
+      fontSize: 14,
+      textAlign: "center",
+      marginTop: 40,
+    },
+
+    errorTextSmall: {
+      fontSize: 12,
+      color: colors.error,
+      marginTop: 4,
+      marginLeft: 4,
     },
   });
 

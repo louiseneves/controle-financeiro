@@ -46,12 +46,21 @@ const useGoalsStore = create((set, get) => ({
   // ✅ CORRIGIDO: userId vem dentro de goalData, não como parâmetro separado
   addGoal: async (goalData) => {
     if (!goalData?.userId) {
-      console.error("❌ addGoal chamado sem userId:", goalData);
       return { success: false, error: "Usuário não autenticado" };
     }
 
     try {
       set({ loading: true, error: null });
+
+      // ✅ Verificar limite de metas para usuários free
+      const usePremiumStore = require("./premiumStore").default;
+      const { isPremium } = usePremiumStore.getState();
+      const FREE_GOALS_LIMIT = 3;
+
+      if (!isPremium && get().goals.length >= FREE_GOALS_LIMIT) {
+        set({ loading: false });
+        return { success: false, error: "GOALS_LIMIT" };
+      }
 
       const newGoal = {
         ...goalData,
@@ -162,40 +171,71 @@ const useGoalsStore = create((set, get) => ({
   // ==================== RESTORE ====================
   restoreGoals: async (goals) => {
     const user = auth.currentUser;
+
     if (!user) {
-      return { success: false, error: "Usuário não autenticado" };
+      return {
+        success: false,
+        error: "Usuário não autenticado",
+      };
     }
+
+    if (get().loading) return;
 
     try {
       set({ loading: true, error: null });
 
-      const existingGoals = get().goals;
-      for (const goal of existingGoals) {
-        await deleteDocument(COLLECTIONS.GOALS, goal.id);
+      if (!Array.isArray(goals)) {
+        throw new Error("Formato inválido");
       }
 
-      const restoredGoals = [];
-      for (const goal of goals) {
+      const sanitizedGoals = goals.map((goal) => {
         const { id, ...data } = goal;
 
-        const newGoalData = {
-          ...data,
+        return {
+          ...JSON.parse(JSON.stringify(data)),
           userId: user.uid,
           restoredAt: new Date().toISOString(),
         };
+      });
 
-        const newId = await addDocument(COLLECTIONS.GOALS, newGoalData);
-        restoredGoals.push({ id: newId, ...newGoalData });
-      }
+      const existingGoals = get().goals;
 
-      set({ goals: restoredGoals, loading: false });
+      await Promise.all(
+        existingGoals.map((goal) => deleteDocument(COLLECTIONS.GOALS, goal.id)),
+      );
 
-      console.log(`✅ ${restoredGoals.length} metas restauradas`);
-      return { success: true, count: restoredGoals.length };
+      const restoredGoals = await Promise.all(
+        sanitizedGoals.map(async (goalData) => {
+          const newId = await addDocument(COLLECTIONS.GOALS, goalData);
+
+          return {
+            id: newId,
+            ...goalData,
+          };
+        }),
+      );
+
+      set({
+        goals: restoredGoals,
+      });
+
+      return {
+        success: true,
+        count: restoredGoals.length,
+      };
     } catch (error) {
-      console.error("❌ Erro ao restaurar metas:", error);
-      set({ error: error.message, loading: false });
-      return { success: false, error: error.message };
+      console.error("Erro ao restaurar metas:", error);
+
+      set({
+        error: error.message,
+      });
+
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      set({ loading: false });
     }
   },
 

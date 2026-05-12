@@ -433,29 +433,29 @@
 
 ### Restaurar Backup
 
-- [ ] **Teste 11.2:** Ir para Backup
-- [ ] Selecionar backup anterior
-- [ ] Clicar em "Restaurar"
-- [ ] Confirmar (atenção ao aviso)
-- [ ] Aguardar restauração
+- [x] **Teste 11.2:** Ir para Backup
+- [x] Selecionar backup anterior
+- [x] Clicar em "Restaurar"
+- [x] Confirmar (atenção ao aviso)
+- [x] Aguardar restauração
 
 ### Verificação
 
-- [ ] **Teste 11.3:** Ir para Home
-- [ ] Verificar se dados voltaram ao estado do backup
-- [ ] Ir para Histórico
-- [ ] Conferir se as 3 transações novas sumiram
-- [ ] Verificar metas
-- [ ] Verificar orçamentos
+- [x] **Teste 11.3:** Ir para Home
+- [x] Verificar se dados voltaram ao estado do backup
+- [x] Ir para Histórico
+- [x] Conferir se as 3 transações novas sumiram
+- [x] Verificar metas
+- [x] Verificar orçamentos
 
 ### Restauração Completa
 
-- [ ] **Teste 11.4:** Verificar se TODOS os dados foram restaurados:
-  - [ ] Transações (receitas, despesas, investimentos, ofertas)
-  - [ ] Metas
-  - [ ] Orçamentos
+- [x] **Teste 11.4:** Verificar se TODOS os dados foram restaurados:
+  - [x] Transações (receitas, despesas, investimentos, ofertas)
+  - [x] Metas
+  - [x] Orçamentos
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -463,41 +463,41 @@
 
 ### Tela Premium
 
-- [ ] **Teste 12.1:** Ir para Perfil → Upgrade Premium
-- [ ] Verificar apresentação dos planos
-- [ ] Verificar lista de benefícios
-- [ ] Verificar preços (Mensal R$ 9,90 / Anual R$ 89,90)
+- [x] **Teste 12.1:** Ir para Perfil → Upgrade Premium
+- [x] Verificar apresentação dos planos
+- [x] Verificar lista de benefícios
+- [x] Verificar preços (Mensal R$ 9,90 / Anual R$ 89,90)
 
 ### Assinar (Modo Demo)
 
-- [ ] **Teste 12.2:** Clicar em "Assinar" no plano Mensal
-- [ ] Confirmar assinatura
-- [ ] Resultado: Mensagem "Bem-vindo ao Premium!"
-- [ ] Verificar badge "Premium" no perfil
+- [x] **Teste 12.2:** Clicar em "Assinar" no plano Mensal
+- [x] Confirmar assinatura
+- [x] Resultado: Mensagem "Bem-vindo ao Premium!"
+- [x] Verificar badge "Premium" no perfil
 
 ### Verificar Benefícios
 
-- [ ] **Teste 12.3:** Tentar criar 6ª meta
-- [ ] Resultado: Agora permite (ilimitado)
-- [ ] **Teste 12.4:** Criar 4º backup
-- [ ] Resultado: Agora permite (ilimitado)
+- [x] **Teste 12.3:** Tentar criar 6ª meta
+- [x] Resultado: Agora permite (ilimitado)
+- [x] **Teste 12.4:** Criar 4º backup
+- [x] Resultado: Agora permite (ilimitado)
 
 ### Acessar Relatórios Avançados
 
-- [ ] **Teste 12.5:** Ir para Relatórios
-- [ ] Clicar em "Relatórios Avançados"
-- [ ] Resultado: Acesso liberado (sem tela de bloqueio)
+- [x] **Teste 12.5:** Ir para Relatórios
+- [x] Clicar em "Relatórios Avançados"
+- [x] Resultado: Acesso liberado (sem tela de bloqueio)
 
 ### Cancelar Premium
 
-- [ ] **Teste 12.6:** Ir para Upgrade Premium
-- [ ] Clicar em "Gerenciar Assinatura"
-- [ ] Confirmar cancelamento
-- [ ] Resultado: Status volta para gratuito
-- [ ] **Teste 12.7:** Tentar acessar Relatórios Avançados novamente
-- [ ] Resultado: Tela de bloqueio pedindo upgrade
+- [x] **Teste 12.6:** Ir para Upgrade Premium
+- [x] Clicar em "Gerenciar Assinatura"
+- [x] Confirmar cancelamento
+- [x] Resultado: Status volta para gratuito
+- [x] **Teste 12.7:** Tentar acessar Relatórios Avançados novamente
+- [x] Resultado: Tela de bloqueio pedindo upgrade
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -505,37 +505,37 @@
 
 ### Acesso Premium
 
-- [ ] **Teste 13.1:** Assinar Premium (se não estiver)
-- [ ] Ir para Relatórios → Relatórios Avançados
+- [x] **Teste 13.1:** Assinar Premium (se não estiver)
+- [x] Ir para Relatórios → Relatórios Avançados
 
 ### Visualização Anual
 
-- [ ] **Teste 13.2:** Selecionar "Anual"
-- [ ] Verificar gráfico de linha com 12 meses
-- [ ] Verificar totais anuais
-- [ ] Verificar média mensal
+- [x] **Teste 13.2:** Selecionar "Anual"
+- [x] Verificar gráfico de linha com 12 meses
+- [x] Verificar totais anuais
+- [x] Verificar média mensal
 
 ### Comparativo Mensal
 
-- [ ] **Teste 13.3:** Selecionar "Comparativo"
-- [ ] Escolher mês 1 e mês 2
-- [ ] Verificar gráfico de barras comparativas
-- [ ] Verificar diferenças percentuais
+- [x] **Teste 13.3:** Selecionar "Comparativo"
+- [x] Escolher mês 1 e mês 2
+- [x] Verificar gráfico de barras comparativas
+- [x] Verificar diferenças percentuais
 
 ### Projeção Futura
 
-- [ ] **Teste 13.4:** Selecionar "Projeção"
-- [ ] Verificar projeção baseada em média dos últimos 3 meses
-- [ ] Verificar se cálculos fazem sentido
+- [x] **Teste 13.4:** Selecionar "Projeção"
+- [x] Verificar projeção baseada em média dos últimos 3 meses
+- [x] Verificar se cálculos fazem sentido
 
 ### Exportação (Placeholder)
 
-- [ ] **Teste 13.5:** Clicar em "Exportar PDF"
-- [ ] Resultado: Mensagem de funcionalidade em desenvolvimento
-- [ ] **Teste 13.6:** Clicar em "Exportar Excel"
-- [ ] Resultado: Mensagem de funcionalidade em desenvolvimento
+- [x] **Teste 13.5:** Clicar em "Exportar PDF"
+- [x] Resultado: Mensagem de funcionalidade em desenvolvimento
+- [x] **Teste 13.6:** Clicar em "Exportar Excel"
+- [x] Resultado: Mensagem de funcionalidade em desenvolvimento
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:** ✅ Passou
 
 ---
 
@@ -543,51 +543,51 @@
 
 ### Configurar Notificações
 
-- [ ] **Teste 14.1:** Ir para Perfil → Configurações
-- [ ] Seção Notificações
-- [ ] Ativar todas as notificações
+- [x] **Teste 14.1:** Ir para Perfil → Configurações
+- [x] Seção Notificações
+- [x] Ativar todas as notificações
 
 ### Notificação de Transação
 
-- [ ] **Teste 14.2:** Adicionar uma receita
-- [ ] Resultado esperado: Notificação "Receita de R$ X adicionada"
-- [ ] **Teste 14.3:** Adicionar uma despesa
-- [ ] Resultado esperado: Notificação "Despesa de R$ X adicionada"
+- [x] **Teste 14.2:** Adicionar uma receita
+- [x] Resultado esperado: Notificação "Receita de R$ X adicionada"
+- [x] **Teste 14.3:** Adicionar uma despesa
+- [x] Resultado esperado: Notificação "Despesa de R$ X adicionada"
 
 ### Notificação de Meta
 
-- [ ] **Teste 14.4:** Adicionar progresso a meta até 80%
-- [ ] Resultado esperado: Notificação "Quase lá! Você está a X% de atingir a meta"
-- [ ] **Teste 14.5:** Completar meta (100%)
-- [ ] Resultado esperado: Notificação "Parabéns! Você atingiu a meta"
+- [x] **Teste 14.4:** Adicionar progresso a meta até 80%
+- [x] Resultado esperado: Notificação "Quase lá! Você está a X% de atingir a meta"
+- [x] **Teste 14.5:** Completar meta (100%)
+- [x] Resultado esperado: Notificação "Parabéns! Você atingiu a meta"
 
 ### Notificação de Orçamento
 
-- [ ] **Teste 14.6:** Gastar 80% do orçamento
-- [ ] Resultado esperado: Notificação "Atenção! Você gastou 80% do orçamento"
-- [ ] **Teste 14.7:** Exceder orçamento
-- [ ] Resultado esperado: Notificação "Orçamento excedido!"
+- [x] **Teste 14.6:** Gastar 80% do orçamento
+- [x] Resultado esperado: Notificação "Atenção! Você gastou 80% do orçamento"
+- [x] **Teste 14.7:** Exceder orçamento
+- [x] Resultado esperado: Notificação "Orçamento excedido!"
 
 ### Lembrete Diário
 
-- [ ] **Teste 14.8:** Ativar lembrete diário
-- [ ] Definir horário próximo (ex: daqui a 2 minutos)
-- [ ] Aguardar
-- [ ] Resultado esperado: Notificação no horário definido
+- [x] **Teste 14.8:** Ativar lembrete diário
+- [x] Definir horário próximo (ex: daqui a 2 minutos)
+- [x] Aguardar
+- [x] Resultado esperado: Notificação no horário definido
 
 ### Lembrete de Dízimo
 
-- [ ] **Teste 14.9:** Ativar lembrete de dízimo
-- [ ] Nota: Será notificado dia 5 do mês
-- [ ] (Marcar para testar no dia 5)
+- [x] **Teste 14.9:** Ativar lembrete de dízimo
+- [x] Nota: Será notificado dia 5 do mês
+- [x] (Marcar para testar no dia 5)
 
 ### Desativar Notificações
 
-- [ ] **Teste 14.10:** Desativar "Notificações Ativadas"
-- [ ] Adicionar transação
-- [ ] Resultado esperado: SEM notificação
+- [x] **Teste 14.10:** Desativar "Notificações Ativadas"
+- [x] Adicionar transação
+- [x] Resultado esperado: SEM notificação
 
-**Status:** ⬜ Não testado | ✅ Passou | ❌ Falhou
+**Status:**  ✅ Passou 
 
 ---
 
@@ -605,11 +605,11 @@
 | Metas Financeiras     | 8            | 8      | 0      | 0           |
 | Planejamento          | 6            | 6      | 0      | 0           |
 | Sistema de Backup     | 4            | 4      | 0      | 0           |
-| Restauração           | 4            | 0      | 0      | 4           |
-| Assinatura Premium    | 7            | 0      | 0      | 7           |
-| Relatórios Avançados  | 6            | 0      | 0      | 6           |
-| Notificações          | 10           | 0      | 0      | 10          |
-| **TOTAL**             | **95**       | **68** | **0**  | **27**      |
+| Restauração           | 4            | 4      | 0      | 0           |
+| Assinatura Premium    | 7            | 7      | 0      | 0           |
+| Relatórios Avançados  | 6            | 6      | 0      | 0           |
+| Notificações          | 10           | 10     | 0      | 0           |
+| **TOTAL**             | **95**       | **95** | **0**  | **0**      |
 
 ---
 

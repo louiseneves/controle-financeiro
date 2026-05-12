@@ -240,8 +240,69 @@ const useTransactionStore = create((set, get) => ({
     return get().transactions.slice(0, limit);
   },
 
-  restoreTransactions: () => {
-    console.log("Restauração do Backup das transações");
+  restoreTransactions: async (transactions) => {
+    if (get().loading) return;
+
+    try {
+      set({ loading: true, error: null });
+
+      if (!Array.isArray(transactions)) {
+        throw new Error("Formato inválido");
+      }
+
+      const sanitizedTransactions = transactions.map((transaction) => {
+        const { id, ...data } = transaction;
+
+        return {
+          ...JSON.parse(JSON.stringify(data)),
+          restoredAt: new Date().toISOString(),
+        };
+      });
+
+      const existingTransactions = get().transactions;
+
+      await Promise.all(
+        existingTransactions.map((transaction) =>
+          deleteDocument(COLLECTIONS.TRANSACTIONS, transaction.id),
+        ),
+      );
+
+      const restoredTransactions = await Promise.all(
+        sanitizedTransactions.map(async (transactionData) => {
+          const newId = await addDocument(
+            COLLECTIONS.TRANSACTIONS,
+            transactionData,
+          );
+
+          return {
+            id: newId,
+            ...transactionData,
+          };
+        }),
+      );
+
+      set({
+        transactions: restoredTransactions,
+      });
+
+      return {
+        success: true,
+        count: restoredTransactions.length,
+      };
+    } catch (error) {
+      console.error("Erro ao restaurar transações:", error);
+
+      set({
+        error: error.message,
+      });
+
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      set({ loading: false });
+    }
   },
 
   // ==================== UTILS ====================
