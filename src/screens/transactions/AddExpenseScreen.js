@@ -1,5 +1,5 @@
 /**
- * Tela de Adicionar Despesa
+ * Tela de Adicionar Despesa (REFATORADA)
  */
 
 import React, { useState, useMemo } from "react";
@@ -14,65 +14,79 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+
 import { Button, Input } from "../../components/ui";
 import { EXPENSE_CATEGORIES } from "../../utils";
+
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
-import {
-  parseISODateOnly,
-  isoToBR,
-  brToISO,
-} from "../../utils/helpers/formatters";
+import useSettingsStore from "../../store/settingsStore";
+
+import { toISODate, formatDateDisplay } from "../../utils";
 import { t } from "../../i18n";
+
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const AddExpenseScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { user } = useAuthStore();
   const { addTransaction } = useTransactionStore();
+
+  const language = useSettingsStore((state) => state.language);
+
+  /* ================= STATE ================= */
 
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(""); // 👈 agora simples (string livre)
   const [isRecurring, setIsRecurring] = useState(false);
 
-  const [descriptionError, setDescriptionError] = useState("");
-  const [amountError, setAmountError] = useState("");
-  const [categoryError, setCategoryError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Validar campos
-  const validateFields = () => {
-    let isValid = true;
+  const [errors, setErrors] = useState({
+    description: "",
+    amount: "",
+    category: "",
+  });
 
-    setDescriptionError("");
-    setAmountError("");
-    setCategoryError("");
+  /* ================= VALIDATION ================= */
+
+  const validate = () => {
+    const newErrors = {
+      description: "",
+      amount: "",
+      category: "",
+    };
+
+    let valid = true;
 
     if (!description.trim()) {
-      setDescriptionError(t("addExpense.form.description.required"));
-      isValid = false;
+      newErrors.description = t("addExpense.form.description.required");
+      valid = false;
     }
 
-    if (!amount || parseFloat(amount) <= 0) {
-      setAmountError(t("addExpense.form.amount.invalid"));
-      isValid = false;
+    if (!amount || parseFloat(amount.replace(",", ".")) <= 0) {
+      newErrors.amount = t("addExpense.form.amount.invalid");
+      valid = false;
     }
 
     if (!category) {
-      setCategoryError(t("addExpense.form.category.required"));
-      isValid = false;
+      newErrors.category = t("addExpense.form.category.required");
+      valid = false;
     }
 
-    return isValid;
+    setErrors(newErrors);
+    return valid;
   };
 
-  // ==================== SAVE ====================
+  /* ================= SAVE ================= */
+
   const handleSave = async () => {
-    if (!validateFields()) return;
+    if (!validate()) return;
 
     if (!user?.uid) {
       Alert.alert(
@@ -85,19 +99,22 @@ const AddExpenseScreen = ({ navigation }) => {
     try {
       setLoading(true);
 
-      const parsedDate = parseISODateOnly(date);
+      const isoDate = toISODate(date);
 
-      if (!parsedDate) {
-        Alert.alert(t("addExpense.error.title"), t("addExpense.date.invalid"));
+      if (!isoDate) {
+        Alert.alert(
+          t("addExpense.alerts.error.title"),
+          t("addExpense.date.invalid"),
+        );
         return;
       }
 
       const transactionData = {
         type: "despesa",
         description: description.trim(),
-        amount: parseFloat(amount),
+        amount: parseFloat(amount.replace(",", ".")),
         category,
-        date: parsedDate.toISOString(),
+        date: isoDate, // 👈 SEM timezone bug
         isRecurring,
         userId: user.uid,
       };
@@ -105,10 +122,9 @@ const AddExpenseScreen = ({ navigation }) => {
       const result = await addTransaction(transactionData);
 
       if (result.success) {
-        // ✅ CORRIGIDO: Remove o ícone, apenas strings
         Alert.alert(
           t("addExpense.alerts.success.title"),
-          t("addExpense.alerts.success.message"), // ✅ Apenas STRING
+          t("addExpense.alerts.success.message"),
           [{ text: "OK", onPress: () => navigation.goBack() }],
         );
       } else {
@@ -118,7 +134,8 @@ const AddExpenseScreen = ({ navigation }) => {
         );
       }
     } catch (error) {
-      console.error("Erro ao salvar despesa:", error);
+      console.error(error);
+
       Alert.alert(
         t("addExpense.alerts.error.title"),
         t("addExpense.alerts.error.save"),
@@ -128,133 +145,118 @@ const AddExpenseScreen = ({ navigation }) => {
     }
   };
 
-  // ==================== UI ====================
+  /* ================= UI ================= */
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.form}>
+          {/* DESCRIÇÃO */}
           <Input
             label={t("addExpense.form.description.label")}
             value={description}
             onChangeText={setDescription}
             placeholder={t("addExpense.form.description.placeholder")}
-            error={descriptionError}
+            error={errors.description}
             leftIcon={
               <MaterialCommunityIcons
                 name="file-document-edit-outline"
-                size={24}
+                size={22}
                 color={colors.textSecondary}
               />
             }
           />
 
+          {/* VALOR */}
           <Input
             label={t("addExpense.form.amount.label")}
             value={amount}
             onChangeText={setAmount}
             placeholder={t("addExpense.form.amount.placeholder")}
             keyboardType="numeric"
-            error={amountError}
+            error={errors.amount}
             leftIcon={
               <MaterialCommunityIcons
                 name="currency-usd"
-                size={24}
+                size={22}
                 color={colors.textSecondary}
               />
             }
           />
 
+          {/* DATA (GLOBAL, SEM LÓGICA NA TELA) */}
           <Input
             label={t("addExpense.form.date.label")}
-            value={isoToBR(date)}
-            onChangeText={(text) => setDate(brToISO(text))}
-            placeholder={t("addExpense.form.date.placeholder")}
+            type="date" // 👈 MAGIA AQUI
+            value={date}
+            onChangeText={setDate}
+            placeholder="DD/MM/AAAA"
             leftIcon={
               <MaterialCommunityIcons
                 name="calendar"
-                size={24}
+                size={22}
                 color={colors.textSecondary}
               />
             }
           />
 
-          {/* Categorias */}
+          {/* CATEGORIAS */}
           <View style={styles.categorySection}>
             <Text style={styles.label}>
-              {t("addExpense.form.category.label")}{" "}
-              {categoryError && <Text style={styles.errorText}>*</Text>}
+              {t("addExpense.form.category.label")}
             </Text>
+
             <ScrollView
-              style={styles.categoryScrollContainer}
+              style={styles.categoryScroll}
               contentContainerStyle={styles.categoryGrid}
-              showsVerticalScrollIndicator={true}
-              nestedScrollEnabled={true}
-              scrollEnabled={true}
+              nestedScrollEnabled
             >
               {EXPENSE_CATEGORIES.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
                   style={[
                     styles.categoryCard,
-                    category === cat.id && styles.categoryCardSelected,
+                    category === cat.id && styles.categorySelected,
                     { borderColor: cat.color },
                   ]}
                   onPress={() => setCategory(cat.id)}
-                  activeOpacity={0.7}
                 >
-                  <MaterialIcons name={cat.icon} size={40} color={cat.color} />
-                  <Text
-                    style={[
-                      styles.categoryName,
-                      category === cat.id && styles.categoryNameSelected,
-                    ]}
-                    numberOfLines={2}
-                  >
-                    {cat.name}
-                  </Text>
+                  <MaterialIcons name={cat.icon} size={34} color={cat.color} />
+
+                  <Text style={styles.categoryText}>{cat.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            {categoryError && (
-              <Text style={styles.errorTextSmall}>{categoryError}</Text>
+
+            {!!errors.category && (
+              <Text style={styles.errorText}>{errors.category}</Text>
             )}
           </View>
 
-          {/* Despesa Recorrente */}
+          {/* RECORRENTE */}
           <TouchableOpacity
-            style={styles.checkboxContainer}
+            style={styles.checkbox}
             onPress={() => setIsRecurring(!isRecurring)}
-            activeOpacity={0.7}
           >
-            <View
-              style={[styles.checkbox, isRecurring && styles.checkboxChecked]}
-            >
-              {isRecurring && <Text style={styles.checkmark}>✓</Text>}
+            <View style={[styles.box, isRecurring && styles.boxActive]}>
+              {isRecurring && <Text style={styles.check}>✓</Text>}
             </View>
-            <View style={styles.checkboxContent}>
-              <Text style={styles.checkboxLabel}>
-                {t("addExpense.form.recurring.label")}
-              </Text>
-              <Text style={styles.checkboxDescription}>
-                {t("addExpense.form.recurring.description")}
-              </Text>
-            </View>
+
+            <Text style={styles.checkboxText}>
+              {t("addExpense.form.recurring.label")}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Botões */}
+        {/* AÇÕES */}
         <View style={styles.actions}>
           <Button
             title={t("addExpense.actions.save")}
             onPress={handleSave}
             loading={loading}
-            style={styles.saveButton}
           />
 
           <Button
@@ -268,122 +270,101 @@ const AddExpenseScreen = ({ navigation }) => {
   );
 };
 
+/* ================= STYLES ================= */
+
 const createStyles = (colors) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
+    container: { flex: 1, backgroundColor: colors.background },
+
     content: {
       padding: 20,
-      paddingBottom: 40,
     },
+
     form: {
-      marginBottom: 24,
+      gap: 12,
     },
-    iconText: {
-      fontSize: 20,
-    },
+
     label: {
       fontSize: 14,
       fontWeight: "600",
       color: colors.text,
-      marginBottom: 12,
+      marginBottom: 10,
     },
+
     categorySection: {
-      marginBottom: 16,
+      marginTop: 10,
     },
-    categoryScrollContainer: {
-      maxHeight: 300,
+
+    categoryScroll: {
+      maxHeight: 280,
     },
+
     categoryGrid: {
       flexDirection: "row",
       flexWrap: "wrap",
       gap: 10,
     },
+
     categoryCard: {
-      width: "31%",
-      aspectRatio: 1,
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      padding: 12,
-      alignItems: "center",
-      justifyContent: "center",
+      width: "30%",
+      padding: 10,
       borderWidth: 2,
-      borderColor: colors.border,
+      borderRadius: 12,
+      alignItems: "center",
+      backgroundColor: colors.card,
     },
-    categoryCardSelected: {
-      borderWidth: 3,
+
+    categorySelected: {
       backgroundColor: colors.error + "10",
     },
-    categoryIcon: {
-      fontSize: 28,
-      marginBottom: 6,
-    },
-    categoryName: {
+
+    categoryText: {
       fontSize: 11,
-      color: colors.textSecondary,
       textAlign: "center",
-      fontWeight: "500",
+      marginTop: 5,
+      color: colors.text,
     },
-    categoryNameSelected: {
-      color: colors.error,
-      fontWeight: "600",
-    },
-    checkboxContainer: {
-      flexDirection: "row",
-      alignItems: "flex-start",
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      padding: 16,
-      gap: 12,
-    },
+
     checkbox: {
-      width: 24,
-      height: 24,
-      borderRadius: 6,
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: 20,
+      gap: 10,
+    },
+
+    box: {
+      width: 22,
+      height: 22,
       borderWidth: 2,
       borderColor: colors.border,
+      borderRadius: 4,
       alignItems: "center",
       justifyContent: "center",
     },
-    checkboxChecked: {
+
+    boxActive: {
       backgroundColor: colors.primary,
       borderColor: colors.primary,
     },
-    checkmark: {
-      color: colors.card,
-      fontSize: 16,
+
+    check: {
+      color: "#fff",
       fontWeight: "bold",
     },
-    checkboxContent: {
-      flex: 1,
-    },
-    checkboxLabel: {
-      fontSize: 16,
-      fontWeight: "600",
+
+    checkboxText: {
       color: colors.text,
-      marginBottom: 4,
     },
-    checkboxDescription: {
-      fontSize: 13,
-      color: colors.textSecondary,
+
+    actions: {
+      marginTop: 20,
+      gap: 10,
     },
+
     errorText: {
       color: colors.error,
-      fontSize: 14,
-    },
-    errorTextSmall: {
+      marginTop: 6,
       fontSize: 12,
-      color: colors.error,
-      marginTop: 4,
-      marginLeft: 4,
-    },
-    actions: {
-      gap: 12,
-    },
-    saveButton: {
-      marginBottom: 12,
     },
   });
 

@@ -140,14 +140,6 @@ const useBudgetStore = create((set, get) => ({
   // - addTransaction passa (category, amount) para incluir despesa ainda não no estado
   // - deleteTransaction chama sem argumentos pois o estado já foi atualizado
   checkBudgetAlerts: async (newCategory, newAmount, silent = false) => {
-    // 🔍 DEBUG TEMPORÁRIO
-    console.log("🔍 checkBudgetAlerts chamado:", {
-      newCategory,
-      newAmount,
-      silent,
-    });
-    console.log("🔍 alertHistory atual:", _alertHistory);
-    console.log("🔍 alertHistory atual:", JSON.stringify(_alertHistory));
     const settings = useSettingsStore.getState();
     let { budgets } = get();
     // ✅ Se não há orçamentos, tenta carregar antes de verificar
@@ -202,22 +194,7 @@ const useBudgetStore = create((set, get) => ({
       expensesByCategory[newCategory] =
         (expensesByCategory[newCategory] || 0) + Number(newAmount);
     }
-    console.log("🔍 expensesByCategory:", JSON.stringify(expensesByCategory));
-    console.log("🔍 total transactions no estado:", transactions.length);
-    console.log(
-      "🔍 transações de alimentacao em maio:",
-      transactions
-        .filter((t) => {
-          const d = new Date(t.date);
-          return (
-            t.type === "despesa" &&
-            t.category === "alimentacao" &&
-            d.getMonth() === month &&
-            d.getFullYear() === year
-          );
-        })
-        .map((t) => ({ id: t.id, amount: t.amount, date: t.date })),
-    );
+
     const alertsToShow = [];
 
     budgets.forEach((budget) => {
@@ -232,9 +209,7 @@ const useBudgetStore = create((set, get) => ({
 
         const categoryName =
           EXPENSE_CATEGORIES.find((c) => c.id === category)?.name || category;
-        console.log(
-          `🔍 ${category}: spent=${spent}, percentage=${percentage.toFixed(1)}%, history=${_alertHistory[alertKey]}`,
-        );
+
         // ✅ Salvar estado anterior antes de resetar
         const previousHistory = _alertHistory[alertKey];
 
@@ -294,8 +269,82 @@ const useBudgetStore = create((set, get) => ({
     }
   },
 
-  restoreBudgets: () => {
-    console.log("Restauração do Backup do orçamento");
+  restoreBudgets: async (budgets) => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      return {
+        success: false,
+        error: "Usuário não autenticado",
+      };
+    }
+
+    if (get().loading) return;
+
+    try {
+      set({ loading: true, error: null });
+
+      if (!Array.isArray(budgets)) {
+        throw new Error("Formato inválido");
+      }
+
+      _alertHistory = {};
+
+      const sanitizedBudgets = budgets.map((budget) => {
+        const { id, ...data } = budget;
+
+        return {
+          ...JSON.parse(JSON.stringify(data)),
+          userId: user.uid,
+          restoredAt: new Date().toISOString(),
+        };
+      });
+
+      const existingBudgets = get().budgets;
+
+      await Promise.all(
+        existingBudgets.map((budget) =>
+          deleteDocument(COLLECTIONS.PLANNING, budget.id),
+        ),
+      );
+
+      const restoredBudgets = await Promise.all(
+        sanitizedBudgets.map(async (budgetData) => {
+          const newId = await addDocument(COLLECTIONS.PLANNING, budgetData);
+
+          return {
+            id: newId,
+            ...budgetData,
+          };
+        }),
+      );
+
+      // ✅ Adicione após criar restoredBudgets
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const currentMonthBudgets = restoredBudgets.filter(
+        (b) => b.month === currentMonth,
+      );
+
+      set({ budgets: currentMonthBudgets });
+      return {
+        success: true,
+        count: restoredBudgets.length,
+      };
+    } catch (error) {
+      console.error("Erro ao restaurar orçamentos:", error);
+
+      set({
+        error: error.message,
+      });
+
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      set({ loading: false });
+    }
   },
 
   clearError: () => set({ error: null }),

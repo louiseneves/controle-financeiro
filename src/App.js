@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
-import { StatusBar, Platform } from 'react-native';
-import AppNavigator from './navigation/AppNavigator';
-import * as NavigationBar from 'expo-navigation-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import React, { useEffect } from "react";
+import { StatusBar, Platform } from "react-native";
+import AppNavigator from "./navigation/AppNavigator";
+import * as NavigationBar from "expo-navigation-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import useAuthStore from './store/authStore';
-import useSettingsStore from './store/settingsStore';
-import NotificationService from './services/notifications/notificationService';
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import useAuthStore from "./store/authStore";
+import useSettingsStore from "./store/settingsStore";
+import NotificationService from "./services/notifications/notificationService";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 
 function AppContent() {
   const { colors, dark } = useTheme();
@@ -15,70 +15,85 @@ function AppContent() {
   return (
     <>
       <StatusBar
-        barStyle={dark ? 'light-content' : 'dark-content'}
-        backgroundColor={colors.background}
+        barStyle={dark ? "light-content" : "dark-content"}
+        backgroundColor={colors.statusBar}
         translucent={false}
       />
+
       <AppNavigator />
     </>
   );
 }
 
 export default function App() {
-  /* ==================== SELECTORS ==================== */
-  const initializeAuth = useAuthStore(state => state.initializeAuth);
-  const authInitialized = useAuthStore(state => state.initialized);
-  const loadSettings = useSettingsStore(state => state.loadSettings);
+  const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
-  /* ==================== ANDROID NAV BAR ==================== */
+  const authInitialized = useAuthStore((state) => state.initialized);
+
+  const loadSettings = useSettingsStore((state) => state.loadSettings);
+
+  // =========================
+  // ANDROID NAVIGATION BAR
+  // =========================
+
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setVisibilityAsync('visible');
-      NavigationBar.setBehaviorAsync('inset-swipe');
-      NavigationBar.setBackgroundColorAsync('#0F172A'); // Modo escuro
+    if (Platform.OS === "android") {
+      NavigationBar.setVisibilityAsync("visible");
     }
   }, []);
 
-  /* ==================== INIT AUTH ==================== */
+  // =========================
+  // AUTH
+  // =========================
+
   useEffect(() => {
     const unsubscribe = initializeAuth?.();
-    
+
     return () => {
-      if (typeof unsubscribe === 'function') {
+      if (typeof unsubscribe === "function") {
         unsubscribe();
       }
     };
   }, [initializeAuth]);
 
-  /* ==================== INIT APP ==================== */
+  // =========================
+  // APP INIT
+  // =========================
+
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('🚀 Inicializando aplicativo...');
+        console.log("🚀 Inicializando aplicativo...");
 
-        // 1. Inicializar NotificationService
         await NotificationService.init();
-        console.log('✅ NotificationService inicializado');
 
-        // 2. Carregar settings (já aplica notificações)
+        console.log("✅ NotificationService inicializado");
+
         await loadSettings();
-        console.log('✅ Settings carregados');
 
-        console.log('✅ Aplicativo inicializado com sucesso!');
+        console.log("✅ Settings carregados");
+
+        console.log("✅ Aplicativo inicializado com sucesso!");
       } catch (error) {
-        console.error('❌ Erro ao inicializar app:', error);
+        console.error("❌ Erro ao inicializar app:", error);
       }
     };
 
     initializeApp();
   }, [loadSettings]);
 
-  /* ==================== LOADING ==================== */
+  // =========================
+  // LOADING
+  // =========================
+
   if (!authInitialized) {
-    return null; // TODO: Adicionar splash screen aqui
+    return null;
   }
 
-  /* ==================== RENDER ==================== */
+  // =========================
+  // RENDER
+  // =========================
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>

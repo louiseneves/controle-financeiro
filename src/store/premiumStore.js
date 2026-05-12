@@ -3,65 +3,148 @@
  * Gerenciamento de assinatura Premium
  */
 
-import {create} from 'zustand';
-import {saveData, getData, STORAGE_KEYS} from '../services/storage/asyncStorage';
+import { create } from "zustand";
+import {
+  saveData,
+  getData,
+  removeData,
+  STORAGE_KEYS,
+} from "../services/storage/asyncStorage";
+
+const PREMIUM_FEATURES = [
+  "advanced_reports",
+  "export_pdf",
+  "export_excel",
+  "yearly_reports",
+  "projections",
+  "comparison",
+  "unlimited_goals",
+  "support_tickets",
+  "multiple_budgets",
+  "extra_backups",
+  "planning_items",
+];
 
 const usePremiumStore = create((set, get) => ({
-  // Estado
+  // ================= STATE =================
   isPremium: false,
-  subscriptionType: null, // 'monthly' ou 'yearly'
+  subscriptionType: null,
   expirationDate: null,
   loading: false,
+  initialized: false,
 
-  // Carregar status premium
+  // ================= LOAD =================
   loadPremiumStatus: async () => {
     try {
-      set({loading: true});
+      set({ loading: true });
+
       const premiumData = await getData(STORAGE_KEYS.PREMIUM_STATUS);
-      
-      if (premiumData) {
-        // Verificar se a assinatura ainda está válida
-        const expirationDate = new Date(premiumData.expirationDate);
-        const now = new Date();
-        
-        if (expirationDate > now) {
-          set({
-            isPremium: true,
-            subscriptionType: premiumData.subscriptionType,
-            expirationDate: premiumData.expirationDate,
-            loading: false,
-          });
-        } else {
-          // Assinatura expirada
-          set({
-            isPremium: false,
-            subscriptionType: null,
-            expirationDate: null,
-            loading: false,
-          });
-          await saveData(STORAGE_KEYS.PREMIUM_STATUS, null);
-        }
-      } else {
-        set({loading: false});
+
+      // ✅ Dados inválidos
+      if (
+        !premiumData ||
+        !premiumData.expirationDate ||
+        !premiumData.subscriptionType
+      ) {
+        set({
+          isPremium: false,
+          subscriptionType: null,
+          expirationDate: null,
+          initialized: true,
+        });
+
+        return;
       }
+
+      const expirationDate = new Date(premiumData.expirationDate);
+
+      const now = new Date();
+
+      // ✅ Data inválida
+      if (isNaN(expirationDate.getTime())) {
+        await removeData(STORAGE_KEYS.PREMIUM_STATUS);
+
+        set({
+          isPremium: false,
+          subscriptionType: null,
+          expirationDate: null,
+          initialized: true,
+        });
+
+        return;
+      }
+
+      // ✅ Assinatura válida
+      if (expirationDate > now) {
+        set({
+          isPremium: true,
+          subscriptionType: premiumData.subscriptionType,
+          expirationDate: premiumData.expirationDate,
+          initialized: true,
+        });
+
+        return;
+      }
+
+      // ✅ Expirada
+      await removeData(STORAGE_KEYS.PREMIUM_STATUS);
+
+      set({
+        isPremium: false,
+        subscriptionType: null,
+        expirationDate: null,
+        initialized: true,
+      });
     } catch (error) {
-      console.error('Erro ao carregar status premium:', error);
-      set({loading: false});
+      console.error("❌ Erro ao carregar premium:", error);
+
+      set({
+        isPremium: false,
+        subscriptionType: null,
+        expirationDate: null,
+        initialized: true,
+      });
+    } finally {
+      set({ loading: false });
     }
   },
 
-  // Ativar premium (simulado)
+  // ================= ACTIVATE =================
   activatePremium: async (subscriptionType) => {
     try {
-      set({loading: true});
+      const state = get();
 
-      // Calcular data de expiração
+      // ✅ Evita race condition
+      if (state.loading) {
+        return {
+          success: false,
+          error: "Processando assinatura",
+        };
+      }
+
+      // ✅ Já premium
+      if (state.isPremium) {
+        return {
+          success: false,
+          error: "Usuário já premium",
+        };
+      }
+
+      if (subscriptionType !== "monthly" && subscriptionType !== "yearly") {
+        return {
+          success: false,
+          error: "Plano inválido",
+        };
+      }
+
+      set({ loading: true });
+
       const now = new Date();
       const expirationDate = new Date(now);
-      
-      if (subscriptionType === 'monthly') {
+
+      if (subscriptionType === "monthly") {
         expirationDate.setMonth(expirationDate.getMonth() + 1);
-      } else if (subscriptionType === 'yearly') {
+      } else {
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
       }
 
@@ -77,59 +160,107 @@ const usePremiumStore = create((set, get) => ({
         isPremium: true,
         subscriptionType,
         expirationDate: expirationDate.toISOString(),
-        loading: false,
       });
 
-      return {success: true};
+      return { success: true };
     } catch (error) {
-      console.error('Erro ao ativar premium:', error);
-      set({loading: false});
-      return {success: false, error: error.message};
+      console.error("❌ Erro ao ativar premium:", error);
+
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      set({ loading: false });
     }
   },
 
-  // Cancelar premium (simulado)
+  // ================= CANCEL =================
   cancelPremium: async () => {
     try {
-      await saveData(STORAGE_KEYS.PREMIUM_STATUS, null);
-      
+      set({ loading: true });
+
+      await removeData(STORAGE_KEYS.PREMIUM_STATUS);
+
       set({
         isPremium: false,
         subscriptionType: null,
         expirationDate: null,
       });
 
-      return {success: true};
+      return { success: true };
     } catch (error) {
-      console.error('Erro ao cancelar premium:', error);
-      return {success: false, error: error.message};
+      console.error("❌ Erro ao cancelar premium:", error);
+
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      set({ loading: false });
     }
   },
 
-  // Verificar se tem acesso a uma funcionalidade
-  hasAccess: (feature) => {
-    const {isPremium} = get();
-    
-    // Funcionalidades premium
-    const premiumFeatures = [
-      'advanced_reports',
-      'export_pdf',
-      'export_excel',
-      'yearly_reports',
-      'projections',
-      'comparison',
-      'unlimited_goals',
-      'support_tickets',
-      'multiple_budgets',
-      'extra_backups',
-      'planning_items',
-    ];
+  // ================= RESTORE =================
+  restorePurchases: async () => {
+    try {
+      set({ loading: true });
 
-    if (premiumFeatures.includes(feature)) {
-      return isPremium;
+      const premiumData = await getData(STORAGE_KEYS.PREMIUM_STATUS);
+
+      if (!premiumData) {
+        return {
+          success: false,
+          error: "Nenhuma compra encontrada",
+        };
+      }
+
+      await get().loadPremiumStatus();
+
+      return { success: true };
+    } catch (error) {
+      console.error("❌ Erro ao restaurar compras:", error);
+
+      return {
+        success: false,
+        error: error.message,
+      };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  // ================= ACCESS =================
+  hasAccess: (feature) => {
+    const { isPremium, expirationDate } = get();
+
+    // ✅ Features gratuitas
+    if (!PREMIUM_FEATURES.includes(feature)) {
+      return true;
     }
 
-    return true; // Funcionalidades gratuitas
+    // ✅ Não premium
+    if (!isPremium || !expirationDate) {
+      return false;
+    }
+
+    // ✅ Verifica expiração em tempo real
+    const now = new Date();
+
+    const valid = new Date(expirationDate) > now;
+
+    return valid;
+  },
+
+  // ================= UTILS =================
+  resetPremiumState: () => {
+    set({
+      isPremium: false,
+      subscriptionType: null,
+      expirationDate: null,
+      loading: false,
+      initialized: false,
+    });
   },
 }));
 

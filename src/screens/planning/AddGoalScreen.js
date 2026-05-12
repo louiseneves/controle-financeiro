@@ -158,11 +158,20 @@ const AddGoalScreen = ({ navigation }) => {
 
       if (result.success) {
         Alert.alert(t("addGoal.successTitle"), t("addGoal.success"), [
-          {
-            text: "OK",
-            onPress: () => navigation.goBack(),
-          },
+          { text: "OK", onPress: () => navigation.goBack() },
         ]);
+      } else if (result.error === "GOALS_LIMIT") {
+        Alert.alert(
+          t("premium.alerts.limitTitle"),
+          t("premium.alerts.goalsLimit", { limit: 3 }),
+          [
+            { text: "Agora não", style: "cancel" },
+            {
+              text: t("premium.buttons.upgrade") || "Ver Premium",
+              onPress: () => navigation.navigate("Premium"),
+            },
+          ],
+        );
       } else {
         Alert.alert(
           t("addGoal.error"),

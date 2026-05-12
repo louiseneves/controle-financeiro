@@ -1,14 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from "react";
 import {
   View,
   TextInput,
   Text,
   StyleSheet,
   TouchableOpacity,
-} from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Feather from '@expo/vector-icons/Feather';
+} from "react-native";
+import { useTheme } from "../../context/ThemeContext";
+import Feather from "@expo/vector-icons/Feather";
+import useSettingsStore from "../../store/settingsStore";
+import {
+  formatDateInput,
+  formattedDateToISO,
+  getDisplayDate,
+} from "../../utils/helpers/formatters";
 
 const Input = ({
   label,
@@ -19,13 +24,45 @@ const Input = ({
   keyboardType,
   error,
   leftIcon,
+
+  // 🔥 NOVO
+  type = "text",
+  onChangeDate,
+
   ...props
 }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
+  const language = useSettingsStore((state) => state.language);
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [displayValue, setDisplayValue] = useState("");
+
   const isPassword = secureTextEntry;
+  const isDate = type === "date";
+
+  /* ==================== DATE SYNC ==================== */
+
+  useEffect(() => {
+    if (isDate) {
+      setDisplayValue(getDisplayDate(value, language));
+    }
+  }, [value, language, isDate]);
+
+  const handleChange = (text) => {
+    if (isDate) {
+      const formatted = formatDateInput(text, language);
+      setDisplayValue(formatted);
+
+      const iso = formattedDateToISO(formatted, language);
+
+      onChangeDate?.(iso);
+      return;
+    }
+
+    onChangeText?.(text);
+  };
 
   return (
     <View style={styles.container}>
@@ -44,22 +81,22 @@ const Input = ({
 
         <TextInput
           style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
+          value={isDate ? displayValue : value}
+          onChangeText={handleChange}
           placeholder={placeholder}
           placeholderTextColor={colors.placeholder}
           secureTextEntry={isPassword && !isPasswordVisible}
-          keyboardType={keyboardType}
+          keyboardType={isDate ? "numeric" : keyboardType}
           {...props}
         />
 
         {isPassword && (
           <TouchableOpacity
-            onPress={() => setIsPasswordVisible(prev => !prev)}
+            onPress={() => setIsPasswordVisible((prev) => !prev)}
             style={styles.iconContainer}
           >
             <Feather
-              name={isPasswordVisible ? 'eye-off' : 'eye'}
+              name={isPasswordVisible ? "eye-off" : "eye"}
               size={22}
               color={colors.textSecondary}
             />
@@ -72,20 +109,20 @@ const Input = ({
   );
 };
 
-const createStyles = colors =>
+const createStyles = (colors) =>
   StyleSheet.create({
     container: {
       marginBottom: 16,
     },
     label: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
       marginBottom: 8,
       color: colors.text,
     },
     inputWrapper: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       borderWidth: 1,
       borderRadius: 12,
       height: 50,
@@ -107,4 +144,3 @@ const createStyles = colors =>
   });
 
 export default Input;
-

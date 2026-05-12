@@ -9,7 +9,11 @@ import {
   Dimensions,
 } from "react-native";
 import { t } from "../../i18n";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import {
+  MaterialIcons,
+  Feather,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 

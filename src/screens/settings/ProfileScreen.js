@@ -12,18 +12,27 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
 import { Button } from "../../components/ui";
 import { COLORS, getInitials } from "../../utils";
+
 import useAuthStore from "../../store/authStore";
+import usePremiumStore from "../../store/premiumStore";
+
 import { t } from "../../i18n";
 
 const ProfileScreen = ({ navigation }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { user, logout } = useAuthStore();
+
+  // ✅ PREMIUM
+  const { isPremium } = usePremiumStore();
 
   const handleEditProfile = () => {
     navigation.navigate("EditProfile");
@@ -34,12 +43,16 @@ const ProfileScreen = ({ navigation }) => {
       t("profile.alerts.logoutTitle"),
       t("profile.alerts.logoutMessage"),
       [
-        { text: t("profile.alerts.cancel"), style: "cancel" },
+        {
+          text: t("profile.alerts.cancel"),
+          style: "cancel",
+        },
         {
           text: t("profile.alerts.confirm"),
           style: "destructive",
           onPress: async () => {
             const result = await logout();
+
             if (result.success) {
               console.log("Logout realizado");
             }
@@ -49,7 +62,6 @@ const ProfileScreen = ({ navigation }) => {
     );
   };
 
-  // Opções do menu
   const menuOptions = [
     {
       id: "edit",
@@ -93,13 +105,16 @@ const ProfileScreen = ({ navigation }) => {
       icon: <MaterialIcons name="backup" size={24} color={colors.text} />,
       onPress: () => navigation.navigate("Backup"),
     },
+
+    // ✅ PREMIUM
     {
       id: "premium",
-      title: t("profile.menu.premium"),
+      title: isPremium ? "Premium Ativo" : t("profile.menu.premium"),
       icon: <MaterialIcons name="star" size={24} color="#FFD700" />,
       onPress: () => navigation.navigate("Premium"),
       highlight: true,
     },
+
     {
       id: "support",
       title: t("profile.menu.support"),
@@ -110,7 +125,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Header com Avatar */}
+      {/* HEADER */}
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
           {user?.photoURL ? (
@@ -122,6 +137,7 @@ const ProfileScreen = ({ navigation }) => {
               </Text>
             </View>
           )}
+
           <TouchableOpacity
             style={styles.editAvatarButton}
             onPress={() => console.log("Editar foto")}
@@ -135,10 +151,29 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.userName}>
           {user?.displayName || t("profile.header.defaultUser")}
         </Text>
+
         <Text style={styles.userEmail}>{user?.email}</Text>
+
+        {/* ✅ STATUS DA CONTA */}
+        <View
+          style={[
+            styles.accountBadge,
+            isPremium ? styles.premiumBadge : styles.freeBadge,
+          ]}
+        >
+          <MaterialIcons
+            name={isPremium ? "workspace-premium" : "person-outline"}
+            size={18}
+            color={colors.card}
+          />
+
+          <Text style={styles.accountBadgeText}>
+            {isPremium ? "PREMIUM" : "GRATUITO"}
+          </Text>
+        </View>
       </View>
 
-      {/* Informações do usuário */}
+      {/* INFO */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
           {t("profile.accountInfo.title")}
@@ -149,6 +184,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.infoLabel}>
               {t("profile.accountInfo.name")}
             </Text>
+
             <Text style={styles.infoValue}>
               {user?.displayName || t("profile.accountInfo.notInformed")}
             </Text>
@@ -160,6 +196,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.infoLabel}>
               {t("profile.accountInfo.email")}
             </Text>
+
             <Text style={styles.infoValue}>{user?.email}</Text>
           </View>
 
@@ -169,6 +206,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.infoLabel}>
               {t("profile.accountInfo.userId")}
             </Text>
+
             <Text style={styles.infoValue} numberOfLines={1}>
               {user?.uid}
             </Text>
@@ -176,7 +214,7 @@ const ProfileScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Menu de opções */}
+      {/* MENU */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t("profile.menu.title")}</Text>
 
@@ -191,6 +229,7 @@ const ProfileScreen = ({ navigation }) => {
             onPress={option.onPress}
           >
             <Text style={styles.menuIcon}>{option.icon}</Text>
+
             <Text
               style={[
                 styles.menuTitle,
@@ -199,12 +238,13 @@ const ProfileScreen = ({ navigation }) => {
             >
               {option.title}
             </Text>
+
             <Text style={styles.menuArrow}>›</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Botão Sair */}
+      {/* LOGOUT */}
       <Button
         title={t("profile.actions.logout")}
         onPress={handleLogout}
@@ -212,9 +252,11 @@ const ProfileScreen = ({ navigation }) => {
         style={styles.logoutButton}
       />
 
-      {/* Versão do app */}
+      {/* VERSION */}
       <Text style={styles.versionText}>
-        {t("profile.version", { version: "1.0.0" })}
+        {t("profile.version", {
+          version: "1.0.0",
+        })}
       </Text>
     </ScrollView>
   );
@@ -226,18 +268,22 @@ const createStyles = (colors) =>
       flex: 1,
       backgroundColor: colors.background,
     },
+
     content: {
       padding: 20,
       paddingBottom: 40,
     },
+
     header: {
       alignItems: "center",
       marginBottom: 32,
     },
+
     avatarContainer: {
       position: "relative",
       marginBottom: 16,
     },
+
     avatarPlaceholder: {
       width: 100,
       height: 100,
@@ -246,11 +292,13 @@ const createStyles = (colors) =>
       justifyContent: "center",
       alignItems: "center",
     },
+
     avatarText: {
       fontSize: 36,
       fontWeight: "bold",
       color: colors.card,
     },
+
     editAvatarButton: {
       position: "absolute",
       bottom: 0,
@@ -262,60 +310,101 @@ const createStyles = (colors) =>
       justifyContent: "center",
       alignItems: "center",
       shadowColor: COLORS.black,
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
       shadowOpacity: 0.2,
       shadowRadius: 4,
       elevation: 4,
     },
+
     editAvatarIcon: {
       fontSize: 18,
     },
+
     userName: {
       fontSize: 24,
       fontWeight: "bold",
       color: colors.text,
       marginBottom: 4,
     },
+
     userEmail: {
       fontSize: 14,
       color: colors.textSecondary,
     },
+
+    accountBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 20,
+    },
+
+    premiumBadge: {
+      backgroundColor: "#FFD700",
+    },
+
+    freeBadge: {
+      backgroundColor: colors.textSecondary,
+    },
+
+    accountBadgeText: {
+      marginLeft: 6,
+      fontSize: 12,
+      fontWeight: "bold",
+      color: colors.card,
+    },
+
     section: {
       marginBottom: 24,
     },
+
     sectionTitle: {
       fontSize: 16,
       fontWeight: "600",
       color: colors.text,
       marginBottom: 12,
     },
+
     infoCard: {
       backgroundColor: colors.card,
       borderRadius: 12,
       padding: 16,
       shadowColor: COLORS.black,
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
       shadowOpacity: 0.1,
       shadowRadius: 4,
       elevation: 3,
     },
+
     infoRow: {
       paddingVertical: 12,
     },
+
     infoLabel: {
       fontSize: 12,
       color: colors.textSecondary,
       marginBottom: 4,
     },
+
     infoValue: {
       fontSize: 16,
       color: colors.text,
       fontWeight: "500",
     },
+
     infoDivider: {
       height: 1,
       backgroundColor: colors.border,
     },
+
     menuItem: {
       flexDirection: "row",
       alignItems: "center",
@@ -324,35 +413,43 @@ const createStyles = (colors) =>
       borderTopWidth: 1,
       borderColor: colors.border,
     },
+
     menuItemHighlight: {
       backgroundColor: colors.warning + "10",
     },
+
     menuItemLast: {
       borderBottomLeftRadius: 12,
       borderBottomRightRadius: 12,
     },
+
     menuIcon: {
       fontSize: 24,
       marginRight: 12,
     },
+
     menuTitle: {
       flex: 1,
       fontSize: 16,
       color: colors.text,
       fontWeight: "500",
     },
+
     menuTitleHighlight: {
       color: colors.warning,
       fontWeight: "600",
     },
+
     menuArrow: {
       fontSize: 24,
       color: colors.textSecondary,
     },
+
     logoutButton: {
       marginTop: 8,
       marginBottom: 24,
     },
+
     versionText: {
       textAlign: "center",
       fontSize: 12,
