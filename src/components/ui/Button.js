@@ -1,18 +1,24 @@
-import React, {useMemo} from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useMemo } from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { useTheme } from "../../context/ThemeContext";
 
 const Button = ({
   title,
   onPress,
-  variant = 'primary', // primary, secondary, success, danger, warning, outline
-  size = 'medium', // small, medium, large
+  variant = "primary", // primary, secondary, success, danger, warning, outline
+  size = "medium", // small, medium, large
   disabled = false,
   loading = false,
   icon,
   fullWidth = false,
   style,
   textStyle,
+  testID,
 }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -26,34 +32,34 @@ const Button = ({
     }
 
     switch (variant) {
-      case 'primary':
+      case "primary":
         return {
           backgroundColor: colors.primary,
-          textColor: '#FFFFFF',
+          textColor: "#FFFFFF",
         };
-      case 'secondary':
+      case "secondary":
         return {
           backgroundColor: colors.secondary,
-          textColor: '#FFFFFF',
+          textColor: "#FFFFFF",
         };
-      case 'success':
+      case "success":
         return {
           backgroundColor: colors.success,
-          textColor: '#FFFFFF',
+          textColor: "#FFFFFF",
         };
-      case 'danger':
+      case "danger":
         return {
           backgroundColor: colors.error,
-          textColor: '#FFFFFF',
+          textColor: "#FFFFFF",
         };
-      case 'warning':
+      case "warning":
         return {
           backgroundColor: colors.warning,
-          textColor: '#FFFFFF',
+          textColor: "#FFFFFF",
         };
-      case 'outline':
+      case "outline":
         return {
-          backgroundColor: 'transparent',
+          backgroundColor: "transparent",
           textColor: colors.primary,
           borderWidth: 2,
           borderColor: colors.primary,
@@ -61,7 +67,7 @@ const Button = ({
       default:
         return {
           backgroundColor: colors.primary,
-          textColor: '#FFFFFF',
+          textColor: "#FFFFFF",
         };
     }
   };
@@ -69,19 +75,19 @@ const Button = ({
   // Definir tamanhos
   const getSizeStyles = () => {
     switch (size) {
-      case 'small':
+      case "small":
         return {
           paddingVertical: 8,
           paddingHorizontal: 16,
           fontSize: 14,
         };
-      case 'large':
+      case "large":
         return {
           paddingVertical: 16,
           paddingHorizontal: 32,
           fontSize: 18,
         };
-      case 'medium':
+      case "medium":
       default:
         return {
           paddingVertical: 12,
@@ -96,6 +102,7 @@ const Button = ({
 
   return (
     <TouchableOpacity
+      testID={testID}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.7}
@@ -107,8 +114,8 @@ const Button = ({
           paddingHorizontal: sizeStyles.paddingHorizontal,
           borderWidth: buttonColors.borderWidth || 0,
           borderColor: buttonColors.borderColor,
-          width: fullWidth ? '100%' : 'auto',
         },
+        fullWidth && { width: "100%" },
         disabled && styles.disabled,
         style,
       ]}
@@ -124,7 +131,7 @@ const Button = ({
               {
                 color: buttonColors.textColor,
                 fontSize: sizeStyles.fontSize,
-                fontWeight: '600',
+                fontWeight: "600",
               },
               textStyle,
             ]}
@@ -139,24 +146,24 @@ const Button = ({
 
 const createStyles = (colors) =>
   StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    gap: 8,
-  },
-  text: {
-    textAlign: 'center',
-  },
-  icon: {
-    fontSize: 18,
-  },
-  disabled: {
-    opacity: 0.5,
-    elevation: 0,
-    shadowOpacity: 0,
-  },
-});
+    button: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: 12,
+      gap: 8,
+    },
+    text: {
+      textAlign: "center",
+    },
+    icon: {
+      fontSize: 18,
+    },
+    disabled: {
+      opacity: 0.5,
+      elevation: 0,
+      shadowOpacity: 0,
+    },
+  });
 
 export default Button;

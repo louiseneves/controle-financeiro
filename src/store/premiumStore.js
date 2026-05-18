@@ -231,26 +231,25 @@ const usePremiumStore = create((set, get) => ({
   },
 
   // ================= ACCESS =================
-  hasAccess: (feature) => {
-    const { isPremium, expirationDate } = get();
+ hasAccess: (feature) => {
+  const { isPremium, expirationDate } = get();
 
-    // ✅ Features gratuitas
-    if (!PREMIUM_FEATURES.includes(feature)) {
-      return true;
-    }
+  if (!PREMIUM_FEATURES.includes(feature)) {
+    return true;
+  }
 
-    // ✅ Não premium
-    if (!isPremium || !expirationDate) {
-      return false;
-    }
+  if (!isPremium || !expirationDate) {
+    return false;
+  }
 
-    // ✅ Verifica expiração em tempo real
-    const now = new Date();
+  const expiration = new Date(expirationDate).getTime();
 
-    const valid = new Date(expirationDate) > now;
+  if (Number.isNaN(expiration)) {
+    return false;
+  }
 
-    return valid;
-  },
+  return expiration > Date.now();
+},
 
   // ================= UTILS =================
   resetPremiumState: () => {

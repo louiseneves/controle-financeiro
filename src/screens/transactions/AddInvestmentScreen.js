@@ -18,7 +18,7 @@ import { Button, Input } from "../../components/ui";
 import { INVESTMENT_CATEGORIES } from "../../utils";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
-import { isoToBR, brToISO } from "../../utils/helpers/formatters";
+import { getLocalDate } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -33,7 +33,7 @@ const AddInvestmentScreen = ({ navigation }) => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [profitability, setProfitability] = useState(""); // Rentabilidade % ao ano
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(getLocalDate());
 
   const [descriptionError, setDescriptionError] = useState("");
   const [amountError, setAmountError] = useState("");
@@ -99,7 +99,7 @@ const AddInvestmentScreen = ({ navigation }) => {
         amount: parseFloat(amount),
         category,
         profitability: profitability ? parseFloat(profitability) : 0,
-        date: parsedDate.toISOString(),
+        date: `${date}T00:00:00.000Z`,
         userId: user.uid,
       };
 
@@ -208,8 +208,9 @@ const AddInvestmentScreen = ({ navigation }) => {
 
           <Input
             label={t("addInvestment.form.date.label")}
-            value={isoToBR(date)}
-            onChangeText={(text) => setDate(brToISO(text))}
+            type="date"
+            value={date}
+            onChangeDate={(iso) => setDate(iso)}
             placeholder={t("addInvestment.form.date.placeholder")}
             leftIcon={
               <MaterialCommunityIcons

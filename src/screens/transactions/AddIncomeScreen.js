@@ -18,10 +18,10 @@ import { Button, Input } from "../../components/ui";
 import { INCOME_CATEGORIES } from "../../utils";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
-import { isoToBR, brToISO } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { getLocalDate } from "../../utils/helpers/formatters";
 
 const AddIncomeScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -33,7 +33,7 @@ const AddIncomeScreen = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(getLocalDate());
   const [isRecurring, setIsRecurring] = useState(false);
 
   const [descriptionError, setDescriptionError] = useState("");
@@ -89,9 +89,7 @@ const AddIncomeScreen = ({ navigation }) => {
     setLoading(true); // ✅ Inicia APENAS se passou na validação
 
     try {
-      const parsedDate = new Date(`${date}T00:00:00`);
-
-      if (isNaN(parsedDate.getTime())) {
+      if (!date) {
         Alert.alert(
           t("addIncome.alerts.error.title"),
           t("addIncome.form.date.invalid"),
@@ -104,7 +102,7 @@ const AddIncomeScreen = ({ navigation }) => {
         description: description.trim(),
         amount: parseFloat(amount),
         category,
-        date: parsedDate.toISOString(),
+        date: `${date}T00:00:00.000Z`,
         isRecurring,
         userId: user.uid,
       };
@@ -213,8 +211,9 @@ const AddIncomeScreen = ({ navigation }) => {
 
           <Input
             label={t("addIncome.form.date.label")}
-            value={isoToBR(date)}
-            onChangeText={(text) => setDate(brToISO(text))}
+            type="date"
+            value={date}
+            onChangeDate={(iso) => setDate(iso)}
             placeholder={t("addIncome.form.date.placeholder")}
             leftIcon={
               <Text style={styles.iconText}>

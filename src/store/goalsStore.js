@@ -13,6 +13,7 @@ import {
 import { auth, COLLECTIONS } from "../services/firebase/config";
 import NotificationService from "../services/notifications/notificationService";
 import useSettingsStore from "./settingsStore";
+import usePremiumStore from "./premiumStore";
 
 const useGoalsStore = create((set, get) => ({
   // ==================== STATE ====================
@@ -53,7 +54,7 @@ const useGoalsStore = create((set, get) => ({
       set({ loading: true, error: null });
 
       // ✅ Verificar limite de metas para usuários free
-      const usePremiumStore = require("./premiumStore").default;
+
       const { isPremium } = usePremiumStore.getState();
       const FREE_GOALS_LIMIT = 3;
 
@@ -67,15 +68,20 @@ const useGoalsStore = create((set, get) => ({
         currentAmount: goalData.currentAmount || 0,
         createdAt: new Date().toISOString(),
       };
-
       const id = await addDocument(COLLECTIONS.GOALS, newGoal);
 
+      if (!id) {
+        return { success: false, error: "NO_ID_RETURNED" };
+      }
+
+      const createdGoal = { id, ...newGoal };
+
       set((state) => ({
-        goals: [{ id, ...newGoal }, ...state.goals],
+        goals: [createdGoal, ...state.goals],
         loading: false,
       }));
 
-      return { success: true };
+      return { success: true, goal: createdGoal };
     } catch (error) {
       console.error("Erro ao adicionar meta:", error);
       set({ error: error.message, loading: false });
@@ -89,7 +95,11 @@ const useGoalsStore = create((set, get) => ({
       set({ loading: true, error: null });
 
       await updateDocument(COLLECTIONS.GOALS, id, data);
+      const exists = get().goals.find((g) => g.id === id);
 
+      if (!exists) {
+        return { success: false, error: "NOT_FOUND" };
+      }
       set((state) => ({
         goals: state.goals.map((g) => (g.id === id ? { ...g, ...data } : g)),
         loading: false,
@@ -98,8 +108,8 @@ const useGoalsStore = create((set, get) => ({
       return { success: true };
     } catch (error) {
       console.error("Erro ao atualizar meta:", error);
-      set({ error: error.message, loading: false });
-      return { success: false };
+      set({ loading: false, error: error.message });
+      return { success: false, error: error.message };
     }
   },
 
@@ -154,7 +164,11 @@ const useGoalsStore = create((set, get) => ({
       set({ loading: true, error: null });
 
       await deleteDocument(COLLECTIONS.GOALS, id);
+      const exists = get().goals.find((g) => g.id === id);
 
+      if (!exists) {
+        return { success: false, error: "NOT_FOUND" };
+      }
       set((state) => ({
         goals: state.goals.filter((g) => g.id !== id),
         loading: false,
@@ -163,8 +177,8 @@ const useGoalsStore = create((set, get) => ({
       return { success: true };
     } catch (error) {
       console.error("Erro ao deletar meta:", error);
-      set({ error: error.message, loading: false });
-      return { success: false };
+      set({ loading: false, error: error.message });
+      return { success: false, error: error.message };
     }
   },
 

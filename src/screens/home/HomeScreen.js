@@ -94,7 +94,7 @@ const HomeScreen = ({ navigation }) => {
   const handleTransactionPress = (transaction) => {
     navigation.navigate("TransactionsTab", {
       screen: "TransactionDetail",
-      params: { transaction },
+      params: { transaction, returnTo: "HomeTab" },
     });
   };
 

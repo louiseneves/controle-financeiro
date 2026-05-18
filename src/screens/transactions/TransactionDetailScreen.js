@@ -27,7 +27,7 @@ import {
 
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
-import { isoToBR, brToISO } from "../../utils/helpers/formatters";
+
 import { t } from "../../i18n";
 
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
@@ -38,7 +38,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
-  const { transaction } = route.params || {};
+  const { transaction, returnTo } = route.params || {};
 
   const user = useAuthStore((state) => state.user);
   const currentUserId = user?.uid;
@@ -67,13 +67,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
 
   const [category, setCategory] = useState(transaction.category);
 
-  const [date, setDate] = useState(() => {
-    if (transaction.date) {
-      return transaction.date.split("T")[0];
-    }
+  const initialDateISO = transaction.date
+    ? transaction.date.substring(0, 10)
+    : "";
 
-    return new Date().toISOString().split("T")[0];
-  });
+  const [date, setDate] = useState(initialDateISO);
 
   const [isRecurring, setIsRecurring] = useState(
     transaction.isRecurring || false,
@@ -176,6 +174,20 @@ const TransactionDetailScreen = ({ navigation, route }) => {
     return isValid;
   };
 
+  // Função de retorno reutilizável:
+  const handleGoBack = () => {
+    if (returnTo === "HomeTab") {
+      navigation.getParent()?.navigate("HomeTab");
+    } else if (returnTo === "ReportsTab") {
+      navigation.getParent()?.navigate("ReportsTab", {
+        screen: "History",
+      });
+    } else {
+      // padrão: volta para lista de transações
+      navigation.navigate("TransactionsList");
+    }
+  };
+
   /* ==================== SAVE ==================== */
 
   const handleSave = async () => {
@@ -188,7 +200,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
         description: description.trim(),
         amount: parseFloat(amount),
         category,
-        date: `${date}T12:00:00`,
+        date: `${date}T00:00:00.000Z`,
         isRecurring,
       };
 
@@ -209,7 +221,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
               text: "OK",
               onPress: () => {
                 setIsEditing(false);
-                navigation.goBack();
+                handleGoBack();
               },
             },
           ],
@@ -266,7 +278,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
                   [
                     {
                       text: "OK",
-                      onPress: () => navigation.goBack(),
+                      onPress: () => handleGoBack(),
                     },
                   ],
                 );
@@ -355,8 +367,9 @@ const TransactionDetailScreen = ({ navigation, route }) => {
 
             <Input
               label={t("transactionDetail.dateLabel")}
-              value={isoToBR(date)}
-              onChangeText={(text) => setDate(brToISO(text))}
+              type="date"
+              value={date}
+              onChangeDate={(iso) => setDate(iso)}
               placeholder={t("transactionDetail.placeholders.date")}
               leftIcon={
                 <MaterialCommunityIcons
@@ -457,7 +470,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
 
                 <View style={styles.checkboxContent}>
                   <Text style={styles.checkboxLabel}>
-                    {t("transactionDetail.recurringLabel")}
+                    {transaction.type === "receita"
+                      ? t("transactionDetail.recurringIncome") ||
+                        "Receita recorrente"
+                      : t("transactionDetail.recurringExpense") ||
+                        "Despesa recorrente"}
                   </Text>
 
                   <Text style={styles.checkboxDescription}>
@@ -489,7 +506,7 @@ const TransactionDetailScreen = ({ navigation, route }) => {
 
                   setCategory(transaction.category);
 
-                  setDate(transaction.date.split("T")[0]);
+                  setDate(initialDateISO);
 
                   setIsRecurring(transaction.isRecurring || false);
 
@@ -569,7 +586,11 @@ const TransactionDetailScreen = ({ navigation, route }) => {
 
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>
-                      {t("transactionDetail.recurringLabel")}
+                      {transaction.type === "receita"
+                        ? t("transactionDetail.recurringIncome") ||
+                          "Receita recorrente"
+                        : t("transactionDetail.recurringExpense") ||
+                          "Despesa recorrente"}
                     </Text>
 
                     <Text style={styles.detailValue}>

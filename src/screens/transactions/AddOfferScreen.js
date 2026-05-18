@@ -18,10 +18,10 @@ import { Button, Input } from "../../components/ui";
 import { OFFER_CATEGORIES } from "../../utils";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
-import { brToISO, isoToBR } from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { getLocalDate } from "../../utils/helpers/formatters";
 
 const AddOfferScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -33,7 +33,7 @@ const AddOfferScreen = ({ navigation }) => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [churchName, setChurchName] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(getLocalDate());
 
   const [descriptionError, setDescriptionError] = useState("");
   const [amountError, setAmountError] = useState("");
@@ -82,9 +82,6 @@ const AddOfferScreen = ({ navigation }) => {
     try {
       setLoading(true);
 
-      // Conversão segura da data
-      const parsedDate = new Date(`${date}T00:00:00`);
-
       if (isNaN(parsedDate.getTime())) {
         Alert.alert(
           t("addOffer.alerts.error.title"),
@@ -99,7 +96,7 @@ const AddOfferScreen = ({ navigation }) => {
         amount: parseFloat(amount),
         category,
         churchName: churchName.trim() || null,
-        date: parsedDate.toISOString(),
+        date: `${date}T00:00:00.000Z`,
         userId: user.uid,
       };
 
@@ -210,8 +207,9 @@ const AddOfferScreen = ({ navigation }) => {
 
           <Input
             label={t("addOffer.form.date.label")}
-            value={isoToBR(date)}
-            onChangeText={(text) => setDate(brToISO(text))}
+            type="date"
+            value={date}
+            onChangeDate={(iso) => setDate(iso)}
             placeholder={t("addOffer.form.date.placeholder")}
             leftIcon={
               <Text style={styles.iconText}>
