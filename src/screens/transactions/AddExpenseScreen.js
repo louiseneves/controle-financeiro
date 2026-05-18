@@ -22,9 +22,8 @@ import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
 
-import { toISODate, formatDateDisplay } from "../../utils";
 import { t } from "../../i18n";
-
+import { getLocalDate } from "../../utils/helpers/formatters";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -42,7 +41,7 @@ const AddExpenseScreen = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
-  const [date, setDate] = useState(""); // 👈 agora simples (string livre)
+  const [date, setDate] = useState(getLocalDate()); // 👈 agora simples (string livre)
   const [isRecurring, setIsRecurring] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -99,7 +98,7 @@ const AddExpenseScreen = ({ navigation }) => {
     try {
       setLoading(true);
 
-      const isoDate = toISODate(date);
+      const isoDate = date;
 
       if (!isoDate) {
         Alert.alert(
@@ -192,8 +191,8 @@ const AddExpenseScreen = ({ navigation }) => {
             label={t("addExpense.form.date.label")}
             type="date" // 👈 MAGIA AQUI
             value={date}
-            onChangeText={setDate}
-            placeholder="DD/MM/AAAA"
+            onChangeDate={setDate}
+            placeholder={t("addExpense.form.date.placeholder")}
             leftIcon={
               <MaterialCommunityIcons
                 name="calendar"

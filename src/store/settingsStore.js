@@ -420,7 +420,9 @@ const useSettingsStore = create((set, get) => ({
 
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(converted);
+      })
+        .format(converted)
+        .replace(/\u00A0/g, " ");
     } catch {
       return `${currency} ${converted.toFixed(2)}`;
     }
@@ -433,134 +435,138 @@ const useSettingsStore = create((set, get) => ({
   getTheme: () => {
     const darkMode = get().darkMode;
 
+    const colors = darkMode
+      ? {
+          // =========================
+          // DARK MODE
+          // =========================
+
+          primary: "#3B82F6",
+          primaryDark: "#2563EB",
+          primaryLight: "#60A5FA",
+
+          secondary: "#8B5CF6",
+
+          success: "#10B981",
+
+          error: "#EF4444",
+
+          warning: "#F59E0B",
+
+          info: "#3B82F6",
+
+          income: "#10B981",
+
+          expense: "#EF4444",
+
+          investment: "#8B5CF6",
+
+          offer: "#F59E0B",
+
+          tithe: "#6366F1",
+
+          background: "#0F172A",
+
+          backgroundSecondary: "#1E293B",
+
+          card: "#1E293B",
+
+          surface: "#334155",
+
+          text: "#F1F5F9",
+
+          textSecondary: "#CBD5E1",
+
+          textTertiary: "#94A3B8",
+
+          border: "#334155",
+
+          borderLight: "#475569",
+
+          overlay: "rgba(0,0,0,0.7)",
+
+          disabled: "#475569",
+
+          placeholder: "#64748B",
+
+          inputBackground: "#1E293B",
+
+          inputBorder: "#334155",
+
+          buttonDisabled: "#475569",
+
+          shadow: "rgba(0,0,0,0.5)",
+        }
+      : {
+          // =========================
+          // LIGHT MODE
+          // =========================
+
+          primary: "#2563EB",
+
+          primaryDark: "#1E40AF",
+
+          primaryLight: "#60A5FA",
+
+          secondary: "#8B5CF6",
+
+          success: "#10B981",
+
+          error: "#EF4444",
+
+          warning: "#F59E0B",
+
+          info: "#3B82F6",
+
+          income: "#10B981",
+
+          expense: "#EF4444",
+
+          investment: "#8B5CF6",
+
+          offer: "#F59E0B",
+
+          tithe: "#6366F1",
+
+          background: "#F8FAFC",
+
+          backgroundSecondary: "#F1F5F9",
+
+          card: "#FFFFFF",
+
+          surface: "#F1F5F9",
+
+          text: "#0F172A",
+
+          textSecondary: "#475569",
+
+          textTertiary: "#64748B",
+
+          border: "#E2E8F0",
+
+          borderLight: "#F1F5F9",
+
+          overlay: "rgba(0,0,0,0.5)",
+
+          disabled: "#CBD5E1",
+
+          placeholder: "#94A3B8",
+
+          inputBackground: "#FFFFFF",
+
+          inputBorder: "#E2E8F0",
+
+          buttonDisabled: "#CBD5E1",
+
+          shadow: "rgba(0,0,0,0.1)",
+        };
     return {
       dark: darkMode,
 
-      colors: darkMode
-        ? {
-            // =========================
-            // DARK MODE
-            // =========================
+      colors,
 
-            primary: "#3B82F6",
-            primaryDark: "#2563EB",
-            primaryLight: "#60A5FA",
-
-            secondary: "#8B5CF6",
-
-            success: "#10B981",
-
-            error: "#EF4444",
-
-            warning: "#F59E0B",
-
-            info: "#3B82F6",
-
-            income: "#10B981",
-
-            expense: "#EF4444",
-
-            investment: "#8B5CF6",
-
-            offer: "#F59E0B",
-
-            tithe: "#6366F1",
-
-            background: "#0F172A",
-
-            backgroundSecondary: "#1E293B",
-
-            card: "#1E293B",
-
-            surface: "#334155",
-
-            text: "#F1F5F9",
-
-            textSecondary: "#CBD5E1",
-
-            textTertiary: "#94A3B8",
-
-            border: "#334155",
-
-            borderLight: "#475569",
-
-            overlay: "rgba(0,0,0,0.7)",
-
-            disabled: "#475569",
-
-            placeholder: "#64748B",
-
-            inputBackground: "#1E293B",
-
-            inputBorder: "#334155",
-
-            buttonDisabled: "#475569",
-
-            shadow: "rgba(0,0,0,0.5)",
-          }
-        : {
-            // =========================
-            // LIGHT MODE
-            // =========================
-
-            primary: "#2563EB",
-
-            primaryDark: "#1E40AF",
-
-            primaryLight: "#60A5FA",
-
-            secondary: "#8B5CF6",
-
-            success: "#10B981",
-
-            error: "#EF4444",
-
-            warning: "#F59E0B",
-
-            info: "#3B82F6",
-
-            income: "#10B981",
-
-            expense: "#EF4444",
-
-            investment: "#8B5CF6",
-
-            offer: "#F59E0B",
-
-            tithe: "#6366F1",
-
-            background: "#F8FAFC",
-
-            backgroundSecondary: "#F1F5F9",
-
-            card: "#FFFFFF",
-
-            surface: "#F1F5F9",
-
-            text: "#0F172A",
-
-            textSecondary: "#475569",
-
-            textTertiary: "#64748B",
-
-            border: "#E2E8F0",
-
-            borderLight: "#F1F5F9",
-
-            overlay: "rgba(0,0,0,0.5)",
-
-            disabled: "#CBD5E1",
-
-            placeholder: "#94A3B8",
-
-            inputBackground: "#FFFFFF",
-
-            inputBorder: "#E2E8F0",
-
-            buttonDisabled: "#CBD5E1",
-
-            shadow: "rgba(0,0,0,0.1)",
-          },
+      // compatibilidade com testes antigos
+      ...colors,
     };
   },
 }));

@@ -255,7 +255,9 @@ export const formatCurrency = (value) => {
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(num);
+    })
+      .format(num)
+      .replace(/\u00A0/g, " ");
   } catch {
     return `R$ ${num.toFixed(2).replace(".", ",")}`;
   }
@@ -610,7 +612,23 @@ export const parseLocalDate = (date) => {
   }
   return new Date(date);
 };
+export const isoToBR = (isoDate) => {
+  if (!isoDate) return "";
 
+  const [year, month, day] = isoDate.split("-");
+  if (!year || !month || !day) return "";
+
+  return `${day}/${month}/${year}`;
+};
+
+export const brToISO = (brDate) => {
+  if (!brDate) return "";
+
+  const [day, month, year] = brDate.split("/");
+  if (!day || !month || !year) return "";
+
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+};
 /* ==================== EXPORT ==================== */
 
 export default {
@@ -643,4 +661,6 @@ export default {
   getDisplayDate,
   toSafeISOString,
   parseLocalDate,
+  isoToBR,
+  brToISO,
 };

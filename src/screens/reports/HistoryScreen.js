@@ -374,7 +374,7 @@ const HistoryScreen = ({ navigation }) => {
               onPress={() =>
                 navigation.navigate("TransactionsTab", {
                   screen: "TransactionDetail",
-                  params: { transaction },
+                  params: { transaction, returnTo: "ReportsTab" },
                 })
               }
             />

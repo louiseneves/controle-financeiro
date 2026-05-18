@@ -92,6 +92,7 @@ const Input = ({
 
         {isPassword && (
           <TouchableOpacity
+            testID="toggle-password"
             onPress={() => setIsPasswordVisible((prev) => !prev)}
             style={styles.iconContainer}
           >

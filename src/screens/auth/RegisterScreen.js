@@ -38,6 +38,7 @@ const RegisterScreen = ({ navigation }) => {
   // ✅ CORRETO: selectors do Zustand
   const register = useAuthStore((state) => state.register);
   const loading = useAuthStore((state) => state.loading);
+  const [generalError, setGeneralError] = useState("");
 
   // Validar email
   const validateEmail = (email) => {
@@ -47,57 +48,106 @@ const RegisterScreen = ({ navigation }) => {
 
   // Validar campos
   const validateFields = () => {
-    let isValid = true;
-
+    setGeneralError("");
     setNameError("");
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
 
-    if (!name) {
-      setNameError(t("register.errors.nameRequired"));
-      isValid = false;
-    } else if (name.length < 3) {
-      setNameError(t("register.errors.nameMin"));
+    if (!name || !email || !password || !confirmPassword) {
+      setGeneralError("Preencha todos os campos");
+      return false;
+    }
+
+    let isValid = true;
+
+    if (!validateEmail(email)) {
+      setEmailError("email inválido");
       isValid = false;
     }
 
-    if (!email) {
-      setEmailError(t("register.errors.emailRequired"));
-      isValid = false;
-    } else if (!validateEmail(email)) {
-      setEmailError(t("register.errors.emailInvalid"));
+    if (password.length < 6) {
+      setPasswordError("senha inválida");
       isValid = false;
     }
 
-    if (!password) {
-      setPasswordError(t("register.errors.passwordRequired"));
-      isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError(t("register.errors.passwordMin"));
-      isValid = false;
-    }
-
-    if (!confirmPassword) {
-      setConfirmPasswordError(t("register.errors.confirmPasswordRequired"));
-      isValid = false;
-    } else if (password !== confirmPassword) {
-      setConfirmPasswordError(t("register.errors.passwordMismatch"));
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("senhas não coincidem");
       isValid = false;
     }
 
     return isValid;
   };
+  //   const validateFields = () => {
+  //     let isValid = true;
+  //     setGeneralError("");
+  //     setNameError("");
+  //     setEmailError("");
+  //     setPasswordError("");
+  //     setConfirmPasswordError("");
+
+  //     if (!name || !email || !password || !confirmPassword) {
+  //   setGeneralError("Preencha todos os campos");
+  //   return false;
+  // }
+
+  // if (!validateEmail(email)) {
+  //   setEmailError("email inválido");
+  //   isValid = false;
+  // }
+
+  // if (password !== confirmPassword) {
+  //   setConfirmPasswordError("senhas não coincidem");
+  //   isValid = false;
+  // }
+
+  //     if (!name) {
+  //       setNameError(t("register.errors.nameRequired"));
+  //       isValid = false;
+  //     } else if (name.length < 3) {
+  //       setNameError(t("register.errors.nameMin"));
+  //       isValid = false;
+  //     }
+
+  //     if (!email) {
+  //       setEmailError(t("register.errors.emailRequired"));
+  //       isValid = false;
+  //     } else if (!validateEmail(email)) {
+  //       setEmailError(t("register.errors.emailInvalid"));
+  //       isValid = false;
+  //     }
+
+  //     if (!password) {
+  //       setPasswordError(t("register.errors.passwordRequired"));
+  //       isValid = false;
+  //     } else if (password.length < 6) {
+  //       setPasswordError(t("register.errors.passwordMin"));
+  //       isValid = false;
+  //     }
+
+  //     if (!confirmPassword) {
+  //       setConfirmPasswordError(t("register.errors.confirmPasswordRequired"));
+  //       isValid = false;
+  //     } else if (password !== confirmPassword) {
+  //       setConfirmPasswordError(t("register.errors.passwordMismatch"));
+  //       isValid = false;
+  //     }
+
+  //     return isValid;
+  //   };
 
   // Fazer cadastro
   const handleRegister = async () => {
-    if (!validateFields()) return;
+    if (!validateFields()) {
+      return;
+    }
 
     const result = await register(email, password, name);
 
     if (result.success) {
       Alert.alert(t("register.successTitle"), t("register.successMessage"));
     } else {
+      setGeneralError(result?.error || "Erro ao fazer login");
       Alert.alert(
         t("register.errorTitle"),
         result.error || t("register.errorGeneric"),
@@ -189,7 +239,11 @@ const RegisterScreen = ({ navigation }) => {
             }
           />
 
+          {generalError ? (
+            <Text style={styles.errorText}>{generalError}</Text>
+          ) : null}
           <Button
+            testID="register-button"
             title={t("register.button")}
             onPress={handleRegister}
             loading={loading}

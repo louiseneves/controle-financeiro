@@ -31,6 +31,7 @@ const LoginScreen = ({ navigation }) => {
   // ✅ CORRETO: selectors do Zustand
   const login = useAuthStore((state) => state.login);
   const loading = useAuthStore((state) => state.loading);
+  const [generalError, setGeneralError] = useState("");
 
   // Validar email
   const validateEmail = (email) => {
@@ -66,6 +67,10 @@ const LoginScreen = ({ navigation }) => {
 
   // Fazer login
   const handleLogin = async () => {
+    // valida antes
+    if (!validateFields()) {
+      return;
+    }
     try {
       const result = await login(email, password); // ← Store faz tudo agora
 
@@ -77,12 +82,14 @@ const LoginScreen = ({ navigation }) => {
           { cancelable: false },
         );
       } else {
+        setGeneralError(result?.error || "Erro ao fazer login");
         Alert.alert(
           t("login.alerts.errorTitle"),
           result?.error || t("login.alerts.loginError"),
         );
       }
     } catch (error) {
+      setGeneralError(error?.message || "Erro ao fazer login");
       Alert.alert(
         t("login.alerts.errorTitle"),
         t("login.alerts.unexpectedError"),
@@ -156,6 +163,9 @@ const LoginScreen = ({ navigation }) => {
               {t("login.forgotPassword")}
             </Text>
           </TouchableOpacity>
+          {generalError ? (
+            <Text style={styles.errorText}>{generalError}</Text>
+          ) : null}
 
           <Button
             title={t("login.loginButton")}

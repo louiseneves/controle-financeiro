@@ -17,8 +17,8 @@ import {
   limit,
   serverTimestamp,
   onSnapshot,
-} from 'firebase/firestore';
-import {db, COLLECTIONS} from './config';
+} from "firebase/firestore";
+import { db, COLLECTIONS } from "./config";
 
 /**
  * Adicionar documento
@@ -57,7 +57,7 @@ export const getDocument = async (collectionName, docId) => {
 
     if (docSnap.exists()) {
       console.log(`✅ Documento encontrado em ${collectionName}: ${docId}`);
-      return {id: docSnap.id, ...docSnap.data()};
+      return { id: docSnap.id, ...docSnap.data() };
     } else {
       console.log(`⚠️ Documento não encontrado em ${collectionName}: ${docId}`);
       return null;
@@ -91,19 +91,17 @@ export const getDocuments = async (
     // Aplicar filtros
     if (filters) {
       if (Array.isArray(filters)) {
-        filters.forEach(filter => {
+        filters.forEach((filter) => {
           constraints.push(where(filter.field, filter.operator, filter.value));
         });
       } else {
-        constraints.push(
-          where(filters.field, filters.operator, filters.value),
-        );
+        constraints.push(where(filters.field, filters.operator, filters.value));
       }
     }
 
     // Aplicar ordenação
     if (order) {
-      constraints.push(orderBy(order.field, order.direction || 'asc'));
+      constraints.push(orderBy(order.field, order.direction || "asc"));
     }
 
     // Aplicar limite
@@ -116,9 +114,9 @@ export const getDocuments = async (
     }
 
     const snapshot = await getDocs(q);
-    const documents = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
+    const documents = snapshot.docs.map((item) => ({
+      id: item.id,
+      ...item.data(),
     }));
 
     console.log(
@@ -190,14 +188,14 @@ export const listenToDocument = (collectionName, docId, callback) => {
 
   const unsubscribe = onSnapshot(
     docRef,
-    docSnap => {
+    (docSnap) => {
       if (docSnap.exists()) {
-        callback({id: docSnap.id, ...docSnap.data()});
+        callback({ id: docSnap.id, ...docSnap.data() });
       } else {
         callback(null);
       }
     },
-    error => {
+    (error) => {
       console.error(`❌ Erro no listener de ${collectionName}:`, error);
     },
   );
@@ -212,14 +210,18 @@ export const listenToDocument = (collectionName, docId, callback) => {
  * @param {object} filters - Filtros opcionais
  * @returns {function} - Função para cancelar o listener
  */
-export const listenToCollection = (collectionName, callback, filters = null) => {
+export const listenToCollection = (
+  collectionName,
+  callback,
+  filters = null,
+) => {
   const collectionRef = collection(db, collectionName);
   let q = collectionRef;
 
   if (filters) {
     const constraints = [];
     if (Array.isArray(filters)) {
-      filters.forEach(filter => {
+      filters.forEach((filter) => {
         constraints.push(where(filter.field, filter.operator, filter.value));
       });
     } else {
@@ -230,14 +232,14 @@ export const listenToCollection = (collectionName, callback, filters = null) => 
 
   const unsubscribe = onSnapshot(
     q,
-    snapshot => {
-      const documents = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+    (snapshot) => {
+      const documents = snapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data(),
       }));
       callback(documents);
     },
-    error => {
+    (error) => {
       console.error(`❌ Erro no listener de ${collectionName}:`, error);
     },
   );
@@ -250,42 +252,42 @@ export const listenToCollection = (collectionName, callback, filters = null) => 
  * @param {string} userId - ID do usuário
  * @returns {Promise<object>} - Objeto com todos os dados
  */
-export const backupUserData = async userId => {
+export const backupUserData = async (userId) => {
   try {
     const backup = {};
 
     // Buscar todas as transações
     backup.transactions = await getDocuments(COLLECTIONS.TRANSACTIONS, {
-      field: 'userId',
-      operator: '==',
+      field: "userId",
+      operator: "==",
       value: userId,
     });
 
     // Buscar todas as metas
     backup.goals = await getDocuments(COLLECTIONS.GOALS, {
-      field: 'userId',
-      operator: '==',
+      field: "userId",
+      operator: "==",
       value: userId,
     });
 
     // Buscar todos os investimentos
     backup.investments = await getDocuments(COLLECTIONS.INVESTMENTS, {
-      field: 'userId',
-      operator: '==',
+      field: "userId",
+      operator: "==",
       value: userId,
     });
 
     // Buscar todas as ofertas
     backup.offers = await getDocuments(COLLECTIONS.OFFERS, {
-      field: 'userId',
-      operator: '==',
+      field: "userId",
+      operator: "==",
       value: userId,
     });
 
-    console.log('✅ Backup completo realizado');
+    console.log("✅ Backup completo realizado");
     return backup;
   } catch (error) {
-    console.error('❌ Erro ao fazer backup:', error);
+    console.error("❌ Erro ao fazer backup:", error);
     throw error;
   }
 };
