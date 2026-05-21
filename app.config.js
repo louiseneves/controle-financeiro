@@ -49,8 +49,6 @@ export default {
       ],
       "expo-secure-store",
     ],
-
-    // 🔥 AQUI É O PROFISSIONAL
     extra: {
       firebaseApiKey: process.env.FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.FIREBASE_AUTH_DOMAIN,

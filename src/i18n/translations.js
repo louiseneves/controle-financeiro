@@ -645,7 +645,6 @@ export const translations = {
 
       avatar: {
         changePhoto: "Alterar foto",
-        photoInDevelopment: "Funcionalidade em desenvolvimento",
       },
 
       form: {
@@ -669,7 +668,8 @@ export const translations = {
         successMessage: "Perfil atualizado com sucesso!",
         errorTitle: "Erro",
         errorMessage: "Não foi possível atualizar o perfil",
-
+        infoTitle: "Informação",
+        infoMessage: "Funcionalidade em desenvolvimento",
         discardTitle: "Descartar alterações?",
         discardMessage: "Você tem alterações não salvas. Deseja descartá-las?",
         keepEditing: "Continuar editando",
@@ -2368,7 +2368,6 @@ export const translations = {
 
       avatar: {
         changePhoto: "Change photo",
-        photoInDevelopment: "Feature under development",
       },
 
       form: {
@@ -2392,7 +2391,8 @@ export const translations = {
         successMessage: "Profile updated successfully!",
         errorTitle: "Error",
         errorMessage: "Unable to update profile",
-
+        infoTitle: "Information",
+        infoMessage: "Feature under development",
         discardTitle: "Discard changes?",
         discardMessage:
           "You have unsaved changes. Do you want to discard them?",
@@ -4096,7 +4096,6 @@ export const translations = {
 
       avatar: {
         changePhoto: "Cambiar foto",
-        photoInDevelopment: "Funcionalidad en desarrollo",
       },
 
       form: {
@@ -4120,7 +4119,8 @@ export const translations = {
         successMessage: "Perfil actualizado correctamente",
         errorTitle: "Error",
         errorMessage: "No se pudo actualizar el perfil",
-
+        infoTitle: "Información",
+        infoMessage: "Funcionalidad en desarrollo",
         discardTitle: "¿Descartar cambios?",
         discardMessage: "Tienes cambios no guardados. ¿Deseas descartarlos?",
         keepEditing: "Seguir editando",

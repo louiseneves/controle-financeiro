@@ -62,9 +62,14 @@ const maskDate = (value) => {
 };
 
 const isoToBR = (iso) => {
-  if (!iso) return "";
-  const [year, month, day] = iso.split("-");
-  if (!year || !month || !day) return "";
+  if (!iso || typeof iso !== "string") return "";
+
+  const parts = iso.split("-");
+
+  if (parts.length !== 3) return "";
+
+  const [year, month, day] = parts;
+
   return `${day}/${month}/${year}`;
 };
 
