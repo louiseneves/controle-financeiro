@@ -38,7 +38,7 @@ export default {
         "WAKE_LOCK",
       ],
 
-      newArchEnabled: false,
+      newArchEnabled: true,
     },
 
     plugins: [["expo-notifications"], "expo-secure-store"],
