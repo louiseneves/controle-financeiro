@@ -19,12 +19,12 @@ export default {
 
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.seudominio.controlefinanceiro",
+      bundleIdentifier: "com.louiseneves.controlefinanceiro",
       buildNumber: "1",
     },
 
     android: {
-      package: "com.seudominio.controlefinanceiro",
+      package: "com.louiseneves.controlefinanceiro",
       versionCode: 1,
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
@@ -54,5 +54,6 @@ export default {
       },
     },
     jsEngine: "hermes",
+    enableProguardInReleaseBuilds: false,
   },
 };
