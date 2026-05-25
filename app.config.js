@@ -28,7 +28,6 @@ export default {
 
     android: {
       package: "com.louiseneves.controlefinanceiro",
-      versionCode: 1,
 
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
