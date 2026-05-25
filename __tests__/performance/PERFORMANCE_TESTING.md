@@ -3,65 +3,65 @@
 ## 1. TEMPO DE CARREGAMENTO
 
 ### Teste 1.1: Splash Screen
-- [ ] Abrir app (fechado completamente)
-- [ ] Cronometrar do toque até aparecer tela de login
-- **Tempo:** _____ segundos
+- [x] Abrir app (fechado completamente)
+- [x] Cronometrar do toque até aparecer tela de login
+- **Tempo:** 04.39 segundos
 - **Meta:** < 3 segundos
-- **Status:** ✅ / ❌
+- **Status:**  ❌
 
 ### Teste 1.2: Tela de Login
-- [ ] Tempo do splash até login aparecer
-- **Tempo:** _____ segundos
+- [x] Tempo do splash até login aparecer
+- **Tempo:** 03,07 segundos
 - **Meta:** < 1 segundo
-- **Status:** ✅ / ❌
+- **Status:** ❌
 
 ### Teste 1.3: Home após Login
-- [ ] Fazer login
-- [ ] Cronometrar até Home carregar completamente
-- **Tempo:** _____ segundos
+- [x] Fazer login
+- [x] Cronometrar até Home carregar completamente
+- **Tempo:** 04,58 segundos
 - **Meta:** < 2 segundos
-- **Status:** ✅ / ❌
+- **Status:** ❌
 
 ### Teste 1.4: Carregar Histórico (com dados)
-- [ ] Ter pelo menos 50 transações
-- [ ] Ir para Histórico
-- [ ] Cronometrar carregamento
-- **Tempo:** _____ segundos
+- [x] Ter pelo menos 50 transações
+- [x] Ir para Histórico
+- [x] Cronometrar carregamento
+- **Tempo:** 02.96 segundos
 - **Meta:** < 2 segundos
-- **Status:** ✅ / ❌
+- **Status:**  ❌
 
 ### Teste 1.5: Gerar Gráfico
-- [ ] Ir para Relatórios
-- [ ] Cronometrar renderização do gráfico
-- **Tempo:** _____ segundos
+- [x] Ir para Relatórios
+- [x] Cronometrar renderização do gráfico
+- **Tempo:** 00.79 segundos
 - **Meta:** < 2 segundos
-- **Status:** ✅ / ❌
+- **Status:** ✅ 
 
 ---
 
 ## 2. USO DE MEMÓRIA
 
 ### Teste 2.1: Memória em Repouso
-- [ ] Abrir app e deixar na Home por 1 minuto
-- [ ] Ver uso de RAM (Settings → Developer Options → Running Services)
-- **RAM usada:** _____ MB
+- [x] Abrir app e deixar na Home por 1 minuto
+- [x] Ver uso de RAM (Settings → Developer Options → Running Services)
+- **RAM usada:** 324 MB
 - **Meta:** < 200 MB
-- **Status:** ✅ / ❌
+- **Status:**  ❌
 
 ### Teste 2.2: Memória durante Uso
-- [ ] Navegar por várias telas por 5 minutos
-- [ ] Abrir histórico, gráficos, metas, etc
-- **RAM usada:** _____ MB
+- [x] Navegar por várias telas por 5 minutos
+- [x] Abrir histórico, gráficos, metas, etc
+- **RAM usada:** 394 MB
 - **Meta:** < 300 MB
-- **Status:** ✅ / ❌
+- **Status:**  ❌
 
 ### Teste 2.3: Vazamento de Memória
-- [ ] Usar app por 10 minutos intensamente
-- [ ] Anotar RAM no início: _____ MB
-- [ ] Anotar RAM no final: _____ MB
-- [ ] Diferença: _____ MB
+- [x] Usar app por 10 minutos intensamente
+- [x] Anotar RAM no início: 394 MB
+- [x] Anotar RAM no final: 468 MB
+- [x] Diferença: 74 MB
 - **Meta:** Aumento < 100 MB
-- **Status:** ✅ / ❌
+- **Status:** ✅
 
 ---
 

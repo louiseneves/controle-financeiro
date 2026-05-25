@@ -37,18 +37,11 @@ export default {
         "VIBRATE",
         "WAKE_LOCK",
       ],
+
+      newArchEnabled: false,
     },
 
-    plugins: [
-      [
-        "expo-notifications",
-        {
-          icon: "./assets/notification-icon.png",
-          color: "#2563EB",
-        },
-      ],
-      "expo-secure-store",
-    ],
+    plugins: [["expo-notifications"], "expo-secure-store"],
     extra: {
       firebaseApiKey: process.env.FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -56,6 +49,9 @@ export default {
       firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET,
       firebaseMessagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
       firebaseAppId: process.env.FIREBASE_APP_ID,
+      eas: {
+        projectId: "2da0ca7a-0f7c-4b8b-88dc-209995f3ed74",
+      },
     },
   },
 };

@@ -21,7 +21,7 @@ import useTransactionStore from "../../store/transactionStore";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getLocalDate } from "../../utils/helpers/formatters";
+import { getLocalDate, parseISODateOnly } from "../../utils/helpers/formatters";
 
 const AddOfferScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -81,8 +81,8 @@ const AddOfferScreen = ({ navigation }) => {
 
     try {
       setLoading(true);
-
-      if (isNaN(parsedDate.getTime())) {
+      const parsedDate = parseISODateOnly(date);
+      if (!parsedDate || isNaN(parsedDate.getTime())) {
         Alert.alert(
           t("addOffer.alerts.error.title"),
           t("addOffer.form.date.invalid"),

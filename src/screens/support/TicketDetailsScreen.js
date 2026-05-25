@@ -14,6 +14,7 @@ import {
 import useSupportStore from "../../store/supportStore";
 import { t } from "../../i18n";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { formatDate, formatDateTime } from "../../utils/helpers/formatters";
 
 const TicketDetailsScreen = ({ route, navigation }) => {
   const { colors } = useTheme();
@@ -137,28 +138,31 @@ const TicketDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const statusMap = {
-    open: {
-      label: t("ticketDetailsScreen.status.open"),
-      color: colors.success,
-      icon: <MaterialIcons name="circle" size={12} color={colors.success} />,
-    },
-    in_progress: {
-      label: t("ticketDetailsScreen.status.inProgress"),
-      color: colors.warning,
-      icon: <MaterialIcons name="circle" size={12} color={colors.warning} />,
-    },
-    resolved: {
-      label: t("ticketDetailsScreen.status.resolved"),
-      color: colors.primary,
-      icon: <MaterialIcons name="circle" size={12} color={colors.primary} />,
-    },
-    closed: {
-      label: t("ticketDetailsScreen.status.closed"),
-      color: "#9E9E9E",
-      icon: <MaterialIcons name="circle" size={12} color="#9E9E9E" />,
-    },
-  };
+  const statusMap = useMemo(
+    () => ({
+      open: {
+        label: t("ticketDetailsScreen.status.open"),
+        color: colors.success,
+        icon: <MaterialIcons name="circle" size={12} color={colors.success} />,
+      },
+      in_progress: {
+        label: t("ticketDetailsScreen.status.inProgress"),
+        color: colors.warning,
+        icon: <MaterialIcons name="circle" size={12} color={colors.warning} />,
+      },
+      resolved: {
+        label: t("ticketDetailsScreen.status.resolved"),
+        color: colors.primary,
+        icon: <MaterialIcons name="circle" size={12} color={colors.primary} />,
+      },
+      closed: {
+        label: t("ticketDetailsScreen.status.closed"),
+        color: "#9E9E9E",
+        icon: <MaterialIcons name="circle" size={12} color="#9E9E9E" />,
+      },
+    }),
+    [colors, t],
+  );
 
   const statusInfo = statusMap[ticket.status] || statusMap.open;
   const canSendMessage = ticket.status !== "closed";
@@ -193,7 +197,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
               </Text>
             </View>
             <Text style={styles.ticketDate}>
-              {new Date(ticket.createdAt).toLocaleDateString("pt-BR")}
+              {formatDate(ticket.createdAt)}
             </Text>
           </View>
         </View>
@@ -216,7 +220,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
         style={styles.messagesContainer}
         contentContainerStyle={styles.messagesContent}
       >
-        {ticket.messages.map((msg, index) => (
+        {ticket.messages.map((msg) => (
           <View
             key={msg.id}
             style={[
@@ -229,12 +233,7 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             <Text style={styles.messageSender}>{msg.senderName}</Text>
             <Text style={styles.messageText}>{msg.text}</Text>
             <Text style={styles.messageTime}>
-              {new Date(msg.createdAt).toLocaleString("pt-BR", {
-                day: "2-digit",
-                month: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {formatDateTime(msg.createdAt)}
             </Text>
           </View>
         ))}
@@ -308,15 +307,16 @@ const TicketDetailsScreen = ({ route, navigation }) => {
           <View style={styles.ratedContainer}>
             <Text style={styles.ratedText}>
               {t("ticketDetailsScreen.rating.rated")}{" "}
-              {Array(ticket.rating)
-                .fill(
+              <View style={{ flexDirection: "row" }}>
+                {Array.from({ length: ticket.rating }).map((_, index) => (
                   <MaterialIcons
+                    key={index}
                     name="star"
                     size={20}
                     color={colors.warning}
-                  />,
-                )
-                .join("")}
+                  />
+                ))}
+              </View>
             </Text>
             {ticket.ratingFeedback && (
               <Text style={styles.ratedFeedback}>
@@ -446,7 +446,7 @@ const createStyles = (colors) =>
     },
     messageText: {
       fontSize: 14,
-      color: colors.text,
+      color: colors.card,
       lineHeight: 20,
     },
     messageTime: {

@@ -13,6 +13,7 @@ import useSupportStore from "../../store/supportStore";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { t } from "../../i18n";
+import { formatDate } from "../../utils";
 
 const SupportScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -21,7 +22,7 @@ const SupportScreen = ({ navigation }) => {
 
   useEffect(() => {
     loadTickets();
-  }, [loadTickets]);
+  }, []);
 
   const openTickets = tickets.filter(
     (t) => t.status === "open" || t.status === "in_progress",
@@ -30,17 +31,24 @@ const SupportScreen = ({ navigation }) => {
     (t) => t.status === "resolved" || t.status === "closed",
   );
 
-  const handleOpenLink = (url, name) => {
-    Linking.canOpenURL(url).then((supported) => {
+  const handleOpenLink = async (url, name) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+
       if (supported) {
-        Linking.openURL(url);
+        await Linking.openURL(url);
       } else {
         Alert.alert(
           t("supportScreen.contact.errorTitle"),
           t("supportScreen.contact.errorOpenLink", { name }),
         );
       }
-    });
+    } catch (error) {
+      Alert.alert(
+        t("supportScreen.contact.errorTitle"),
+        t("supportScreen.contact.errorOpenLink", { name }),
+      );
+    }
   };
 
   return (
@@ -201,7 +209,7 @@ const SupportScreen = ({ navigation }) => {
                       {ticket.category}
                     </Text>
                     <Text style={styles.ticketDate}>
-                      {new Date(ticket.createdAt).toLocaleDateString("pt-BR")}
+                      {formatDate(ticket.createdAt)}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -256,7 +264,7 @@ const SupportScreen = ({ navigation }) => {
                       {ticket.category}
                     </Text>
                     <Text style={styles.ticketDate}>
-                      {new Date(ticket.createdAt).toLocaleDateString("pt-BR")}
+                      {formatDate(ticket.createdAt)}
                     </Text>
                   </TouchableOpacity>
                 ))}

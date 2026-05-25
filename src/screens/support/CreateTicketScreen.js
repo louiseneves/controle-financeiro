@@ -89,10 +89,10 @@ const CreateTicketScreen = ({ navigation }) => {
     if (!isPremium) {
       const store = useSupportStore.getState();
       if (store.tickets.filter((t) => t.status !== "closed").length >= 3) {
-        Alert.alert(t("premium.limitTitle"), t("premium.supportLimit"), [
-          { text: t("common.ok") },
+        Alert.alert(t("premium.alerts.limitTitle"), t("premium.alerts.supportLimit"), [
+          { text: t("premium.alerts.ok") },
           {
-            text: t("premium.upgrade"),
+            text: t("premium.buttons.upgrade"),
             onPress: () => navigation.navigate("UpgradePremium"),
           },
         ]);
@@ -106,11 +106,6 @@ const CreateTicketScreen = ({ navigation }) => {
     if (result.success) {
       Alert.alert(
         t("supportCreateTicket.alerts.successTitle"),
-        <MaterialCommunityIcons
-          name="checkbox-marked"
-          size={24}
-          color={colors.text}
-        />,
         t("supportCreateTicket.alerts.successMessage"),
         [
           {
