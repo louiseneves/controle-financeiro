@@ -350,7 +350,7 @@ const createStyles = (colors) =>
     },
     categoryButtonActive: {
       backgroundColor: colors.primary,
-      bordercolor: colors.primary,
+      borderColor: colors.primary,
     },
     categoryButtonText: {
       fontSize: 14,
@@ -387,7 +387,7 @@ const createStyles = (colors) =>
       borderRadius: 10,
       marginBottom: 25,
       borderWidth: 1,
-      bordercolor: colors.primary,
+      borderColor: colors.primary,
     },
     tipsTitle: {
       fontSize: 14,

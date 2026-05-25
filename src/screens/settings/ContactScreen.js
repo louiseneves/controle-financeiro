@@ -417,7 +417,7 @@ const createStyles = (colors) =>
     },
     categoryChipActive: {
       backgroundColor: colors.primary,
-      bordercolor: colors.primary,
+      borderColor: colors.primary,
     },
     categoryLabel: {
       fontSize: 13,

@@ -327,7 +327,7 @@ const createStyles = (colors) =>
       marginBottom: 30,
       borderRadius: 10,
       borderWidth: 1,
-      bordercolor: colors.primary,
+      borderColor: colors.primary,
     },
     footerTitle: {
       fontSize: 16,

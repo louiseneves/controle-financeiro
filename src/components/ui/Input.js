@@ -72,8 +72,10 @@ const Input = ({
         style={[
           styles.inputWrapper,
           {
-            backgroundColor: colors.inputBackground,
-            borderColor: error ? colors.error : colors.inputBorder,
+            backgroundColor: colors.inputBackground || "#fff",
+            borderColor: error
+              ? colors.error || "#ff0000"
+              : colors.inputBorder || "#ccc",
           },
         ]}
       >
@@ -135,7 +137,7 @@ const createStyles = (colors) =>
     input: {
       flex: 1,
       fontSize: 16,
-      color: colors.inputText || colors.text,
+      color: colors.inputText || colors.text || "#000",
     },
     error: {
       fontSize: 12,

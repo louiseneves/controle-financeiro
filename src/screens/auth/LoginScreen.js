@@ -216,7 +216,7 @@ const createStyles = (colors) =>
     title2: {
       fontSize: 28,
       fontWeight: "bold",
-      color: colors.secondary /* destaque */ || colors.primary,
+ color: colors.secondary || colors.primary,
     },
     subtitle: {
       fontSize: 16,
@@ -265,6 +265,12 @@ const createStyles = (colors) =>
       color: colors.primary,
       fontWeight: "600",
     },
+    errorText: {
+  color: colors.error || "#ff4444",
+  marginBottom: 16,
+  textAlign: "center",
+  fontSize: 14,
+},
   });
 
 export default LoginScreen;
