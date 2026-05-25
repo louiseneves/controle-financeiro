@@ -5,6 +5,9 @@ export default {
     name: "Controle Financeiro",
     slug: "controle-financeiro",
     version: "1.0.0",
+
+    newArchEnabled: true,
+
     orientation: "portrait",
     icon: "./assets/logo.png",
     userInterfaceStyle: "automatic",
@@ -26,10 +29,12 @@ export default {
     android: {
       package: "com.louiseneves.controlefinanceiro",
       versionCode: 1,
+
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
         backgroundColor: "#2563EB",
       },
+
       permissions: [
         "RECEIVE_BOOT_COMPLETED",
         "SCHEDULE_EXACT_ALARM",
@@ -38,8 +43,6 @@ export default {
         "WAKE_LOCK",
       ],
     },
-
-    newArchEnabled: false,
 
     plugins: [["expo-notifications"], "expo-secure-store"],
 
