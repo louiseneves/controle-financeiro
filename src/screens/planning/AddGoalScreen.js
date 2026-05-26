@@ -23,7 +23,7 @@ import {
   Feather,
   FontAwesome6,
 } from "@expo/vector-icons";
-import { formatCurrency } from "../../utils/formatters";
+import { formatCurrency } from "../../utils/helpers/formatters";
 
 // ✅ CORRIGIDO: ícones como objetos com name/library em vez de JSX
 const ICONS = [
@@ -87,15 +87,12 @@ const AddGoalScreen = ({ navigation }) => {
   const selectedIcon = ICONS.find((i) => i.key === selectedIconKey) || ICONS[0];
 
   const parseCurrency = (value) => {
-  if (!value) return 0;
+    if (!value) return 0;
 
-  return parseFloat(
-    value
-      .replace(/\s/g, "")
-      .replace(/\./g, "")
-      .replace(",", "."),
-  );
-};
+    return parseFloat(
+      value.replace(/\s/g, "").replace(/\./g, "").replace(",", "."),
+    );
+  };
 
   // ✅ Handler de data com máscara automática
   const handleDateChange = (value) => {
@@ -335,9 +332,9 @@ const AddGoalScreen = ({ navigation }) => {
                     {title || t("addGoal.previewDefault")}
                   </Text>
                   <Text style={styles.previewAmount}>
-                   <Text style={styles.previewAmount}>
-  {formatCurrency(parseCurrency(targetAmount))}
-</Text>
+                    <Text style={styles.previewAmount}>
+                      {formatCurrency(parseCurrency(targetAmount))}
+                    </Text>
                   </Text>
                 </View>
               </View>
