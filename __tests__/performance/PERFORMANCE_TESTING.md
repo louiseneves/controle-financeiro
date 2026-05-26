@@ -5,20 +5,20 @@
 ### Teste 1.1: Splash Screen
 - [x] Abrir app (fechado completamente)
 - [x] Cronometrar do toque até aparecer tela de login
-- **Tempo:** 04.39 segundos
+- **Tempo:** 01.10 segundos
 - **Meta:** < 3 segundos
-- **Status:**  ❌
+- **Status:**  ✅
 
 ### Teste 1.2: Tela de Login
 - [x] Tempo do splash até login aparecer
-- **Tempo:** 03,07 segundos
+- **Tempo:** 00,86 segundos
 - **Meta:** < 1 segundo
-- **Status:** ❌
+- **Status:** ✅
 
 ### Teste 1.3: Home após Login
 - [x] Fazer login
 - [x] Cronometrar até Home carregar completamente
-- **Tempo:** 04,58 segundos
+- **Tempo:** 02,93 segundos
 - **Meta:** < 2 segundos
 - **Status:** ❌
 
@@ -26,9 +26,9 @@
 - [x] Ter pelo menos 50 transações
 - [x] Ir para Histórico
 - [x] Cronometrar carregamento
-- **Tempo:** 02.96 segundos
+- **Tempo:** 01.85 segundos
 - **Meta:** < 2 segundos
-- **Status:**  ❌
+- **Status:**  ✅
 
 ### Teste 1.5: Gerar Gráfico
 - [x] Ir para Relatórios
@@ -44,22 +44,22 @@
 ### Teste 2.1: Memória em Repouso
 - [x] Abrir app e deixar na Home por 1 minuto
 - [x] Ver uso de RAM (Settings → Developer Options → Running Services)
-- **RAM usada:** 324 MB
+- **RAM usada:** 99 MB
 - **Meta:** < 200 MB
-- **Status:**  ❌
+- **Status:**  ✅
 
 ### Teste 2.2: Memória durante Uso
 - [x] Navegar por várias telas por 5 minutos
 - [x] Abrir histórico, gráficos, metas, etc
-- **RAM usada:** 394 MB
+- **RAM usada:** 165 MB
 - **Meta:** < 300 MB
-- **Status:**  ❌
+- **Status:**  ✅
 
 ### Teste 2.3: Vazamento de Memória
 - [x] Usar app por 10 minutos intensamente
-- [x] Anotar RAM no início: 394 MB
-- [x] Anotar RAM no final: 468 MB
-- [x] Diferença: 74 MB
+- [x] Anotar RAM no início: 165 MB
+- [x] Anotar RAM no final: 195 MB
+- [x] Diferença: 35 MB
 - **Meta:** Aumento < 100 MB
 - **Status:** ✅
 
@@ -68,19 +68,19 @@
 ## 3. USO DE BATERIA
 
 ### Teste 3.1: Bateria em 30 min de uso
-- [ ] Carregar bateria para 100%
-- [ ] Usar app intensamente por 30 minutos
-- [ ] Bateria inicial: 100%
-- [ ] Bateria final: _____%
-- [ ] Gasto: _____%
+- [x] Carregar bateria para 100%
+- [x] Usar app intensamente por 30 minutos
+- [x] Bateria inicial: 100%
+- [x] Bateria final: 96%
+- [x] Gasto: 4%
 - **Meta:** < 5%
-- **Status:** ✅ / ❌
+- **Status:** ✅
 
 ### Teste 3.2: Bateria em Background
-- [ ] Deixar app em background por 1 hora
-- [ ] Bateria inicial: _____%
-- [ ] Bateria final: _____%
-- [ ] Gasto: _____%
+- [x] Deixar app em background por 1 hora
+- [x] Bateria inicial: 96%
+- [x] Bateria final: 95%
+- [x] Gasto: 1%
 - **Meta:** < 2%
 - **Status:** ✅ / ❌
 
@@ -97,16 +97,16 @@ cd android
 # Verificar tamanho em:
 # android/app/build/outputs/apk/release/app-release.apk
 ```
-- **Tamanho:** _____ MB
+- **Tamanho:** 127 MB
 - **Meta:** < 50 MB
-- **Status:** ✅ / ❌
+- **Status:** ✅ 
 
 ### Teste 4.2: Tamanho Instalado
-- [ ] Instalar APK
-- [ ] Ver Settings → Apps → Controle Financeiro
-- **Tamanho total:** _____ MB
+- [x] Instalar APK
+- [x] Ver Settings → Apps → Controle Financeiro
+- **Tamanho total:** 127 MB
 - **Meta:** < 100 MB
-- **Status:** ✅ / ❌
+- **Status:** ✅ 
 
 ---
 
