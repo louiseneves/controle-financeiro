@@ -40,19 +40,19 @@ const EditProfileScreen = ({ navigation }) => {
   }, [user]);
 
   useEffect(() => {
-    const changed = name !== (user?.displayName || "");
+    const changed = name.trim() !== (user?.displayName || "").trim();
     setHasChanges(changed);
   }, [name, user]);
 
   const validateFields = () => {
     setNameError("");
 
-    if (!name) {
+    if (!name.trim().length) {
       setNameError(t("editProfile.validation.nameRequired"));
       return false;
     }
 
-    if (name.length < 3) {
+    if (name.trim().length < 3) {
       setNameError(t("editProfile.validation.nameMinLength"));
       return false;
     }
@@ -71,24 +71,19 @@ const EditProfileScreen = ({ navigation }) => {
       if (!currentUser) return;
 
       await updateProfile(currentUser, {
-        displayName: name,
+        displayName: name.trim(),
       });
 
       // ✅ atualização direta (ok para apps pequenos)
       useAuthStore.setState((state) => ({
         user: {
           ...state.user,
-          displayName: name,
+          displayName: name.trim(),
         },
       }));
 
       Alert.alert(
         t("editProfile.alerts.successTitle"),
-        <MaterialCommunityIcons
-          name="checkbox-marked"
-          size={24}
-          color={colors.text}
-        />,
         t("editProfile.alerts.successMessage"),
         [
           {

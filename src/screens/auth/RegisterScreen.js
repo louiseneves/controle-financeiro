@@ -47,94 +47,64 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   // Validar campos
-  const validateFields = () => {
-    setGeneralError("");
-    setNameError("");
-    setEmailError("");
-    setPasswordError("");
-    setConfirmPasswordError("");
+ 
+    const validateFields = () => {
+      let isValid = true;
+      setGeneralError("");
+      setNameError("");
+      setEmailError("");
+      setPasswordError("");
+      setConfirmPasswordError("");
 
-    if (!name || !email || !password || !confirmPassword) {
-      setGeneralError("Preencha todos os campos");
-      return false;
-    }
+      if (!name || !email || !password || !confirmPassword) {
+    setGeneralError("Preencha todos os campos");
+    return false;
+  }
 
-    let isValid = true;
+  if (!validateEmail(email)) {
+    setEmailError("email inválido");
+    isValid = false;
+  }
 
-    if (!validateEmail(email)) {
-      setEmailError("email inválido");
-      isValid = false;
-    }
+  if (password !== confirmPassword) {
+    setConfirmPasswordError("senhas não coincidem");
+    isValid = false;
+  }
 
-    if (password.length < 6) {
-      setPasswordError("senha inválida");
-      isValid = false;
-    }
+      if (!name) {
+        setNameError(t("register.errors.nameRequired"));
+        isValid = false;
+      } else if (name.length < 3) {
+        setNameError(t("register.errors.nameMin"));
+        isValid = false;
+      }
 
-    if (password !== confirmPassword) {
-      setConfirmPasswordError("senhas não coincidem");
-      isValid = false;
-    }
+      if (!email) {
+        setEmailError(t("register.errors.emailRequired"));
+        isValid = false;
+      } else if (!validateEmail(email)) {
+        setEmailError(t("register.errors.emailInvalid"));
+        isValid = false;
+      }
 
-    return isValid;
-  };
-  //   const validateFields = () => {
-  //     let isValid = true;
-  //     setGeneralError("");
-  //     setNameError("");
-  //     setEmailError("");
-  //     setPasswordError("");
-  //     setConfirmPasswordError("");
+      if (!password) {
+        setPasswordError(t("register.errors.passwordRequired"));
+        isValid = false;
+      } else if (password.length < 6) {
+        setPasswordError(t("register.errors.passwordMin"));
+        isValid = false;
+      }
 
-  //     if (!name || !email || !password || !confirmPassword) {
-  //   setGeneralError("Preencha todos os campos");
-  //   return false;
-  // }
+      if (!confirmPassword) {
+        setConfirmPasswordError(t("register.errors.confirmPasswordRequired"));
+        isValid = false;
+      } else if (password !== confirmPassword) {
+        setConfirmPasswordError(t("register.errors.passwordMismatch"));
+        isValid = false;
+      }
 
-  // if (!validateEmail(email)) {
-  //   setEmailError("email inválido");
-  //   isValid = false;
-  // }
-
-  // if (password !== confirmPassword) {
-  //   setConfirmPasswordError("senhas não coincidem");
-  //   isValid = false;
-  // }
-
-  //     if (!name) {
-  //       setNameError(t("register.errors.nameRequired"));
-  //       isValid = false;
-  //     } else if (name.length < 3) {
-  //       setNameError(t("register.errors.nameMin"));
-  //       isValid = false;
-  //     }
-
-  //     if (!email) {
-  //       setEmailError(t("register.errors.emailRequired"));
-  //       isValid = false;
-  //     } else if (!validateEmail(email)) {
-  //       setEmailError(t("register.errors.emailInvalid"));
-  //       isValid = false;
-  //     }
-
-  //     if (!password) {
-  //       setPasswordError(t("register.errors.passwordRequired"));
-  //       isValid = false;
-  //     } else if (password.length < 6) {
-  //       setPasswordError(t("register.errors.passwordMin"));
-  //       isValid = false;
-  //     }
-
-  //     if (!confirmPassword) {
-  //       setConfirmPasswordError(t("register.errors.confirmPasswordRequired"));
-  //       isValid = false;
-  //     } else if (password !== confirmPassword) {
-  //       setConfirmPasswordError(t("register.errors.passwordMismatch"));
-  //       isValid = false;
-  //     }
-
-  //     return isValid;
-  //   };
+      return isValid;
+    };
 
   // Fazer cadastro
   const handleRegister = async () => {

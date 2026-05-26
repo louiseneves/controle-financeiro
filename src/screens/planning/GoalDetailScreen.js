@@ -127,6 +127,17 @@ const GoalDetailScreen = ({ navigation, route }) => {
 
   const selectedEditIcon = ICONS.find((i) => i.key === editIconKey) || ICONS[0];
 
+  const parseCurrency = (value) => {
+  if (!value) return 0;
+
+  return parseFloat(
+    value
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .replace(",", "."),
+  );
+};
+
   const getDaysRemaining = () => {
     const today = new Date();
     const deadlineDate = new Date(goal.deadline);
@@ -280,7 +291,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
   };
 
   const handleAddAmount = async () => {
-    const amount = parseFloat(addAmount);
+    const amount = parseCurrency(addAmount);
     if (!amount || amount <= 0) {
       Alert.alert(t("goalDetail.alerts.invalidValue"));
       return;
@@ -323,7 +334,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
 
   // ✅ NOVO: Retirar valor da meta
   const handleWithdraw = async () => {
-    const amount = parseFloat(withdrawAmount);
+    const amount = parseCurrency(withdrawAmount);
 
     setWithdrawError("");
 
@@ -673,7 +684,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
                   title={t("goalDetail.addTitle")}
                   onPress={handleAddAmount}
                   loading={loading}
-                  disabled={!addAmount || parseFloat(addAmount) <= 0}
+                  disabled={!addAmount || parseCurrency(addAmount) <= 0}
                 />
               </View>
             )}
@@ -745,9 +756,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
                       }
                       onPress={handleWithdraw}
                       loading={loading}
-                      disabled={
-                        !withdrawAmount || parseFloat(withdrawAmount) <= 0
-                      }
+                      disabled={!withdrawAmount || parseCurrency(withdrawAmount) <= 0}
                       variant="outline"
                       style={styles.withdrawButton}
                     />

@@ -76,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
 
         setGeneralError(errorMessage);
 
-        return Alert.alert(t("login.alerts.error.title"), errorMessage);
+        return Alert.alert(t("login.alerts.title"), errorMessage);
       }
 
       // ✅ sucesso
@@ -88,7 +88,7 @@ const LoginScreen = ({ navigation }) => {
 
       setGeneralError(errorMessage);
 
-      Alert.alert(t("login.alerts.error.title"), errorMessage);
+      Alert.alert(t("login.alerts.title"), errorMessage);
     }
   };
 

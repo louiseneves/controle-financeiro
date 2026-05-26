@@ -23,6 +23,7 @@ import {
   Feather,
   FontAwesome6,
 } from "@expo/vector-icons";
+import { formatCurrency } from "../../utils/formatters";
 
 // ✅ CORRIGIDO: ícones como objetos com name/library em vez de JSX
 const ICONS = [
@@ -85,6 +86,17 @@ const AddGoalScreen = ({ navigation }) => {
 
   const selectedIcon = ICONS.find((i) => i.key === selectedIconKey) || ICONS[0];
 
+  const parseCurrency = (value) => {
+  if (!value) return 0;
+
+  return parseFloat(
+    value
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .replace(",", "."),
+  );
+};
+
   // ✅ Handler de data com máscara automática
   const handleDateChange = (value) => {
     const masked = maskDate(value);
@@ -114,7 +126,7 @@ const AddGoalScreen = ({ navigation }) => {
       isValid = false;
     }
 
-    if (!targetAmount || parseFloat(targetAmount) <= 0) {
+    if (!targetAmount || parseCurrency(targetAmount) <= 0) {
       setTargetAmountError(t("addGoal.errors.targetAmountInvalid"));
       isValid = false;
     }
@@ -145,8 +157,8 @@ const AddGoalScreen = ({ navigation }) => {
 
       const goalData = {
         title: title.trim(),
-        targetAmount: parseFloat(targetAmount),
-        currentAmount: currentAmount ? parseFloat(currentAmount) : 0,
+        targetAmount: parseCurrency(targetAmount),
+        currentAmount: currentAmount ? parseCurrency(currentAmount) : 0,
         deadline: deadlineISO,
         // ✅ CORRIGIDO: salva apenas strings, não JSX
         iconName: selectedIcon.name,
@@ -307,7 +319,7 @@ const AddGoalScreen = ({ navigation }) => {
           </View>
 
           {/* Preview */}
-          {targetAmount && parseFloat(targetAmount) > 0 && (
+          {targetAmount && parseCurrency(targetAmount) > 0 && (
             <View style={styles.previewCard}>
               <Text style={styles.previewLabel}>{t("addGoal.preview")}</Text>
               <View style={styles.preview}>
@@ -323,7 +335,9 @@ const AddGoalScreen = ({ navigation }) => {
                     {title || t("addGoal.previewDefault")}
                   </Text>
                   <Text style={styles.previewAmount}>
-                    R$ {parseFloat(targetAmount).toFixed(2)}
+                   <Text style={styles.previewAmount}>
+  {formatCurrency(parseCurrency(targetAmount))}
+</Text>
                   </Text>
                 </View>
               </View>
