@@ -231,7 +231,16 @@ const TicketDetailsScreen = ({ route, navigation }) => {
             ]}
           >
             <Text style={styles.messageSender}>{msg.senderName}</Text>
-            <Text style={styles.messageText}>{msg.text}</Text>
+            <Text
+              style={[
+                styles.messageText,
+                msg.sender === "user"
+                  ? styles.userMessageText
+                  : styles.supportMessageText,
+              ]}
+            >
+              {msg.text}
+            </Text>
             <Text style={styles.messageTime}>
               {formatDateTime(msg.createdAt)}
             </Text>
@@ -446,8 +455,15 @@ const createStyles = (colors) =>
     },
     messageText: {
       fontSize: 14,
-      color: colors.card,
       lineHeight: 20,
+    },
+
+    userMessageText: {
+      color: "#0F172A",
+    },
+
+    supportMessageText: {
+      color: colors.text,
     },
     messageTime: {
       fontSize: 11,

@@ -23,7 +23,7 @@
 - [x] Cronometrar até Home carregar completamente
 - **Tempo:** 02,93 segundos
 - **Meta:** < 2 segundos
-- **Status:** ❌
+- **Status:** ✅
 
 ### Teste 1.4: Carregar Histórico (com dados)
 
@@ -92,7 +92,7 @@
 - [x] Bateria final: 95%
 - [x] Gasto: 1%
 - **Meta:** < 2%
-- **Status:** ✅ / ❌
+- **Status:** ✅ 
 
 ---
 
@@ -109,7 +109,7 @@ cd android
 # android/app/build/outputs/apk/release/app-release.apk
 ```
 
-- **Tamanho:** 127 MB
+- **Tamanho:** 87.1 MB
 - **Meta:** < 50 MB
 - **Status:** ✅
 
@@ -179,7 +179,7 @@ cd android
 | RAM (repouso)    | 99MB      | < 200MB | ✅     |
 | RAM (uso)        | 165MB     | < 300MB | ✅     |
 | Bateria/30min    | 4%        | < 5%    | ✅     |
-| Tamanho APK      | \_\_MB    | < 50MB  | ⬜     |
+| Tamanho APK      | 87.1MB    | < 50MB  | ✅     |
 | Scroll           | \_\_      | Suave   | ⬜     |
 | Crashes (stress) | \_\_      | 0       | ⬜     |
 

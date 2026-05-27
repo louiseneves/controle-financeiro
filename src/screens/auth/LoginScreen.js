@@ -76,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
 
         setGeneralError(errorMessage);
 
-        return Alert.alert(t("login.alerts.title"), errorMessage);
+        return Alert.alert(t("login.alerts.errorTitle"), errorMessage);
       }
 
       // ✅ sucesso
@@ -88,7 +88,7 @@ const LoginScreen = ({ navigation }) => {
 
       setGeneralError(errorMessage);
 
-      Alert.alert(t("login.alerts.title"), errorMessage);
+      Alert.alert(t("login.alerts.errorTitle"), errorMessage);
     }
   };
 
@@ -216,7 +216,7 @@ const createStyles = (colors) =>
     title2: {
       fontSize: 28,
       fontWeight: "bold",
- color: colors.secondary || colors.primary,
+      color: colors.secondary || colors.primary,
     },
     subtitle: {
       fontSize: 16,
@@ -266,11 +266,11 @@ const createStyles = (colors) =>
       fontWeight: "600",
     },
     errorText: {
-  color: colors.error || "#ff4444",
-  marginBottom: 16,
-  textAlign: "center",
-  fontSize: 14,
-},
+      color: colors.error || "#ff4444",
+      marginBottom: 16,
+      textAlign: "center",
+      fontSize: 14,
+    },
   });
 
 export default LoginScreen;
