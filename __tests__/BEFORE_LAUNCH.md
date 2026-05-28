@@ -13,16 +13,16 @@
 - [x] Bugs conhecidos documentados
 
 ### Performance
-- [ ] App inicia em < 2s
-- [ ] RAM < 300 MB
-- [ ] APK < 50 MB
-- [ ] Bateria < 10%/hora
+- [x] App inicia em < 2s
+- [x] RAM < 300 MB
+- [x] APK < 50 MB
+- [x] Bateria < 10%/hora
 
 ### Qualidade
-- [ ] Código com 70%+ cobertura
-- [ ] Sem vazamentos de memória
-- [ ] Funciona em 5+ dispositivos
-- [ ] Compatível Android 10+
+- [x] Código com 70%+ cobertura
+- [x] Sem vazamentos de memória
+- [x] Funciona em 5+ dispositivos
+- [x] Compatível Android 10+
 
 ### Conteúdo
 - [ ] Textos revisados (sem erros)

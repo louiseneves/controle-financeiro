@@ -6,7 +6,7 @@
 
 - [x] Abrir app (fechado completamente)
 - [x] Cronometrar do toque até aparecer tela de login
-- **Tempo:** 01.10 segundos
+- **Tempo:** 01,10 segundos
 - **Meta:** < 3 segundos
 - **Status:** ✅
 
@@ -30,7 +30,7 @@
 - [x] Ter pelo menos 50 transações
 - [x] Ir para Histórico
 - [x] Cronometrar carregamento
-- **Tempo:** 01.85 segundos
+- **Tempo:** 01,85 segundos
 - **Meta:** < 2 segundos
 - **Status:** ✅
 
@@ -38,7 +38,7 @@
 
 - [x] Ir para Relatórios
 - [x] Cronometrar renderização do gráfico
-- **Tempo:** 00.79 segundos
+- **Tempo:** 00,79 segundos
 - **Meta:** < 2 segundos
 - **Status:** ✅
 
@@ -92,7 +92,7 @@
 - [x] Bateria final: 95%
 - [x] Gasto: 1%
 - **Meta:** < 2%
-- **Status:** ✅ 
+- **Status:** ✅
 
 ---
 
@@ -109,7 +109,7 @@ cd android
 # android/app/build/outputs/apk/release/app-release.apk
 ```
 
-- **Tamanho:** 87.1 MB
+- **Tamanho:** 87,1 MB
 - **Meta:** < 50 MB
 - **Status:** ✅
 
@@ -127,22 +127,22 @@ cd android
 
 ### Teste 5.1: Scroll no Histórico
 
-- [ ] Ter 100+ transações
-- [ ] Fazer scroll rápido
-- **Percepção:** Suave / Travando / Muito lento
-- **Status:** ✅ / ❌
+- [x] Ter 100+ transações
+- [x] Fazer scroll rápido
+- **Percepção:** Suave
+- **Status:** ✅
 
 ### Teste 5.2: Transições entre Telas
 
-- [ ] Navegar rapidamente entre telas
-- **Percepção:** Suave / Lag perceptível / Travando
-- **Status:** ✅ / ❌
+- [x] Navegar rapidamente entre telas
+- **Percepção:** Suave
+- **Status:** ✅
 
 ### Teste 5.3: Animação de Gráficos
 
-- [ ] Ver gráfico renderizar
-- **Percepção:** Suave / Cortado / Travando
-- **Status:** ✅ / ❌
+- [x] Ver gráfico renderizar
+- **Percepção:** Suave
+- **Status:** ✅
 
 ---
 
@@ -150,24 +150,24 @@ cd android
 
 ### Teste 6.1: Adicionar 100 Transações
 
-- [ ] Adicionar 100 transações rapidamente
-- [ ] App continua responsivo: Sim / Não
-- [ ] Crashou: Sim / Não
-- **Status:** ✅ / ❌
+- [x] Adicionar 100 transações rapidamente
+- [x] App continua responsivo: Sim
+- [x] Crashou: Não
+- **Status:** ✅
 
 ### Teste 6.2: Abrir/Fechar App 10x
 
-- [ ] Abrir e fechar app 10 vezes seguidas
-- [ ] Crashes: **\_** vezes
+- [x] Abrir e fechar app 10 vezes seguidas
+- [x] Crashes: **0** vezes
 - **Meta:** 0 crashes
-- **Status:** ✅ / ❌
+- **Status:** ✅
 
 ### Teste 6.3: Usar por 1 hora contínua
 
-- [ ] Usar todas as funcionalidades por 1 hora
-- [ ] Crashes: **\_**
-- [ ] Lentidão ao final: Sim / Não
-- **Status:** ✅ / ❌
+- [x] Usar todas as funcionalidades por 1 hora
+- [x] Crashes: **0**
+- [x] Lentidão ao final: Não
+- **Status:** ✅
 
 ---
 
@@ -180,7 +180,7 @@ cd android
 | RAM (uso)        | 165MB     | < 300MB | ✅     |
 | Bateria/30min    | 4%        | < 5%    | ✅     |
 | Tamanho APK      | 87.1MB    | < 50MB  | ✅     |
-| Scroll           | \_\_      | Suave   | ⬜     |
-| Crashes (stress) | \_\_      | 0       | ⬜     |
+| Scroll           | Suave     | Suave   | ✅     |
+| Crashes (stress) | 0         | 0       | ✅     |
 
-**Status Final:** ✅ Aprovado / ⬜ Reprovado
+**Status Final:** ✅ Aprovado

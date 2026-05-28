@@ -23,7 +23,7 @@ import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
 
 import { t } from "../../i18n";
-import { getLocalDate } from "../../utils/helpers/formatters";
+import { getLocalDate, parseCurrencyInput } from "../../utils/helpers/formatters";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -68,7 +68,7 @@ const AddExpenseScreen = ({ navigation }) => {
       valid = false;
     }
 
-    if (!amount || parseFloat(amount.replace(",", ".")) <= 0) {
+    if (!amount || parseCurrencyInput(amount) <= 0) {
       newErrors.amount = t("addExpense.form.amount.invalid");
       valid = false;
     }
@@ -111,7 +111,7 @@ const AddExpenseScreen = ({ navigation }) => {
       const transactionData = {
         type: "despesa",
         description: description.trim(),
-        amount: parseFloat(amount.replace(",", ".")),
+        amount: parseCurrencyInput(amount),
         category,
         date: isoDate, // 👈 SEM timezone bug
         isRecurring,

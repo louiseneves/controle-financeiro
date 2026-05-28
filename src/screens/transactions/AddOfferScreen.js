@@ -21,7 +21,7 @@ import useTransactionStore from "../../store/transactionStore";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getLocalDate, parseISODateOnly } from "../../utils/helpers/formatters";
+import { getLocalDate, parseISODateOnly, parseCurrencyInput } from "../../utils/helpers/formatters";
 
 const AddOfferScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -53,7 +53,7 @@ const AddOfferScreen = ({ navigation }) => {
       isValid = false;
     }
 
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!amount || parseCurrencyInput(amount) <= 0) {
       setAmountError(t("addOffer.form.amount.invalid"));
 
       isValid = false;
@@ -93,7 +93,7 @@ const AddOfferScreen = ({ navigation }) => {
       const transactionData = {
         type: "oferta",
         description: description.trim(),
-        amount: parseFloat(amount),
+        amount: parseCurrencyInput(amount),
         category,
         churchName: churchName.trim() || null,
         date: `${date}T00:00:00.000Z`,

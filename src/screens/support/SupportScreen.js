@@ -50,7 +50,38 @@ const SupportScreen = ({ navigation }) => {
       );
     }
   };
+  const handleOpenWhatsApp = async () => {
+    const phone = "5527999493839";
+    const message = encodeURIComponent("Olá! Preciso de suporte.");
 
+    const url = `https://wa.me/${phone}?text=${message}`;
+
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert(
+        t("supportScreen.contact.errorTitle"),
+        "Não foi possível abrir o WhatsApp.",
+      );
+    }
+  };
+
+  const handleOpenEmail = async () => {
+    const email = "louiseneves87@gmail.com";
+    const subject = encodeURIComponent("Suporte");
+    const body = encodeURIComponent("Olá, preciso de ajuda.");
+
+    const url = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    try {
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert(
+        t("supportScreen.contact.errorTitle"),
+        "Não foi possível abrir o aplicativo de email.",
+      );
+    }
+  };
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -276,23 +307,20 @@ const SupportScreen = ({ navigation }) => {
 
       {/* Contato Rápido */}
       <View style={styles.contactSection}>
-        <Text style={styles.contactTitle}>
+        <View style={styles.contactTitleRow}>
           <MaterialCommunityIcons
             name="phone"
             size={20}
             color={colors.success}
           />
-          {t("supportScreen.contact.title")}
-        </Text>
-        <Text style={styles.contactText}>
-          {t("supportScreen.contact.description")}
-        </Text>
+          <Text style={styles.contactTitle}>
+            {t("supportScreen.contact.title")}
+          </Text>
+        </View>
         <View style={styles.contactButtons}>
           <TouchableOpacity
             style={styles.contactButton}
-            onPress={() =>
-              handleOpenLink("https://wa.me/5527999493839", "WhatsApp")
-            }
+            onPress={() => handleOpenWhatsApp()}
           >
             <MaterialCommunityIcons
               name="whatsapp"
@@ -306,9 +334,7 @@ const SupportScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.contactButton}
-            onPress={() =>
-              handleOpenLink("mailto:louiseneves87@gmail.com", "Email")
-            }
+            onPress={() => handleOpenEmail()}
           >
             <MaterialIcons name="email" size={16} color={colors.onPrimary} />
             <Text style={styles.contactButtonText}>
@@ -559,6 +585,12 @@ const createStyles = (colors) =>
       borderRadius: 10,
       borderWidth: 1,
       borderColor: colors.success,
+    },
+    contactTitleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 10,
     },
     contactTitle: {
       fontSize: 16,

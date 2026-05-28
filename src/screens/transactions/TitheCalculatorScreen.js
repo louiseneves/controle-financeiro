@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Button, Input } from "../../components/ui";
-import { calculateTithe, formatDate, formatMonthYear } from "../../utils";
+import { calculateTithe, formatDate, formatMonthYear, parseCurrencyInput } from "../../utils";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
@@ -46,7 +46,7 @@ const TitheCalculatorScreen = ({ navigation }) => {
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   // ✅ NOVO: Valor extra convertido
-  const extra = parseFloat(extraAmount) || 0;
+  const extra = parseCurrencyInput(extraAmount) || 0;
 
   // Usar modo personalizado ou modo mensal
   const calculatedIncome =

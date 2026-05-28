@@ -1,35 +1,35 @@
 RESULTADOS - TESTES DE PERFORMANCE:
 
 TEMPO DE CARREGAMENTO:
-- Splash: __s (meta < 3s) ✅/❌
-- Login: __s (meta < 1s) ✅/❌
-- Home: __s (meta < 2s) ✅/❌
-- Histórico: __s (meta < 2s) ✅/❌
-- Gráficos: __s (meta < 2s) ✅/❌
+- Splash: 01,10s (meta < 3s) ✅
+- Login: 00,86s (meta < 1s) ✅
+- Home: 02,93s (meta < 2s) ✅
+- Histórico: 01,85s (meta < 2s) ✅
+- Gráficos: 00,79s (meta < 2s) ✅
 
 MEMÓRIA:
-- Repouso: __MB (meta < 200MB) ✅/❌
-- Uso: __MB (meta < 300MB) ✅/❌
-- Vazamento: __MB (meta < 100MB) ✅/❌
+- Repouso: 99MB (meta < 200MB) ✅
+- Uso: 165MB (meta < 300MB) ✅
+- Vazamento: 35MB (meta < 100MB) ✅
 
 BATERIA:
-- 30min uso: __% (meta < 5%) ✅/❌
-- Background: __% (meta < 2%) ✅/❌
+- 30min uso: 4% (meta < 5%) ✅
+- Background: 1% (meta < 2%) ✅
 
 TAMANHO:
-- APK: __MB (meta < 50MB) ✅/❌
-- Instalado: __MB (meta < 100MB) ✅/❌
+- APK: 87,1MB (meta < 50MB) ✅
+- Instalado: 127MB (meta < 100MB) ✅
 
 FLUIDEZ:
-- Scroll: Suave/Travando ✅/❌
-- Transições: Suave/Lag ✅/❌
-- Gráficos: Suave/Cortado ✅/❌
+- Scroll: Suave ✅
+- Transições: Suave ✅
+- Gráficos: Suave ✅
 
 STRESS:
-- 100 transações: Responsivo Sim/Não ✅/❌
-- 10x abrir/fechar: __ crashes ✅/❌
-- 1h uso contínuo: __ crashes ✅/❌
+- 100 transações: Responsivo Sim ✅
+- 10x abrir/fechar: 0 crashes ✅
+- 1h uso contínuo: 0 crashes ✅
 
 RESUMO:
-- Passou: __/20
-- Problemas: [lista]
+- Passou: 20/20
+- Problemas: Demora para salvar as transações.

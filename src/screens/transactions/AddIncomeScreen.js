@@ -21,7 +21,7 @@ import useTransactionStore from "../../store/transactionStore";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getLocalDate } from "../../utils/helpers/formatters";
+import { getLocalDate, parseCurrencyInput } from "../../utils/helpers/formatters";
 
 const AddIncomeScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -56,7 +56,7 @@ const AddIncomeScreen = ({ navigation }) => {
       valid = false;
     }
 
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!amount || parseCurrencyInput(amount) <= 0) {
       setAmountError(t("addIncome.form.amount.invalid"));
       valid = false;
     }
@@ -100,7 +100,7 @@ const AddIncomeScreen = ({ navigation }) => {
       const transactionData = {
         type: "receita",
         description: description.trim(),
-        amount: parseFloat(amount),
+        amount: parseCurrencyInput(amount),
         category,
         date: `${date}T00:00:00.000Z`,
         isRecurring,
