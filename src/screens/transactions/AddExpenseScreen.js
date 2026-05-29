@@ -23,7 +23,10 @@ import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
 
 import { t } from "../../i18n";
-import { getLocalDate, parseCurrencyInput } from "../../utils/helpers/formatters";
+import {
+  getLocalDate,
+  parseCurrencyInput,
+} from "../../utils/helpers/formatters";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -51,6 +54,7 @@ const AddExpenseScreen = ({ navigation }) => {
     amount: "",
     category: "",
   });
+  const MAX_VALUE = 999_999_999.99; // R$ 999 milhões — limite razoável
 
   /* ================= VALIDATION ================= */
 
@@ -68,8 +72,12 @@ const AddExpenseScreen = ({ navigation }) => {
       valid = false;
     }
 
+    // Substitua o bloco de validação do amount:
     if (!amount || parseCurrencyInput(amount) <= 0) {
       newErrors.amount = t("addExpense.form.amount.invalid");
+      valid = false;
+    } else if (parseCurrencyInput(amount) > MAX_VALUE) {
+      newErrors.amount = t("validation.amountTooHigh");
       valid = false;
     }
 

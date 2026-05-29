@@ -25,6 +25,7 @@ import {
   MaterialCommunityIcons,
   FontAwesome6,
 } from "@expo/vector-icons";
+import { parseCurrencyInput } from "../../utils/helpers/formatters";
 
 const ICONS = [
   { key: "target", library: "Feather", name: "target" },
@@ -126,6 +127,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
   const isCompleted = progress >= 100;
 
   const selectedEditIcon = ICONS.find((i) => i.key === editIconKey) || ICONS[0];
+  const MAX_VALUE = 999_999_999.99; // R$ 999 milhões — limite razoável
 
   const getDaysRemaining = () => {
     const today = new Date();
@@ -197,8 +199,12 @@ const GoalDetailScreen = ({ navigation, route }) => {
       setTitleError(t("addGoal.errors.titleRequired"));
       isValid = false;
     }
-    if (!editTargetAmount || parseFloat(editTargetAmount) <= 0) {
+    if (!editTargetAmount || parseCurrencyInput(editTargetAmount) <= 0) {
       setTargetAmountError(t("addGoal.errors.targetAmountInvalid"));
+      isValid = false;
+    }
+    if (!editTargetAmount || parseCurrencyInput(editTargetAmount) > MAX_VALUE) {
+      setTargetAmountError(t("validation.amountTooHigh"));
       isValid = false;
     }
     if (!editDeadlineISO) {
@@ -225,7 +231,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
 
       const updatedData = {
         title: editTitle.trim(),
-        targetAmount: parseCurrentInput(editTargetAmount),
+        targetAmount: parseCurrencyInput(editTargetAmount),
         deadline: editDeadlineISO,
         iconName: selectedEditIcon.name,
         iconLibrary: selectedEditIcon.library,
@@ -280,13 +286,16 @@ const GoalDetailScreen = ({ navigation, route }) => {
   };
 
   const handleAddAmount = async () => {
-    const amount = parseCurrentInput(addAmount);
-    if (!amount || amount <= 0) {
-      Alert.alert(t("goalDetail.alerts.invalidValue"));
-      return;
-    }
-
     try {
+      const amount = parseCurrencyInput(addAmount);
+      if (!amount || amount <= 0) {
+        Alert.alert(t("goalDetail.alerts.invalidValue"));
+        return;
+      }
+      if (amount > MAX_VALUE) {
+        Alert.alert(t("validation.amountTooHigh"));
+        return;
+      }
       setLoading(true);
       const result = await addToGoal(goal.id, amount);
 
@@ -323,7 +332,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
 
   // ✅ NOVO: Retirar valor da meta
   const handleWithdraw = async () => {
-    const amount = parseCurrentInput(withdrawAmount);
+    const amount = parseCurrencyInput(withdrawAmount);
 
     setWithdrawError("");
 
@@ -337,6 +346,10 @@ const GoalDetailScreen = ({ navigation, route }) => {
         t("goalDetail.alerts.withdrawExceeds") ||
           `Valor máximo disponível: ${formatCurrency(currentAmount)}`,
       );
+      return;
+    }
+    if (amount > MAX_VALUE) {
+      Alert.alert(t("validation.amountTooHigh"));
       return;
     }
 
@@ -673,7 +686,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
                   title={t("goalDetail.addTitle")}
                   onPress={handleAddAmount}
                   loading={loading}
-                  disabled={!addAmount || parseCurrentInput(addAmount) <= 0}
+                  disabled={!addAmount || parseCurrencyInput(addAmount) <= 0}
                 />
               </View>
             )}
@@ -745,7 +758,10 @@ const GoalDetailScreen = ({ navigation, route }) => {
                       }
                       onPress={handleWithdraw}
                       loading={loading}
-                      disabled={!withdrawAmount || parseCurrentInput(withdrawAmount) <= 0}
+                      disabled={
+                        !withdrawAmount ||
+                        parseCurrencyInput(withdrawAmount) <= 0
+                      }
                       variant="outline"
                       style={styles.withdrawButton}
                     />
@@ -772,7 +788,7 @@ const GoalDetailScreen = ({ navigation, route }) => {
                 <MaterialCommunityIcons
                   name={isCompleted && !isPremium ? "lock" : "pencil"}
                   size={18}
-                  color={colors.text}
+                  color={colors.onPrimary}
                 />
                 <Text style={styles.editButtonText}>
                   {t("goalDetail.edit") || "Editar Meta"}
@@ -989,7 +1005,11 @@ const createStyles = (colors) =>
       paddingVertical: 14,
       borderRadius: 12,
     },
-    editButtonText: { fontSize: 16, fontWeight: "600", color: colors.text },
+    editButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: colors.onPrimary,
+    },
     saveButton: { marginBottom: 4 },
     deleteButton: { marginTop: 4 },
     errorText: {

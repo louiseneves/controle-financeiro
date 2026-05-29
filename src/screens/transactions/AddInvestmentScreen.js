@@ -18,7 +18,10 @@ import { Button, Input } from "../../components/ui";
 import { INVESTMENT_CATEGORIES } from "../../utils";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
-import { getLocalDate, parseCurrencyInput } from "../../utils/helpers/formatters";
+import {
+  getLocalDate,
+  parseCurrencyInput,
+} from "../../utils/helpers/formatters";
 import { t } from "../../i18n";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -39,6 +42,7 @@ const AddInvestmentScreen = ({ navigation }) => {
   const [amountError, setAmountError] = useState("");
   const [categoryError, setCategoryError] = useState("");
   const [loading, setLoading] = useState(false);
+  const MAX_VALUE = 999_999_999.99; // R$ 999 milhões — limite razoável
 
   // Validar campos
   const validateFields = () => {
@@ -55,6 +59,9 @@ const AddInvestmentScreen = ({ navigation }) => {
 
     if (!amount || parseCurrencyInput(amount) <= 0) {
       setAmountError(t("addInvestment.form.amount.invalid"));
+      isValid = false;
+    } else if (parseCurrencyInput(amount) > MAX_VALUE) {
+      setAmountError(t("validation.amountTooHigh"));
       isValid = false;
     }
 

@@ -1734,6 +1734,9 @@ export const translations = {
       premium: "Premium",
       backup: "Backup",
     },
+    validation: {
+      amountTooHigh: "Valor muito alto. Insira um valor válido.",
+    },
   },
   "en-US": {
     login: {
@@ -3469,6 +3472,9 @@ export const translations = {
       editProfile: "Edit Profile",
       premium: "Premium",
       backup: "Backup",
+    },
+    validation: {
+      amountTooHigh: "Value too high. Please enter a valid amount.",
     },
   },
   "es-ES": {
@@ -5242,5 +5248,8 @@ export const translations = {
       premium: "Premium",
       backup: "Copia de Seguridad",
     },
+  },
+  validation: {
+    amountTooHigh: "Valor demasiado alto. Ingrese un valor válido.",
   },
 };
