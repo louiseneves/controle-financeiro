@@ -3,7 +3,7 @@ import "dotenv/config";
 export default {
   expo: {
     name: "Controle Financeiro",
-    slug: "controle-financeiro",
+    slug: "calculardizimo",
     version: "1.0.0",
 
     newArchEnabled: true,
@@ -27,7 +27,7 @@ export default {
     },
 
     android: {
-      package: "com.louiseneves.controlefinanceiro",
+      package: "com.louiseneves.calculardizimo",
 
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
@@ -54,7 +54,7 @@ export default {
       firebaseAppId: process.env.FIREBASE_APP_ID,
 
       eas: {
-        projectId: "2da0ca7a-0f7c-4b8b-88dc-209995f3ed74",
+        projectId: "0ace624d-53cf-43f4-a330-c64ff592ec9f",
       },
     },
 
