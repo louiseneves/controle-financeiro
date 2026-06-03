@@ -173,7 +173,7 @@ const BudgetScreen = ({ navigation }) => {
                     <MaterialCommunityIcons
                       name="pencil"
                       size={18}
-                      color={colors.text}
+                      color={colors.onPrimary}
                     />
                   </TouchableOpacity>
 
@@ -401,8 +401,8 @@ const createStyles = (colors) =>
       marginBottom: 12,
     },
 
-    summaryLabel: { color: colors.text },
-    summaryAmount: { fontSize: 36, color: colors.text },
+    summaryLabel: { color: colors.onPrimary },
+    summaryAmount: { fontSize: 36, color: colors.onPrimary },
 
     summaryDetails: {
       flexDirection: "row",
@@ -413,8 +413,8 @@ const createStyles = (colors) =>
     summaryItem: { alignItems: "center" },
     summaryItemLabel: { color: colors.textSecondary },
     summaryItemValue: { fontSize: 18, fontWeight: "bold" },
-    progressPercentage: { color: colors.text },
-    summaryDivider: { width: 1, backgroundColor: colors.card },
+    progressPercentage: { color: colors.onPrimary },
+    summaryDivider: { width: 1, backgroundColor: colors.onPrimary },
 
     totalProgress: { flexDirection: "row", alignItems: "center", gap: 10 },
     progressBar: {

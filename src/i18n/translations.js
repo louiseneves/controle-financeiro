@@ -166,6 +166,8 @@ export const translations = {
       errorGeneric: "Não foi possível criar a meta",
     },
     goalDetail: {
+      notFound: "Meta não encontrada",
+
       completed: "Meta Alcançada!",
       daysRemaining: "{{count}} dias restantes",
       todayDeadline: "Hoje é o prazo!",
@@ -188,14 +190,19 @@ export const translations = {
       addLabel: "Valor",
 
       withdrawTitle: "Retirar da Meta",
-      withdrawAvailable: "Valor disponível para retirada",
+      withdrawAvailable: "Disponível:",
       withdrawLabel: "Valor para Retirar",
       withdrawButton: "Retirar da Meta",
 
+      withdrawConfirmTitle: "Retirar da Meta",
+      withdrawConfirmMessage:
+        "Retirar {{amount}} da meta?\n\nSaldo restante: {{remaining}}",
+      withdrawConfirm: "Retirar",
+
       edit: "Editar Meta",
+
       successTitle: "Sucesso!",
       updateSuccess: "Meta atualizada com sucesso!",
-      updateError: "Erro ao atualizar meta",
 
       delete: "Excluir Meta",
       deleteConfirmTitle: "Excluir Meta",
@@ -208,6 +215,10 @@ export const translations = {
         cancel: "Cancelar",
         error: "Erro",
         addError: "Não foi possível adicionar o valor",
+        updateError: "Erro ao atualizar meta",
+        withdrawExceeds: "O valor excede o saldo disponível",
+        withdrawError: "Erro ao retirar valor",
+        withdrawSuccess: "{{amount}} retirado da meta!",
       },
     },
     goals: {
@@ -645,7 +656,6 @@ export const translations = {
 
       avatar: {
         changePhoto: "Alterar foto",
-        photoInDevelopment: "Funcionalidade em desenvolvimento",
       },
 
       form: {
@@ -669,7 +679,8 @@ export const translations = {
         successMessage: "Perfil atualizado com sucesso!",
         errorTitle: "Erro",
         errorMessage: "Não foi possível atualizar o perfil",
-
+        infoTitle: "Informação",
+        infoMessage: "Funcionalidade em desenvolvimento",
         discardTitle: "Descartar alterações?",
         discardMessage: "Você tem alterações não salvas. Deseja descartá-las?",
         keepEditing: "Continuar editando",
@@ -1723,6 +1734,9 @@ export const translations = {
       premium: "Premium",
       backup: "Backup",
     },
+    validation: {
+      amountTooHigh: "Valor muito alto. Insira um valor válido.",
+    },
   },
   "en-US": {
     login: {
@@ -1893,10 +1907,12 @@ export const translations = {
       errorGeneric: "Unable to create the goal",
     },
     goalDetail: {
+      notFound: "Goal not found",
+
       completed: "Goal Achieved!",
       daysRemaining: "{{count}} days remaining",
       todayDeadline: "Deadline is today!",
-      late: "Late by {{count}} days",
+      late: "{{count}} days overdue",
 
       progress: "Progress",
 
@@ -1907,7 +1923,7 @@ export const translations = {
       },
 
       details: "Details",
-      createdAt: "Created At:",
+      createdAt: "Creation Date:",
       deadline: "Deadline:",
       targetAmount: "Target Amount:",
 
@@ -1915,14 +1931,19 @@ export const translations = {
       addLabel: "Amount",
 
       withdrawTitle: "Withdraw from Goal",
-      withdrawAvailable: "Available to withdraw",
+      withdrawAvailable: "Available:",
       withdrawLabel: "Amount to Withdraw",
       withdrawButton: "Withdraw from Goal",
 
+      withdrawConfirmTitle: "Withdraw from Goal",
+      withdrawConfirmMessage:
+        "Withdraw {{amount}} from the goal?\n\nRemaining balance: {{remaining}}",
+      withdrawConfirm: "Withdraw",
+
       edit: "Edit Goal",
+
       successTitle: "Success!",
       updateSuccess: "Goal updated successfully!",
-      updateError: "Error updating goal",
 
       delete: "Delete Goal",
       deleteConfirmTitle: "Delete Goal",
@@ -1934,7 +1955,11 @@ export const translations = {
         deleteSuccess: "Goal deleted successfully!",
         cancel: "Cancel",
         error: "Error",
-        addError: "Unable to add the amount",
+        addError: "Could not add the amount",
+        updateError: "Error updating goal",
+        withdrawExceeds: "The amount exceeds the available balance",
+        withdrawError: "Error withdrawing amount",
+        withdrawSuccess: "{{amount}} withdrawn from the goal!",
       },
     },
     goals: {
@@ -2368,7 +2393,6 @@ export const translations = {
 
       avatar: {
         changePhoto: "Change photo",
-        photoInDevelopment: "Feature under development",
       },
 
       form: {
@@ -2392,7 +2416,8 @@ export const translations = {
         successMessage: "Profile updated successfully!",
         errorTitle: "Error",
         errorMessage: "Unable to update profile",
-
+        infoTitle: "Information",
+        infoMessage: "Feature under development",
         discardTitle: "Discard changes?",
         discardMessage:
           "You have unsaved changes. Do you want to discard them?",
@@ -3448,6 +3473,9 @@ export const translations = {
       premium: "Premium",
       backup: "Backup",
     },
+    validation: {
+      amountTooHigh: "Value too high. Please enter a valid amount.",
+    },
   },
   "es-ES": {
     login: {
@@ -3619,48 +3647,59 @@ export const translations = {
       errorGeneric: "No se pudo crear la meta",
     },
     goalDetail: {
-      completed: "Meta Alcanzada!",
+      notFound: "Meta no encontrada",
+
+      completed: "¡Meta Alcanzada!",
       daysRemaining: "{{count}} días restantes",
-      todayDeadline: "¡Hoy es la fecha límite!",
-      late: "Retrasado {{count}} días",
+      todayDeadline: "¡Hoy es el plazo!",
+      late: "{{count}} días de retraso",
 
       progress: "Progreso",
 
       amounts: {
         current: "Actual",
         target: "Meta",
-        remaining: "Faltan",
+        remaining: "Restante",
       },
 
       details: "Detalles",
       createdAt: "Fecha de Creación:",
       deadline: "Fecha Límite:",
-      targetAmount: "Monto Objetivo:",
+      targetAmount: "Valor Objetivo:",
 
       addTitle: "Agregar a la Meta",
-      addLabel: "Monto",
+      addLabel: "Valor",
 
       withdrawTitle: "Retirar de la Meta",
-      withdrawAvailable: "Disponible para Retirar",
-      withdrawLabel: "Monto a Retirar",
+      withdrawAvailable: "Disponible:",
+      withdrawLabel: "Valor para Retirar",
       withdrawButton: "Retirar de la Meta",
 
+      withdrawConfirmTitle: "Retirar de la Meta",
+      withdrawConfirmMessage:
+        "¿Retirar {{amount}} de la meta?\n\nSaldo restante: {{remaining}}",
+      withdrawConfirm: "Retirar",
+
       edit: "Editar Meta",
+
       successTitle: "¡Éxito!",
-      updateSuccess: "¡Meta actualizada correctamente!",
-      updateError: "Error al actualizar la meta",
+      updateSuccess: "¡Meta actualizada con éxito!",
 
       delete: "Eliminar Meta",
       deleteConfirmTitle: "Eliminar Meta",
       deleteConfirmMessage: "¿Seguro que deseas eliminar esta meta?",
 
       alerts: {
-        invalidValue: "Ingresa un monto válido",
-        successAdd: "{{amount}} agregado a la meta!",
+        invalidValue: "Ingrese un valor válido",
+        successAdd: "¡{{amount}} agregado a la meta!",
         deleteSuccess: "¡Meta eliminada con éxito!",
         cancel: "Cancelar",
         error: "Error",
-        addError: "No se pudo agregar el monto",
+        addError: "No se pudo agregar el valor",
+        updateError: "Error al actualizar la meta",
+        withdrawExceeds: "El valor excede el saldo disponible",
+        withdrawError: "Error al retirar valor",
+        withdrawSuccess: "¡{{amount}} retirado de la meta!",
       },
     },
     goals: {
@@ -4096,7 +4135,6 @@ export const translations = {
 
       avatar: {
         changePhoto: "Cambiar foto",
-        photoInDevelopment: "Funcionalidad en desarrollo",
       },
 
       form: {
@@ -4120,7 +4158,8 @@ export const translations = {
         successMessage: "Perfil actualizado correctamente",
         errorTitle: "Error",
         errorMessage: "No se pudo actualizar el perfil",
-
+        infoTitle: "Información",
+        infoMessage: "Funcionalidad en desarrollo",
         discardTitle: "¿Descartar cambios?",
         discardMessage: "Tienes cambios no guardados. ¿Deseas descartarlos?",
         keepEditing: "Seguir editando",
@@ -5209,5 +5248,8 @@ export const translations = {
       premium: "Premium",
       backup: "Copia de Seguridad",
     },
+  },
+  validation: {
+    amountTooHigh: "Valor demasiado alto. Ingrese un valor válido.",
   },
 };

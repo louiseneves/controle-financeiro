@@ -46,7 +46,7 @@ const CreateBudgetScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
 
   const currencyPlaceholder = getCurrencyPlaceholder();
-
+  const MAX_VALUE = 999_999_999.99; // R$ 999 milhões — limite razoável
   // ================================
   // 📅 MÊS ATUAL (single source)
   // ================================
@@ -148,6 +148,12 @@ const CreateBudgetScreen = ({ navigation, route }) => {
   const handleSave = async () => {
     if (totalBudget <= 0) {
       Alert.alert(t("budget.alerts.error"), t("budget.alerts.minRequired"));
+      return;
+    }
+
+    // Após o check de totalBudget <= 0, adicione:
+    if (totalBudget > MAX_VALUE) {
+      Alert.alert(t("budget.alerts.error"), t("validation.amountTooHigh"));
       return;
     }
 
@@ -317,12 +323,12 @@ const createStyles = (colors) =>
       marginBottom: 20,
     },
     totalLabel: {
-      color: colors.text,
+      color: colors.onPrimary,
     },
     totalAmount: {
       fontSize: 28,
       fontWeight: "bold",
-      color: colors.text,
+      color: colors.onPrimary,
     },
     quickFill: {
       marginTop: 8,

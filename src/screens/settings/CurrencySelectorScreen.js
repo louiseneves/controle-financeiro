@@ -165,7 +165,7 @@ const createStyles = (colors) =>
   },
   currencyItemSelected: {
     borderWidth: 2,
-    bordercolor: colors.success,
+    borderColor: colors.success,
   },
   currencyInfo: {
     flexDirection: 'row',

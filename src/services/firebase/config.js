@@ -10,20 +10,19 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Pegar credenciais do app.json (variáveis de ambiente)
-const firebaseConfig = {
-  apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
-  authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain,
-  projectId: Constants.expoConfig?.extra?.firebaseProjectId,
-  storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket,
-  messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId,
-  appId: Constants.expoConfig?.extra?.firebaseAppId,
-};
+const extra = Constants?.expoConfig?.extra ?? Constants?.manifest?.extra ?? {};
 
-// Validar configuração
-if (!firebaseConfig.apiKey) {
-  console.error("❌ Firebase config não encontrada!");
-  console.error('Verifique se as credenciais estão no app.json em "extra"');
-  throw new Error("Firebase config não encontrada! Verifique app.json");
+const firebaseConfig = {
+  apiKey: extra.firebaseApiKey,
+  authDomain: extra.firebaseAuthDomain,
+  projectId: extra.firebaseProjectId,
+  storageBucket: extra.firebaseStorageBucket,
+  messagingSenderId: extra.firebaseMessagingSenderId,
+  appId: extra.firebaseAppId,
+};
+console.log("🔥 Firebase Config:", firebaseConfig);
+if (!extra.firebaseApiKey) {
+  throw new Error("Firebase não configurado no app.json");
 }
 
 // Inicializar Firebase

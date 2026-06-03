@@ -85,13 +85,37 @@ export const getLocalDate = () => {
 /**
  * Converte ISO com segurança (remove T e timezone bug)
  */
-export const parseISODateOnly = (dateString) => {
-  if (!dateString) return null;
+export const parseISODateOnly = (dateValue) => {
+  if (!dateValue) return null;
 
-  const clean = dateString.split("T")[0];
+  // Firebase Timestamp
+  if (typeof dateValue?.toDate === "function") {
+    return dateValue.toDate();
+  }
+
+  // Já é Date
+  if (dateValue instanceof Date) {
+    return isNaN(dateValue.getTime()) ? null : dateValue;
+  }
+
+  // Timestamp numérico
+  if (typeof dateValue === "number") {
+    const parsed = new Date(dateValue);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  // Precisa ser string daqui pra frente
+  if (typeof dateValue !== "string") {
+    return null;
+  }
+
+  const clean = dateValue.split("T")[0];
+
   const [year, month, day] = clean.split("-").map(Number);
 
-  if (!year || !month || !day) return null;
+  if (!year || !month || !day) {
+    return null;
+  }
 
   return new Date(year, month - 1, day, 12, 0, 0);
 };
@@ -581,17 +605,23 @@ export const getCurrencySymbol = () => {
 export const parseCurrencyInput = (value) => {
   if (!value) return 0;
 
-  const settings = useSettingsStore.getState();
+  let sanitized = String(value).replace(/[^\d.,]/g, "");
 
-  const currency = settings.currency || "BRL";
+  const lastComma = sanitized.lastIndexOf(",");
+  const lastDot = sanitized.lastIndexOf(".");
 
-  let sanitized = value.replace(/[^\d.,]/g, "");
+  // Detecta qual é o separador decimal
+  const decimalSeparator =
+    lastComma > lastDot ? "," : lastDot > lastComma ? "." : null;
 
-  const commaDecimalCurrencies = ["BRL", "EUR", "ARS", "CLP", "PYG", "UYU"];
+  if (decimalSeparator === ",") {
+    // remove pontos de milhar
+    sanitized = sanitized.replace(/\./g, "");
 
-  if (commaDecimalCurrencies.includes(currency)) {
-    sanitized = sanitized.replace(/\./g, "").replace(",", ".");
-  } else {
+    // vírgula vira decimal JS
+    sanitized = sanitized.replace(",", ".");
+  } else if (decimalSeparator === ".") {
+    // remove vírgulas de milhar
     sanitized = sanitized.replace(/,/g, "");
   }
 
