@@ -303,6 +303,7 @@ const createStyles = (colors) =>
       flex: 1,
       fontSize: 14,
       lineHeight: 22,
+      color: colors.text,
     },
     libraryItem: {
       paddingVertical: 12,

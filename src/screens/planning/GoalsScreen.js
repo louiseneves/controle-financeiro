@@ -332,19 +332,19 @@ const createStyles = (colors) =>
     },
     summaryLabel: {
       fontSize: 14,
-      color: colors.card,
+      color: colors.onPrimary,
       opacity: 0.9,
       marginBottom: 8,
     },
     summaryValue: {
       fontSize: 32,
       fontWeight: "bold",
-      color: colors.card,
+      color: colors.onPrimary,
     },
     summaryDivider: {
       width: 1,
       height: 50,
-      backgroundColor: colors.card,
+      backgroundColor: colors.onPrimary,
       opacity: 0.3,
     },
     section: {

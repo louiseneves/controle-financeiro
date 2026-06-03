@@ -42,6 +42,7 @@ yarn-error.*
 # Firebasegoogle-services.json
 GoogleService-Info.plist
 # Environment variables.env
+.env
 .env.local
 .env.production
 # IDE.vscode/
@@ -53,4 +54,4 @@ Thumbs.db
 # Logs*.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
+yarn-error.log*.env

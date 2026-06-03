@@ -131,7 +131,7 @@ const InvestmentsListScreen = ({ navigation }) => {
                 {t("investmentsList.totalAssets")}
               </Text>
               <Text
-                style={[styles.summaryItemValue, { color: colors.investment }]}
+                style={[styles.summaryItemValue, { color: colors.incomeOnInvestment }]}
               >
                 {formatCurrency(totalInvested + totalEstimatedProfit)}
               </Text>
@@ -300,19 +300,19 @@ const createStyles = (colors) =>
     },
     summaryLabel: {
       fontSize: 14,
-      color: colors.card,
+      color: colors.onPrimary,
       opacity: 0.9,
       marginBottom: 8,
     },
     summaryAmount: {
       fontSize: 36,
       fontWeight: "bold",
-      color: colors.card,
+      color: colors.onPrimary,
       marginBottom: 20,
     },
     divider: {
       height: 1,
-      backgroundColor: colors.card,
+      backgroundColor: colors.onPrimary,
       opacity: 0.3,
       marginBottom: 16,
     },
@@ -325,14 +325,14 @@ const createStyles = (colors) =>
     },
     summaryItemLabel: {
       fontSize: 12,
-      color: colors.card,
+      color: colors.onPrimary,
       opacity: 0.8,
       marginBottom: 4,
     },
     summaryItemValue: {
       fontSize: 16,
       fontWeight: "600",
-      color: colors.card,
+      color: colors.onPrimary,
     },
     section: {
       marginBottom: 24,

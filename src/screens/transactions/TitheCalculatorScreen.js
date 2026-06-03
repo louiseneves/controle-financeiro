@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { Button, Input } from "../../components/ui";
 import { calculateTithe, formatDate, formatMonthYear } from "../../utils";
+import { parseCurrencyInput } from "../../utils/helpers/formatters";
 import useAuthStore from "../../store/authStore";
 import useTransactionStore from "../../store/transactionStore";
 import useSettingsStore from "../../store/settingsStore";
@@ -32,6 +33,7 @@ const TitheCalculatorScreen = ({ navigation }) => {
   const [selectedReceipts, setSelectedReceipts] = useState([]);
   const [extraAmount, setExtraAmount] = useState(""); // ✅ NOVO: valor extra
   const [loading, setLoading] = useState(false);
+  const MAX_VALUE = 999_999_999.99; // R$ 999 milhões — limite razoável
 
   // Calcular receitas do mês
   const monthTransactions = getCurrentMonthTransactions();
@@ -46,7 +48,7 @@ const TitheCalculatorScreen = ({ navigation }) => {
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   // ✅ NOVO: Valor extra convertido
-  const extra = parseFloat(extraAmount) || 0;
+  const extra = parseCurrencyInput(extraAmount) || 0;
 
   // Usar modo personalizado ou modo mensal
   const calculatedIncome =
@@ -78,7 +80,10 @@ const TitheCalculatorScreen = ({ navigation }) => {
   const handleRegisterTithe = async (amount, description) => {
     try {
       setLoading(true);
-
+      if (amount > MAX_VALUE) {
+        Alert.alert(t("tithe.errorTitle"), t("validation.amountTooHigh"));
+        return;
+      }
       const transactionData = {
         type: "oferta",
         description,

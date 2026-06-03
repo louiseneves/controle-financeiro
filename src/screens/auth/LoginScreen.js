@@ -65,35 +65,30 @@ const LoginScreen = ({ navigation }) => {
     return isValid;
   };
 
-  // Fazer login
   const handleLogin = async () => {
-    // valida antes
-    if (!validateFields()) {
-      return;
-    }
-    try {
-      const result = await login(email, password); // ← Store faz tudo agora
+    if (!validateFields()) return;
 
-      if (result?.success) {
-        Alert.alert(
-          t("login.alerts.successTitle"),
-          t("login.alerts.successMessage"),
-          [{ text: "OK" }],
-          { cancelable: false },
-        );
-      } else {
-        setGeneralError(result?.error || "Erro ao fazer login");
-        Alert.alert(
-          t("login.alerts.errorTitle"),
-          result?.error || t("login.alerts.loginError"),
-        );
+    try {
+      const result = await login(email, password);
+
+      if (!result?.success) {
+        const errorMessage = result?.error || t("login.alerts.loginError");
+
+        setGeneralError(errorMessage);
+
+        return Alert.alert(t("login.alerts.errorTitle"), errorMessage);
       }
+
+      // ✅ sucesso
+      // Store/Auth já deve redirecionar automaticamente
     } catch (error) {
-      setGeneralError(error?.message || "Erro ao fazer login");
-      Alert.alert(
-        t("login.alerts.errorTitle"),
-        t("login.alerts.unexpectedError"),
-      );
+      console.error("❌ Login error:", error);
+
+      const errorMessage = t("login.alerts.unexpectedError");
+
+      setGeneralError(errorMessage);
+
+      Alert.alert(t("login.alerts.errorTitle"), errorMessage);
     }
   };
 
@@ -221,7 +216,7 @@ const createStyles = (colors) =>
     title2: {
       fontSize: 28,
       fontWeight: "bold",
-      color: colors.secondary /* destaque */ || colors.primary,
+      color: colors.secondary || colors.primary,
     },
     subtitle: {
       fontSize: 16,
@@ -269,6 +264,12 @@ const createStyles = (colors) =>
       fontSize: 14,
       color: colors.primary,
       fontWeight: "600",
+    },
+    errorText: {
+      color: colors.error || "#ff4444",
+      marginBottom: 16,
+      textAlign: "center",
+      fontSize: 14,
     },
   });
 

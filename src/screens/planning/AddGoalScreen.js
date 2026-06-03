@@ -23,6 +23,10 @@ import {
   Feather,
   FontAwesome6,
 } from "@expo/vector-icons";
+import {
+  formatCurrency,
+  parseCurrencyInput,
+} from "../../utils/helpers/formatters";
 
 // ✅ CORRIGIDO: ícones como objetos com name/library em vez de JSX
 const ICONS = [
@@ -84,6 +88,7 @@ const AddGoalScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const selectedIcon = ICONS.find((i) => i.key === selectedIconKey) || ICONS[0];
+  const MAX_VALUE = 999_999_999.99; // R$ 999 milhões — limite razoável
 
   // ✅ Handler de data com máscara automática
   const handleDateChange = (value) => {
@@ -114,8 +119,11 @@ const AddGoalScreen = ({ navigation }) => {
       isValid = false;
     }
 
-    if (!targetAmount || parseFloat(targetAmount) <= 0) {
+    if (!targetAmount || parseCurrencyInput(targetAmount) <= 0) {
       setTargetAmountError(t("addGoal.errors.targetAmountInvalid"));
+      isValid = false;
+    } else if (parseCurrencyInput(targetAmount) > MAX_VALUE) {
+      setTargetAmountError(t("validation.amountTooHigh"));
       isValid = false;
     }
 
@@ -145,8 +153,8 @@ const AddGoalScreen = ({ navigation }) => {
 
       const goalData = {
         title: title.trim(),
-        targetAmount: parseFloat(targetAmount),
-        currentAmount: currentAmount ? parseFloat(currentAmount) : 0,
+        targetAmount: parseCurrencyInput(targetAmount),
+        currentAmount: currentAmount ? parseCurrencyInput(currentAmount) : 0,
         deadline: deadlineISO,
         // ✅ CORRIGIDO: salva apenas strings, não JSX
         iconName: selectedIcon.name,
@@ -307,7 +315,7 @@ const AddGoalScreen = ({ navigation }) => {
           </View>
 
           {/* Preview */}
-          {targetAmount && parseFloat(targetAmount) > 0 && (
+          {targetAmount && parseCurrencyInput(targetAmount) > 0 && (
             <View style={styles.previewCard}>
               <Text style={styles.previewLabel}>{t("addGoal.preview")}</Text>
               <View style={styles.preview}>
@@ -323,7 +331,9 @@ const AddGoalScreen = ({ navigation }) => {
                     {title || t("addGoal.previewDefault")}
                   </Text>
                   <Text style={styles.previewAmount}>
-                    R$ {parseFloat(targetAmount).toFixed(2)}
+                    <Text style={styles.previewAmount}>
+                      {formatCurrency(parseCurrencyInput(targetAmount))}
+                    </Text>
                   </Text>
                 </View>
               </View>
