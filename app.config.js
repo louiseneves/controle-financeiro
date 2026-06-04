@@ -28,7 +28,7 @@ export default {
 
     android: {
       package: "com.louiseneves.calculardizimo",
-       "versionCode": 26,
+      versionCode: 26,
 
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
@@ -44,7 +44,7 @@ export default {
       ],
     },
 
-    plugins: [["expo-notifications"], "expo-secure-store"],
+    plugins: [["expo-notifications"], "expo-secure-store", "expo-iap"],
 
     extra: {
       firebaseApiKey: process.env.FIREBASE_API_KEY,
