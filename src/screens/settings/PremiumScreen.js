@@ -21,6 +21,7 @@ import {
   Feather,
   MaterialIcons,
 } from "@expo/vector-icons";
+import * as ExpoIap from "expo-iap";
 
 const PremiumScreen = ({ navigation }) => {
   const { colors } = useTheme();
@@ -30,9 +31,11 @@ const PremiumScreen = ({ navigation }) => {
     subscriptionType,
     expirationDate,
     activatePremium,
+    confirmPurchase, // 👈 novo
     cancelPremium,
     restorePurchases,
     loadPremiumStatus,
+    initIAP, // 👈 novo
     loading,
   } = usePremiumStore();
   const [selectedPlan, setSelectedPlan] = useState("yearly");
@@ -40,7 +43,43 @@ const PremiumScreen = ({ navigation }) => {
   useEffect(() => {
     loadPremiumStatus();
   }, [loadPremiumStatus]);
+  // Adicione esse useEffect logo após o existente
+  useEffect(() => {
+    initIAP();
 
+    const purchaseUpdateSubscription = ExpoIap.purchaseUpdatedListener(
+      async (purchase) => {
+        const result = await confirmPurchase(purchase);
+        if (result.success) {
+          Alert.alert(
+            t("premium.alerts.welcomeTitle"),
+            t("premium.alerts.welcomeMessage"),
+            [
+              {
+                text: t("premium.alerts.ok"),
+                onPress: () => navigation.goBack(),
+              },
+            ],
+          );
+        }
+      },
+    );
+
+    const purchaseErrorSubscription = ExpoIap.purchaseErrorListener((error) => {
+      if (error.code !== "E_USER_CANCELLED") {
+        Alert.alert(
+          t("premium.alerts.errorTitle"),
+          error.message || t("premium.alerts.errorGeneric"),
+        );
+      }
+    });
+
+    return () => {
+      purchaseUpdateSubscription.remove();
+      purchaseErrorSubscription.remove();
+      ExpoIap.endConnection();
+    };
+  }, []);
   const plans = [
     {
       id: "monthly",
@@ -143,45 +182,19 @@ const PremiumScreen = ({ navigation }) => {
     return plans.find((p) => p.id === selectedPlan) || plans[0];
   }, [selectedPlan]);
 
+  // Atualize o handleSubscribe — remova o Alert.confirm, chame direto
   const handleSubscribe = useCallback(async () => {
     if (loading) return;
-    if (!selectedPlanData) {
+    if (!selectedPlanData) return;
+
+    const result = await activatePremium(selectedPlan);
+
+    if (!result.success && result.error !== "Compra cancelada pelo usuário") {
       Alert.alert(
         t("premium.alerts.errorTitle"),
-        t("premium.alerts.invalidPlan"),
+        result.error || t("premium.alerts.errorGeneric"),
       );
-      return;
     }
-
-    Alert.alert(
-      t("premium.alerts.confirmTitle"),
-      t("premium.alerts.confirmMessage", {
-        plan: selectedPlanData.name,
-        price: formatCurrency(selectedPlanData.price),
-      }),
-      [
-        { text: t("premium.buttons.cancel"), style: "cancel" },
-        {
-          text: t("premium.buttons.confirmDemo"),
-          onPress: async () => {
-            const result = await activatePremium(selectedPlan);
-            if (result.success) {
-              Alert.alert(
-                t("premium.alerts.welcomeTitle"),
-
-                t("premium.alerts.welcomeMessage"),
-                [
-                  {
-                    text: t("premium.alerts.ok"),
-                    onPress: () => navigation.goBack(),
-                  },
-                ],
-              );
-            }
-          },
-        },
-      ],
-    );
   }, [loading, selectedPlan, selectedPlanData]);
 
   const handleCancelSubscription = () => {
