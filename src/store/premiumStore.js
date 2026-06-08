@@ -43,23 +43,18 @@ const usePremiumStore = create((set, get) => ({
   // ================= INIT IAP =================
   initIAP: async () => {
     try {
-  const connected = await ExpoIap.initConnection();
-  console.log("CONNECTED:", connected);
+      await ExpoIap.initConnection();
 
-  const storefront = await ExpoIap.getStorefront();
-  console.log("STOREFRONT:", storefront);
+      const products = await ExpoIap.fetchProducts({
+        skus: [PRODUCT_IDS.monthly, PRODUCT_IDS.yearly],
+        type: "subs",
+      });
 
-const products = await ExpoIap.fetchProducts({
-  skus: [PRODUCT_IDS.monthly, PRODUCT_IDS.yearly],
-});
-      console.log("PRODUCTS =", await ExpoIap.fetchProducts({
-  skus: ["premium_monthly", "premium_yearly"],
-}));
-
+      console.log("Produtos encontrados:", products.length);
       set({ availableProducts: products });
     } catch (e) {
-  console.log("IAP ERROR:", e);
-}
+      console.error("❌ Erro ao inicializar IAP:", e);
+    }
   },
 
   // ================= LOAD =================
@@ -70,16 +65,16 @@ const products = await ExpoIap.fetchProducts({
       // Verifica compras ativas no Google Play
       const connected = await ExpoIap.initConnection();
 
-if (!connected) {
-  set({
-    isPremium: false,
-    initialized: true,
-  });
+      if (!connected) {
+        set({
+          isPremium: false,
+          initialized: true,
+        });
 
-  return;
-}
+        return;
+      }
 
-const purchases = await ExpoIap.getAvailablePurchases();
+      const purchases = await ExpoIap.getAvailablePurchases();
 
       const activeSub = purchases.find(
         (p) =>
@@ -178,18 +173,10 @@ const purchases = await ExpoIap.getAvailablePurchases();
 
       const productId = PRODUCT_IDS[subscriptionType];
 
-      const product = state.availableProducts.find(
-  (p) => p.id === productId || p.productId === productId
-);
+      // 👇 Abre o Google Play Billing de verdade
+      await ExpoIap.requestPurchase({ sku: productId });
 
-if (!product) {
-  return {
-    success: false,
-    error: "Produto não encontrado",
-  };
-}
-
-      // O listener de compras no PremiumScreen vai tratar o resultado
+      // O listener no PremiumScreen trata o resultado
       return { success: true };
     } catch (error) {
       console.error("❌ Erro ao iniciar compra:", error);
