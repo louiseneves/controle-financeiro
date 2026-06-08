@@ -773,6 +773,8 @@ export const translations = {
       },
 
       alerts: {
+        errorTitle: "Erro",
+        errorGeneric: "Ocorreu um erro inesperado. Tente novamente.",
         confirmTitle: "Confirmar Assinatura",
         confirmMessage:
           "Você está prestes a assinar o plano {{plan}} por {{price}}.\n\nNOTA: Este é um modo de demonstração. Em produção, você será redirecionado para o Google Play para confirmar a compra.",
@@ -2511,6 +2513,8 @@ export const translations = {
       },
 
       alerts: {
+              "errorTitle": "Error",
+      "errorGeneric": "An unexpected error occurred. Please try again.",
         confirmTitle: "Confirm Subscription",
         confirmMessage:
           "You are about to subscribe to the {{plan}} plan for {{price}}.\n\nNOTE: This is a demo mode. In production, you will be redirected to Google Play to confirm the purchase.",
@@ -4252,6 +4256,8 @@ export const translations = {
       },
 
       alerts: {
+              "errorTitle": "Error",
+      "errorGeneric": "Ocurrió un error inesperado. Inténtalo de nuevo.",
         confirmTitle: "Confirmar Suscripción",
         confirmMessage:
           "Estás a punto de suscribirte al plan {{plan}} por {{price}}.\n\nNOTA: Este es un modo de demostración. En producción, serás redirigido a Google Play para confirmar la compra.",
