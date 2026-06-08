@@ -28,7 +28,7 @@ export default {
 
     android: {
       package: "com.louiseneves.calculardizimo",
-      versionCode: 28,
+      versionCode: 29,
 
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
