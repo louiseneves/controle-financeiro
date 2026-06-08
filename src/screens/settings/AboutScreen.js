@@ -186,17 +186,6 @@ const AboutScreen = () => {
             {t("about.links.terms")}
           </Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.linkButton, { borderColor: colors.border }]}
-          onPress={() =>
-            openLink("https://github.com/louiseneves/controle-financeiro")
-          }
-        >
-          <Text style={[styles.linkText, { color: colors.primary }]}>
-            {t("about.links.source")}
-          </Text>
-        </TouchableOpacity>
       </View>
 
       {/* Rodapé */}

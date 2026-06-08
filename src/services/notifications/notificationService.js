@@ -95,14 +95,39 @@ class NotificationService {
   // APLICAR CONFIGURAÇÕES
   // =========================
 
-  async applySettings(notifications) {
-    try {
-      await this.cancelAll();
+  // =========================
+  // APLICAR CONFIGURAÇÕES
+  // =========================
 
+  async applySettings(notifications, forceRefresh = false) {
+    try {
       if (!notifications?.enabled) {
+        await this.cancelAll();
+
         console.log("🔕 Notificações desativadas");
+
         return;
       }
+
+      const existingNotifications =
+        await Notifications.getAllScheduledNotificationsAsync();
+
+      // Se já existem notificações e não foi solicitado refresh,
+      // não recria tudo ao abrir o aplicativo
+      if (
+        !forceRefresh &&
+        existingNotifications &&
+        existingNotifications.length > 0
+      ) {
+        console.log(
+          `✅ ${existingNotifications.length} notificações já configuradas`,
+        );
+
+        return;
+      }
+
+      // Atualização manual das configurações
+      await this.cancelAll();
 
       const { time, bills, tithe, goals, dailyReminder, titheDay, titheMonth } =
         notifications;
@@ -133,6 +158,13 @@ class NotificationService {
     }
   }
 
+  // =========================
+  // ATUALIZAR CONFIGURAÇÕES
+  // =========================
+
+  async updateSettings(notifications) {
+    return this.applySettings(notifications, true);
+  }
   // =========================
   // NOTIFICAÇÃO IMEDIATA
   // =========================
