@@ -31,20 +31,19 @@ const PremiumScreen = ({ navigation }) => {
     subscriptionType,
     expirationDate,
     activatePremium,
-    confirmPurchase, // 👈 novo
-    cancelPremium,
+    confirmPurchase,
     restorePurchases,
     loadPremiumStatus,
-    initIAP, // 👈 novo
+    initIAP,
     loading,
   } = usePremiumStore();
   const [selectedPlan, setSelectedPlan] = useState("yearly");
-
+  console.log("expirationDate:", expirationDate);
   useEffect(() => {
     loadPremiumStatus();
   }, [loadPremiumStatus]);
   // Adicione esse useEffect logo após o existente
-  useEffect(() => {
+    useEffect(() => {
     initIAP();
 
     const purchaseUpdateSubscription = ExpoIap.purchaseUpdatedListener(
@@ -74,12 +73,14 @@ const PremiumScreen = ({ navigation }) => {
       }
     });
 
+    // CORREÇÃO: Remove apenas os listeners para não quebrar a Activity do Android
     return () => {
       purchaseUpdateSubscription.remove();
       purchaseErrorSubscription.remove();
-      ExpoIap.endConnection();
+      // O ExpoIap.endConnection() foi removido daqui!
     };
-  }, []);
+  }, [initIAP, confirmPurchase, navigation]); // Adicionado dependências seguras
+
   const plans = [
     {
       id: "monthly",
@@ -197,36 +198,36 @@ const PremiumScreen = ({ navigation }) => {
     }
   }, [loading, selectedPlan, selectedPlanData]);
 
-  const handleCancelSubscription = () => {
-    Alert.alert(
-      t("premium.alerts.cancelTitle"),
-      t("premium.alerts.cancelMessage"),
-      [
-        { text: t("premium.buttons.no"), style: "cancel" },
-        {
-          text: t("premium.buttons.yesCancel"),
-          style: "destructive",
-          onPress: async () => {
-            const result = await cancelPremium();
-            if (result.success) {
-              Alert.alert(
-                t("premium.premiumStatus.canceled"),
-                t("premium.premiumStatus.canceledMessage"),
-                [
-                  {
-                    text: t("premium.alerts.ok"),
-                    onPress: () => navigation.goBack(),
-                  },
-                ],
-              );
-            }
-          },
-        },
-      ],
-    );
+  const handleManageSubscription = async () => {
+    try {
+      if (ExpoIap.deepLinkToSubscriptionsAndroid) {
+        await ExpoIap.deepLinkToSubscriptionsAndroid();
+        return;
+      }
+
+      if (ExpoIap.deepLinkToSubscriptions) {
+        await ExpoIap.deepLinkToSubscriptions();
+        return;
+      }
+
+      Alert.alert(
+        "Erro",
+        "Não foi possível abrir o gerenciamento da assinatura.",
+      );
+    } catch (error) {
+      console.error(error);
+
+      Alert.alert(
+        "Erro",
+        "Não foi possível abrir o gerenciamento da assinatura.",
+      );
+    }
   };
 
-  if (isPremium) {
+  const premiumActive =
+    isPremium && expirationDate && new Date(expirationDate) > new Date();
+
+  if (premiumActive) {
     // Usuário já é Premium
     return (
       <ScrollView
@@ -286,8 +287,8 @@ const PremiumScreen = ({ navigation }) => {
         </View>
 
         <Button
-          title={t("premium.buttons.manage")}
-          onPress={handleCancelSubscription}
+          title="Gerenciar assinatura"
+          onPress={handleManageSubscription}
           variant="outline"
           style={styles.manageButton}
         />

@@ -43,38 +43,42 @@ const usePremiumStore = create((set, get) => ({
   // ================= INIT IAP =================
   initIAP: async () => {
     try {
-      await ExpoIap.initConnection();
+      const connected = await ExpoIap.initConnection();
+
+      if (!connected) {
+        console.warn(
+          "⚠️ Não foi possível conectar ao Google Play Billing Service.",
+        );
+        set({ initialized: true });
+        return;
+      }
 
       const products = await ExpoIap.fetchProducts({
         skus: [PRODUCT_IDS.monthly, PRODUCT_IDS.yearly],
         type: "subs",
       });
 
-      console.log("Produtos encontrados:", products.length);
-      set({ availableProducts: products });
+      console.log("🛒 Produtos carregados com sucesso:", products.length);
+      set({ availableProducts: products, initialized: true });
     } catch (e) {
       console.error("❌ Erro ao inicializar IAP:", e);
+      set({ initialized: true }); // Garante que destrava o estado de carregamento do app
     }
   },
 
-  // ================= LOAD =================
+  // ================= LOAD PREMIUM STATUS =================
   loadPremiumStatus: async () => {
     try {
       set({ loading: true });
 
-      // Verifica compras ativas no Google Play
       const connected = await ExpoIap.initConnection();
-
       if (!connected) {
-        set({
-          isPremium: false,
-          initialized: true,
-        });
-
+        set({ isPremium: false, initialized: true });
         return;
       }
 
       const purchases = await ExpoIap.getAvailablePurchases();
+      console.log("Compras disponíveis na Google Play:", purchases);
 
       const activeSub = purchases.find(
         (p) =>
@@ -87,7 +91,6 @@ const usePremiumStore = create((set, get) => ({
           activeSub.productId === PRODUCT_IDS.monthly ? "monthly" : "yearly";
 
         const expirationDate = new Date(activeSub.transactionDate);
-
         if (subscriptionType === "monthly") {
           expirationDate.setMonth(expirationDate.getMonth() + 1);
         } else {
@@ -105,43 +108,21 @@ const usePremiumStore = create((set, get) => ({
         set({
           isPremium: true,
           subscriptionType,
-          expirationDate: expirationDate.toISOString(),
+          expirationDate: premiumData?.expirationDate || null,
           initialized: true,
         });
 
+        console.log("🎉 PREMIUM ATIVADO VIA GOOGLE PLAY");
         return;
       }
 
-      // Fallback: verifica AsyncStorage
-      const premiumData = await getData(STORAGE_KEYS.PREMIUM_STATUS);
-
-      if (!premiumData?.expirationDate || !premiumData?.subscriptionType) {
-        set({
-          isPremium: false,
-          subscriptionType: null,
-          expirationDate: null,
-          initialized: true,
-        });
-        return;
-      }
-
-      const expirationDate = new Date(premiumData.expirationDate);
-
-      if (isNaN(expirationDate.getTime()) || expirationDate <= new Date()) {
-        await removeData(STORAGE_KEYS.PREMIUM_STATUS);
-        set({
-          isPremium: false,
-          subscriptionType: null,
-          expirationDate: null,
-          initialized: true,
-        });
-        return;
-      }
+      // Nenhuma assinatura ativa na Play Store, remove dados locais
+      await removeData(STORAGE_KEYS.PREMIUM_STATUS);
 
       set({
-        isPremium: true,
-        subscriptionType: premiumData.subscriptionType,
-        expirationDate: premiumData.expirationDate,
+        isPremium: false,
+        subscriptionType: null,
+        expirationDate: null,
         initialized: true,
       });
     } catch (error) {
@@ -173,10 +154,50 @@ const usePremiumStore = create((set, get) => ({
 
       const productId = PRODUCT_IDS[subscriptionType];
 
-      // 👇 Abre o Google Play Billing de verdade
-      await ExpoIap.requestPurchase({ sku: productId });
+      // Busca o produto na lista salva
+      const product = state.availableProducts.find(
+        (p) => p.productId === productId || p.id === productId,
+      );
 
-      // O listener no PremiumScreen trata o resultado
+      if (!product) {
+        console.error(
+          `❌ Produto ${productId} ausente. Disponíveis:`,
+          state.availableProducts,
+        );
+        return {
+          success: false,
+          error: "Produto não sincronizado com a Google Play. Tente novamente.",
+        };
+      }
+
+      // Correção Sintática: Acessa o array interno com segurança usando a notação opcional padrão do JS
+      const offerToken =
+        product.subscriptionOfferDetailsAndroid?.[0]?.offerToken;
+
+      if (!offerToken) {
+        console.error("❌ Offer token não encontrado para o produto:", product);
+        return {
+          success: false,
+          error: "Plano sem oferta de faturamento ativa no Android.",
+        };
+      }
+
+      // Abre o Google Play Billing com segurança
+      await ExpoIap.requestPurchase({
+        type: "subs",
+        request: {
+          android: {
+            skus: [productId],
+            subscriptionOffers: [
+              {
+                sku: productId,
+                offerToken: offerToken,
+              },
+            ],
+          },
+        },
+      });
+
       return { success: true };
     } catch (error) {
       console.error("❌ Erro ao iniciar compra:", error);
@@ -194,27 +215,31 @@ const usePremiumStore = create((set, get) => ({
   // ================= CONFIRM PURCHASE =================
   confirmPurchase: async (purchase) => {
     try {
-      const subscriptionType =
-        purchase.productId === PRODUCT_IDS.monthly ? "monthly" : "yearly";
+      const purchaseData = Array.isArray(purchase) ? purchase[0] : purchase;
 
-      const expirationDate = new Date(purchase.transactionDate);
+      const subscriptionType =
+        purchaseData.productId === PRODUCT_IDS.monthly ? "monthly" : "yearly";
+
+      const expirationDate = new Date(purchaseData.transactionDate);
 
       if (subscriptionType === "monthly") {
         expirationDate.setMonth(expirationDate.getMonth() + 1);
       } else {
         expirationDate.setFullYear(expirationDate.getFullYear() + 1);
       }
-
+console.log("expirationDate:", expirationDate);
       const premiumData = {
         subscriptionType,
         expirationDate: expirationDate.toISOString(),
-        activatedAt: new Date(purchase.transactionDate).toISOString(),
+        activatedAt: new Date(purchaseData.transactionDate).toISOString(),
       };
 
       await saveData(STORAGE_KEYS.PREMIUM_STATUS, premiumData);
 
-      // Finaliza a compra no Google Play
-      await ExpoIap.finishTransaction({ purchase, isConsumable: false });
+      await ExpoIap.finishTransaction({
+        purchase: purchaseData,
+        isConsumable: false,
+      });
 
       set({
         isPremium: true,
@@ -222,24 +247,17 @@ const usePremiumStore = create((set, get) => ({
         expirationDate: expirationDate.toISOString(),
       });
 
+      console.log("✅ Premium confirmado");
+      console.log("Plano:", subscriptionType);
+      console.log("Expira:", expirationDate.toISOString());
+
       return { success: true };
     } catch (error) {
       console.error("❌ Erro ao confirmar compra:", error);
-      return { success: false, error: error.message };
-    }
-  },
-
-  // ================= CANCEL =================
-  cancelPremium: async () => {
-    try {
-      set({ loading: true });
-      await removeData(STORAGE_KEYS.PREMIUM_STATUS);
-      set({ isPremium: false, subscriptionType: null, expirationDate: null });
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    } finally {
-      set({ loading: false });
+      return {
+        success: false,
+        error: error.message,
+      };
     }
   },
 
@@ -260,7 +278,10 @@ const usePremiumStore = create((set, get) => ({
   hasAccess: (feature) => {
     const { isPremium, expirationDate } = get();
     if (!PREMIUM_FEATURES.includes(feature)) return true;
-    if (!isPremium || !expirationDate) return false;
+    if (!isPremium) return false;
+
+    if (!expirationDate) return true;
+
     const expiration = new Date(expirationDate).getTime();
     if (Number.isNaN(expiration)) return false;
     return expiration > Date.now();
@@ -274,6 +295,7 @@ const usePremiumStore = create((set, get) => ({
       expirationDate: null,
       loading: false,
       initialized: false,
+      availableProducts: [],
     });
   },
 }));
