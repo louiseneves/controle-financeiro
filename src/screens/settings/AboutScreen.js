@@ -171,7 +171,7 @@ const AboutScreen = () => {
 
         <TouchableOpacity
           style={[styles.linkButton, { borderColor: colors.border }]}
-          onPress={() => openLink("https://controlefinanceiro.com/privacy")}
+          onPress={() => openLink("https://louiseneves.github.io/legal/privacy-policy.html")}
         >
           <Text style={[styles.linkText, { color: colors.primary }]}>
             {t("about.links.privacy")}
@@ -180,7 +180,7 @@ const AboutScreen = () => {
 
         <TouchableOpacity
           style={[styles.linkButton, { borderColor: colors.border }]}
-          onPress={() => openLink("https://controlefinanceiro.com/terms")}
+          onPress={() => openLink("https://louiseneves.github.io/legal/terms.html")}
         >
           <Text style={[styles.linkText, { color: colors.primary }]}>
             {t("about.links.terms")}
