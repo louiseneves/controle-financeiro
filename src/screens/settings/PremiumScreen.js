@@ -43,7 +43,7 @@ const PremiumScreen = ({ navigation }) => {
     loadPremiumStatus();
   }, [loadPremiumStatus]);
   // Adicione esse useEffect logo após o existente
-    useEffect(() => {
+  useEffect(() => {
     initIAP();
 
     const purchaseUpdateSubscription = ExpoIap.purchaseUpdatedListener(
@@ -416,10 +416,6 @@ const PremiumScreen = ({ navigation }) => {
         disabled={loading}
         style={styles.subscribeButton}
       />
-
-      <Text style={styles.disclaimer}>
-        {t("premium.alerts.demoDisclaimer")}
-      </Text>
     </ScrollView>
   );
 };
